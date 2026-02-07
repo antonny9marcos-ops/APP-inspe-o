@@ -1,0 +1,8 @@
+
+{
+  "name": "QC Material Inspection Pro",
+  "description": "Uma plataforma avançada de controle de qualidade industrial para monitoramento de métricas, registro de inspeções e geração de relatórios de conformidade.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
