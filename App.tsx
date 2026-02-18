@@ -30,6 +30,9 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [periodFilter, setPeriodFilter] = useState('últimos 30 dias');
   const [supplierFilter, setSupplierFilter] = useState('Todos');
+  const [yearFilter, setYearFilter] = useState<string>('all');
+  const [monthFilter, setMonthFilter] = useState<string>('all');
+  const [weekFilter, setWeekFilter] = useState<string>('all');
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: 'Usuário',
@@ -139,8 +142,14 @@ export default function App() {
             searchTerm={searchTerm}
             periodFilter={periodFilter}
             supplierFilter={supplierFilter}
+            yearFilter={yearFilter}
+            monthFilter={monthFilter}
+            weekFilter={weekFilter}
             onPeriodChange={setPeriodFilter}
             onSupplierChange={setSupplierFilter}
+            onYearChange={setYearFilter}
+            onMonthChange={setMonthFilter}
+            onWeekChange={setWeekFilter}
             onAddClick={() => { setEditingInspection(null); setCurrentView(View.INSPECTION_FORM); }}
           />
         );

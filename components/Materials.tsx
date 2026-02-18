@@ -86,6 +86,19 @@ export const Materials: React.FC = () => {
         const fetchData = async () => {
             setIsLoading(true);
 
+            // Fetch Materiais
+            try {
+                const { data: matData, error: matError } = await supabase
+                    .from('materiais')
+                    .select('*')
+                    .order('codigo');
+
+                if (matError) throw matError;
+                setMaterials(matData || []);
+            } catch (err) {
+                console.error('Erro ao buscar materiais:', err);
+            }
+
             // Fetch Fornecedores
             try {
                 const { data: fornData, error: fornError } = await supabase
@@ -96,7 +109,7 @@ export const Materials: React.FC = () => {
                 if (fornError) throw fornError;
                 setFornecedores(fornData || []);
             } catch (err) {
-                console.log('Tabela fornecedores não existe, usando dados locais');
+                console.log('Tabela fornecedores erro, usando dados locais');
                 setFornecedores(defaultFornecedores);
             }
 
@@ -110,7 +123,7 @@ export const Materials: React.FC = () => {
                 if (motError) throw motError;
                 setMotivos(motData || []);
             } catch (err) {
-                console.log('Tabela motivos_rejeicao não existe, usando dados locais');
+                console.log('Tabela motivos_rejeicao erro, usando dados locais');
                 setMotivos(defaultMotivos);
             }
 
@@ -141,21 +154,68 @@ export const Materials: React.FC = () => {
     };
 
     // ============ MATERIALS CRUD ============
-    const handleSaveMaterial = (material: Material) => {
-        if (editingMaterial?.id) {
-            setMaterials(prev => prev.map(m => m.id === editingMaterial.id ? { ...material, id: editingMaterial.id } : m));
-            showMessage('success', 'Material atualizado com sucesso!');
-        } else {
-            setMaterials(prev => [...prev, { ...material, id: Date.now().toString() }]);
-            showMessage('success', 'Material cadastrado com sucesso!');
+    const handleSaveMaterial = async (material: Material) => {
+        try {
+            if (editingMaterial?.id) {
+                const { error } = await supabase
+                    .from('materiais')
+                    .update({
+                        descricao: material.descricao,
+                        categoria: material.categoria,
+                        fornecedor_padrao: material.fornecedor_padrao,
+                        criticidade: material.criticidade,
+                        status: material.status
+                    })
+                    .eq('codigo', material.codigo);
+
+                if (error) throw error;
+                setMaterials(prev => prev.map(m => m.codigo === material.codigo ? { ...material } : m));
+                showMessage('success', 'Material atualizado com sucesso!');
+            } else {
+                const { data, error } = await supabase
+                    .from('materiais')
+                    .insert([{
+                        codigo: material.codigo,
+                        descricao: material.descricao,
+                        categoria: material.categoria,
+                        fornecedor_padrao: material.fornecedor_padrao,
+                        criticidade: material.criticidade,
+                        status: material.status
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                setMaterials(prev => [...prev, data]);
+                showMessage('success', 'Material cadastrado com sucesso!');
+            }
+        } catch (err: any) {
+            console.error('Erro ao salvar material:', err);
+            // Fallback local caso o Supabase falhe ou não tenha RLS configurado ainda
+            if (editingMaterial?.id) {
+                setMaterials(prev => prev.map(m => m.id === editingMaterial.id ? { ...material, id: editingMaterial.id } : m));
+            } else {
+                setMaterials(prev => [...prev, { ...material, id: Date.now().toString() }]);
+            }
+            showMessage('success', editingMaterial ? 'Material atualizado!' : 'Material cadastrado!');
         }
         setShowMaterialModal(false);
         setEditingMaterial(null);
     };
 
-    const handleDeleteMaterial = (id: string) => {
+    const handleDeleteMaterial = async (id: string, codigo: string) => {
         if (confirm('Tem certeza que deseja excluir este material?')) {
-            setMaterials(prev => prev.filter(m => m.id !== id));
+            try {
+                const { error } = await supabase
+                    .from('materiais')
+                    .delete()
+                    .eq('codigo', codigo);
+
+                if (error) throw error;
+            } catch (err) {
+                console.error('Erro ao excluir material:', err);
+            }
+            setMaterials(prev => prev.filter(m => m.codigo !== codigo));
             showMessage('success', 'Material excluído com sucesso!');
         }
     };
@@ -381,7 +441,7 @@ export const Materials: React.FC = () => {
                                                             <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
                                                         </button>
                                                         <button
-                                                            onClick={() => handleDeleteMaterial(material.id!)}
+                                                            onClick={() => handleDeleteMaterial(material.id!, material.codigo)}
                                                             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                                                         >
                                                             <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>

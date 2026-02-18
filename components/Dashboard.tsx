@@ -9,8 +9,14 @@ interface DashboardProps {
   searchTerm: string;
   periodFilter: string;
   supplierFilter: string;
+  yearFilter: string;
+  monthFilter: string;
+  weekFilter: string;
   onPeriodChange: (period: string) => void;
   onSupplierChange: (supplier: string) => void;
+  onYearChange: (year: string) => void;
+  onMonthChange: (month: string) => void;
+  onWeekChange: (week: string) => void;
 }
 
 const CustomYAxisTick = (props: any) => {
@@ -52,9 +58,38 @@ export const Dashboard: React.FC<DashboardProps> = ({
   periodFilter,
   supplierFilter,
   onPeriodChange,
-  onSupplierChange
+  onSupplierChange,
+  yearFilter,
+  monthFilter,
+  weekFilter,
+  onYearChange,
+  onMonthChange,
+  onWeekChange
 }) => {
-  // Get unique suppliers for the filter
+  // Get unique values for filters
+  const filterOptions = useMemo(() => {
+    const years = new Set<string>();
+    const months = new Set<string>();
+    const weeks = new Set<string>();
+
+    inspections.forEach(i => {
+      if (i.data) {
+        const d = new Date(i.data);
+        years.add(d.getFullYear().toString());
+      }
+    });
+
+    return {
+      years: Array.from(years).sort((a, b) => b.localeCompare(a)),
+      months: [
+        { val: '1', label: 'Janeiro' }, { val: '2', label: 'Fevereiro' }, { val: '3', label: 'Março' },
+        { val: '4', label: 'Abril' }, { val: '5', label: 'Maio' }, { val: '6', label: 'Junho' },
+        { val: '7', label: 'Julho' }, { val: '8', label: 'Agosto' }, { val: '9', label: 'Setembro' },
+        { val: '10', label: 'Outubro' }, { val: '11', label: 'Novembro' }, { val: '12', label: 'Dezembro' }
+      ]
+    };
+  }, [inspections]);
+
   const suppliers = useMemo(() => {
     const list = Array.from(new Set(inspections.map(i => i.fornecedor).filter(Boolean)));
     return ['Todos', ...list.sort()];
@@ -97,7 +132,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       filtered = filtered.filter(i => new Date(i.data) >= startOfMonth);
     } else if (periodFilter === 'todos') {
-      // No additional filter needed, 'filtered' already contains all inspections
+      // No additional filter needed
+    }
+
+    // New Year/Month Filters
+    if (yearFilter !== 'all') {
+      filtered = filtered.filter(i => new Date(i.data).getFullYear().toString() === yearFilter);
+    }
+    if (monthFilter !== 'all') {
+      filtered = filtered.filter(i => (new Date(i.data).getMonth() + 1).toString() === monthFilter);
+    }
+    // Simple week filter (relative to year)
+    if (weekFilter !== 'all') {
+      filtered = filtered.filter(i => {
+        const d = new Date(i.data);
+        const onejan = new Date(d.getFullYear(), 0, 1);
+        const week = Math.ceil((((d.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
+        return week.toString() === weekFilter;
+      });
     }
 
     const total = filtered.length || 0;
@@ -108,6 +160,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     // Sum of qtdInspecionada
     const totalQty = filtered.reduce((acc, i) => acc + (i.qtdInspecionada || 0), 0);
+    const totalRejectedQty = filtered.reduce((acc, i) => acc + (i.qtdRejeitada || 0), 0);
+
+    const barData = [
+      { name: 'Inspecionados', valor: totalQty, color: '#137fec' },
+      { name: 'Rejeitados', valor: totalRejectedQty, color: '#ef4444' }
+    ];
 
     const reasonsMap = filtered.reduce((acc: any, i) => {
       if (i.status === 'Rejeitado' && i.motivoRejeicao) {
@@ -165,6 +223,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       approvalPercentage: Math.round(approvalRate),
       rejectionReasons: rejectionReasons.length > 0 ? rejectionReasons : [{ name: 'Nenhuma rejeição registrada', value: 0, percentage: 0 }],
       trendData,
+      barData,
       supplierPerformance: Object.entries(
         filtered.reduce((acc: any, i) => {
           if (!acc[i.fornecedor]) acc[i.fornecedor] = { name: i.fornecedor, aprovados: 0, rejeitados: 0 };
@@ -176,7 +235,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     };
   }, [inspections, searchTerm, periodFilter, supplierFilter]);
 
-  const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance } = metricsAndData;
+  const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData } = metricsAndData;
 
   return (
     <div className="p-4 md:p-8 space-y-8 bg-slate-50/50 min-h-full">
@@ -197,6 +256,35 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <option value="hoje">Hoje</option>
             <option value="este mês">Este Mês</option>
             <option value="todos">Todo o Período</option>
+          </select>
+          <select
+            value={yearFilter}
+            onChange={(e) => onYearChange(e.target.value)}
+            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
+          >
+            <option value="all">Ano: Todos</option>
+            {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <select
+            value={monthFilter}
+            onChange={(e) => onMonthChange(e.target.value)}
+            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
+          >
+            <option value="all">Mês: Todos</option>
+            {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
+          </select>
+          <select
+            value={weekFilter}
+            onChange={(e) => onWeekChange(e.target.value)}
+            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
+          >
+            <option value="all">Semana: Todos</option>
+            {Array.from({ length: 53 }, (_, i) => (
+              <option key={i + 1} value={(i + 1).toString()}>Semana {i + 1}</option>
+            ))}
           </select>
           <select
             value={supplierFilter}
@@ -238,7 +326,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-          <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-10">Aprovados x Rejeitados</h3>
+          <div className="flex justify-between items-start mb-8">
+            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Aprovados x Rejeitados</h3>
+            <div className="flex flex-wrap gap-4 justify-end">
+              {pieData.map((segment, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className={`w-2.5 h-2.5 rounded-full`} style={{ backgroundColor: segment.color, boxShadow: `0 0 8px ${segment.color}66` }}></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{segment.name}</span>
+                  <span className="text-xs font-black text-slate-900 ml-1">{segment.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="h-72 relative flex items-center justify-center">
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-4xl font-black text-slate-900">{approvalPercentage}%</span>
@@ -255,26 +354,50 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-10 space-y-4">
-            {pieData.map((segment, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: segment.color, boxShadow: `0 0 8px ${segment.color}66` }}></div>
-                  <span className="text-sm font-bold text-slate-600">{segment.name}</span>
-                </div>
-                <span className="text-sm font-black text-slate-900">{segment.value}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Inspecionados x Rejeitados</h3>
+            <div className="flex gap-4">
+              {barData.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#64748b' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#64748b' }} />
+                <Tooltip
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="valor" radius={[10, 10, 0, 0]} barSize={60}>
+                  {barData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-12 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-10">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Rejeições por Motivo</h3>
             <span className="text-[10px] font-black text-primary px-4 py-1.5 bg-blue-50 rounded-full uppercase tracking-tighter shadow-sm border border-blue-100/50">Por Frequência</span>
           </div>
 
-          <div className="space-y-8 grow">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 text-left">
             {rejectionReasons.map((item, index) => (
               <div key={index} className="space-y-3">
                 <div className="flex justify-between items-center px-1">
@@ -290,16 +413,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             ))}
           </div>
-
-          <div className="mt-12"></div> {/* Spacing at bottom */}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-12 bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col">
-          <div className="mb-10">
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Desempenho por Fornecedor</h3>
-            <p className="text-sm font-medium text-slate-400 mt-1">Aprovações x Rejeições</p>
+          <div className="flex justify-between items-start mb-10">
+            <div>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight">Desempenho por Fornecedor</h3>
+              <p className="text-sm font-medium text-slate-400 mt-1">Aprovações x Rejeições</p>
+            </div>
+            <div className="flex gap-6 mt-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-success rounded-sm"></div>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aprovados</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-danger rounded-sm"></div>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Rejeitados</span>
+              </div>
+            </div>
           </div>
 
           <div className="h-[28rem] w-full">
@@ -330,14 +463,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                />
-                <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  iconType="rect"
-                  iconSize={18}
-                  wrapperStyle={{ paddingTop: '40px' }}
-                  formatter={(value) => <span className="text-sm font-bold text-slate-700 ml-2 mr-6">{value}</span>}
                 />
                 <Bar
                   dataKey="aprovados"
