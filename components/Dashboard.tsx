@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, Legend } from 'recharts';
 import { Inspection } from '../types';
 
@@ -66,6 +66,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onMonthChange,
   onWeekChange
 }) => {
+  // Local state for Trend card filters
+  const [trendYear, setTrendYear] = useState(yearFilter);
+  const [trendMonth, setTrendMonth] = useState(monthFilter);
+  const [trendWeek, setTrendWeek] = useState(weekFilter);
+
+  // Sync with global filters initially or when they change if local is 'all'
+  useEffect(() => {
+    if (yearFilter !== 'all') setTrendYear(yearFilter);
+    if (monthFilter !== 'all') setTrendMonth(monthFilter);
+    if (weekFilter !== 'all') setTrendWeek(weekFilter);
+  }, [yearFilter, monthFilter, weekFilter]);
+
   // Get unique values for filters
   const filterOptions = useMemo(() => {
     const years = new Set<string>();
@@ -180,34 +192,93 @@ export const Dashboard: React.FC<DashboardProps> = ({
       percentage: rejected > 0 ? (value / rejected) * 100 : 0
     })).sort((a, b) => b.value - a.value);
 
-    // Trend Data (last 7 days - unaffected by period filter for visualization consistency)
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      return d.toISOString().split('T')[0];
-    });
+    // Trend Data Logic
+    let trendData: any[] = [];
+    let trendDates: { name: string, date: string }[] = [];
 
-    const trendData = last7Days.map(date => {
-      // For trend, we only apply search and supplier filters
-      let dayFiltered = inspections.filter(i => i.data === date);
-      if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        dayFiltered = dayFiltered.filter(i =>
-          (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
-        );
-      }
-      if (supplierFilter !== 'Todos') {
-        dayFiltered = dayFiltered.filter(i => i.fornecedor === supplierFilter);
-      }
+    if (trendWeek !== 'all') {
+      // Show days of that specific week
+      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
+      const firstDayOfYear = new Date(year, 0, 1);
+      const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7;
+      const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
+      const startOfWeek = new Date(firstMonday.getTime() + (parseInt(trendWeek) - 1) * 7 * 86400000);
 
-      const dayTotal = dayFiltered.length;
-      const dayApproved = dayFiltered.filter(i => i.status === 'Aprovado').length;
-      return {
-        name: date.split('-')[2], // Day number
-        volume: dayTotal,
-        rate: dayTotal > 0 ? (dayApproved / dayTotal) * 100 : 100
-      };
-    });
+      trendDates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(startOfWeek);
+        d.setDate(d.getDate() + i);
+        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
+      });
+    } else if (trendMonth !== 'all') {
+      // Show all days of the selected month
+      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
+      const month = parseInt(trendMonth) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      trendDates = Array.from({ length: daysInMonth }, (_, i) => {
+        const d = new Date(year, month, i + 1);
+        return { name: (i + 1).toString(), date: d.toISOString().split('T')[0] };
+      });
+    } else if (trendYear !== 'all') {
+      // Show monthly summary for the year
+      const year = parseInt(trendYear);
+      trendData = filterOptions.months.map(m => {
+        const monthFiltered = inspections.filter(i => {
+          const d = new Date(i.data);
+          return d.getFullYear() === year && (d.getMonth() + 1).toString() === m.val;
+        });
+
+        // Apply search and supplier filters specifically for trend
+        let finalFiltered = monthFiltered;
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          finalFiltered = finalFiltered.filter(i =>
+            (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
+          );
+        }
+        if (supplierFilter !== 'Todos') {
+          finalFiltered = finalFiltered.filter(i => i.fornecedor === supplierFilter);
+        }
+
+        const total = finalFiltered.length;
+        const approvedCount = finalFiltered.filter(i => i.status === 'Aprovado').length;
+        return {
+          name: m.label.substring(0, 3),
+          volume: total,
+          rate: total > 0 ? (approvedCount / total) * 100 : 100
+        };
+      });
+    } else {
+      // Default: Last 7 days
+      trendDates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
+      });
+    }
+
+    if (trendDates.length > 0) {
+      trendData = trendDates.map(td => {
+        let dayFiltered = inspections.filter(i => i.data === td.date);
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          dayFiltered = dayFiltered.filter(i =>
+            (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
+          );
+        }
+        if (supplierFilter !== 'Todos') {
+          dayFiltered = dayFiltered.filter(i => i.fornecedor === supplierFilter);
+        }
+
+        const dayTotal = dayFiltered.length;
+        const dayApprovedCount = dayFiltered.filter(i => i.status === 'Aprovado').length;
+        return {
+          name: td.name,
+          volume: dayTotal,
+          rate: dayTotal > 0 ? (dayApprovedCount / dayTotal) * 100 : 100
+        };
+      });
+    }
 
     return {
       metrics: [
@@ -233,7 +304,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }, {})
       ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados)).slice(0, 5)
     };
-  }, [inspections, searchTerm, periodFilter, supplierFilter]);
+  }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek]);
 
   const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData } = metricsAndData;
 
@@ -488,7 +559,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="flex justify-between items-center mb-10">
           <div>
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Tendência de Inspeções</h3>
-            <p className="text-xs text-slate-400 mt-1 font-bold">Volume e desempenho nos últimos 7 dias</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <select
+                value={trendYear}
+                onChange={(e) => setTrendYear(e.target.value)}
+                className="bg-slate-50 border-none rounded-lg text-[10px] font-bold h-8 px-2 focus:ring-1 focus:ring-primary shadow-sm outline-none cursor-pointer hover:bg-slate-100 transition-colors"
+              >
+                <option value="all">Ano: Todos</option>
+                {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+              <select
+                value={trendMonth}
+                onChange={(e) => setTrendMonth(e.target.value)}
+                className="bg-slate-50 border-none rounded-lg text-[10px] font-bold h-8 px-2 focus:ring-1 focus:ring-primary shadow-sm outline-none cursor-pointer hover:bg-slate-100 transition-colors"
+              >
+                <option value="all">Mês: Todos</option>
+                {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
+              </select>
+              <select
+                value={trendWeek}
+                onChange={(e) => setTrendWeek(e.target.value)}
+                className="bg-slate-50 border-none rounded-lg text-[10px] font-bold h-8 px-2 focus:ring-1 focus:ring-primary shadow-sm outline-none cursor-pointer hover:bg-slate-100 transition-colors"
+              >
+                <option value="all">Semana: Todos</option>
+                {Array.from({ length: 53 }, (_, i) => (
+                  <option key={i + 1} value={(i + 1).toString()}>Semana {i + 1}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="flex gap-6">
             <div className="flex items-center gap-2">
@@ -510,6 +608,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <YAxis yAxisId="right" orientation="right" hide />
               <Tooltip
                 contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                formatter={(value: any, name: string) => {
+                  if (name === 'rate') return [`${Number(value).toFixed(1)}%`, 'Taxa de Aprovação'];
+                  if (name === 'volume') return [value, 'Volume'];
+                  return [value, name];
+                }}
               />
               <Bar yAxisId="left" dataKey="volume" fill="#137fec" radius={[6, 6, 0, 0]} barSize={44} fillOpacity={0.08} />
               <Line yAxisId="right" type="monotone" dataKey="rate" stroke="#22c55e" strokeWidth={4} dot={{ r: 5, fill: '#22c55e', strokeWidth: 3, stroke: '#fff' }} activeDot={{ r: 7, strokeWidth: 0 }} />
