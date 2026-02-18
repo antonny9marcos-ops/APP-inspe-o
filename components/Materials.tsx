@@ -108,7 +108,12 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                     .order('nome');
 
                 if (fornError) throw fornError;
-                setFornecedores(fornData || []);
+                if (fornData && fornData.length > 0) {
+                    setFornecedores(fornData);
+                } else {
+                    // Se estiver vazio no banco, mantém os padrões para não ficar branco no início
+                    setFornecedores(defaultFornecedores);
+                }
             } catch (err) {
                 console.log('Tabela fornecedores erro, usando dados locais');
                 setFornecedores(defaultFornecedores);
@@ -122,7 +127,11 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                     .order('descricao');
 
                 if (motError) throw motError;
-                setMotivos(motData || []);
+                if (motData && motData.length > 0) {
+                    setMotivos(motData);
+                } else {
+                    setMotivos(defaultMotivos);
+                }
             } catch (err) {
                 console.log('Tabela motivos_rejeicao erro, usando dados locais');
                 setMotivos(defaultMotivos);
