@@ -207,6 +207,107 @@ export const Dashboard: React.FC<DashboardProps> = ({
       return acc;
     }, {});
 
+    const reasonsMap = filtered.reduce((acc: any, i) => {
+      if (i.status === 'Rejeitado' && i.motivoRejeicao) {
+        acc[i.motivoRejeicao] = (acc[i.motivoRejeicao] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    const rejectionReasons = Object.entries(reasonsMap).map(([name, value]: [string, any]) => ({
+      name,
+      value,
+      percentage: rejected > 0 ? (value / rejected) * 100 : 0
+    })).sort((a, b) => b.value - a.value);
+
+    // Trend Data Logic
+    let trendData: any[] = [];
+    let trendDates: { name: string, date: string }[] = [];
+
+    if (trendWeek !== 'all') {
+      // Show days of that specific week
+      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
+      const firstDayOfYear = new Date(year, 0, 1);
+      const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7;
+      const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
+      const startOfWeek = new Date(firstMonday.getTime() + (parseInt(trendWeek) - 1) * 7 * 86400000);
+
+      trendDates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(startOfWeek);
+        d.setDate(d.getDate() + i);
+        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
+      });
+    } else if (trendMonth !== 'all') {
+      // Show all days of the selected month
+      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
+      const month = parseInt(trendMonth) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      trendDates = Array.from({ length: daysInMonth }, (_, i) => {
+        const d = new Date(year, month, i + 1);
+        return { name: (i + 1).toString(), date: d.toISOString().split('T')[0] };
+      });
+    } else if (trendYear !== 'all') {
+      // Show monthly summary for the year
+      const year = parseInt(trendYear);
+      trendData = filterOptions.months.map(m => {
+        const monthFiltered = inspections.filter(i => {
+          const d = new Date(i.data);
+          return d.getFullYear() === year && (d.getMonth() + 1).toString() === m.val;
+        });
+
+        // Apply search and supplier filters specifically for trend
+        let finalFiltered = monthFiltered;
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          finalFiltered = finalFiltered.filter(i =>
+            (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
+          );
+        }
+        if (supplierFilter !== 'Todos') {
+          finalFiltered = finalFiltered.filter(i => i.fornecedor === supplierFilter);
+        }
+
+        const total = finalFiltered.length;
+        const approvedCount = finalFiltered.filter(i => i.status === 'Aprovado').length;
+        return {
+          name: m.label.substring(0, 3),
+          volume: total,
+          rate: total > 0 ? (approvedCount / total) * 100 : 100
+        };
+      });
+    } else {
+      // Default: Last 7 days
+      trendDates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
+      });
+    }
+
+    if (trendDates.length > 0) {
+      trendData = trendDates.map(td => {
+        let dayFiltered = inspections.filter(i => i.data === td.date);
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          dayFiltered = dayFiltered.filter(i =>
+            (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
+          );
+        }
+        if (supplierFilter !== 'Todos') {
+          dayFiltered = dayFiltered.filter(i => i.fornecedor === supplierFilter);
+        }
+
+        const dayTotal = dayFiltered.length;
+        const dayApprovedCount = dayFiltered.filter(i => i.status === 'Aprovado').length;
+        return {
+          name: td.name,
+          volume: dayTotal,
+          rate: dayTotal > 0 ? (dayApprovedCount / dayTotal) * 100 : 100
+        };
+      });
+    }
+
     const materialRejectionRanking = Object.values(materialsRejectionMap)
       .map((m: any) => {
         const rate = m.total > 0 ? (m.rejected / m.total) * 100 : 0;
