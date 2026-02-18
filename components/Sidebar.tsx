@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { View } from '../types';
+import { View, UserProfile } from '../types';
 
 interface SidebarProps {
   currentView: View;
@@ -9,12 +8,21 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, isOpen, onClose }) => {
+export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ currentView, onNavigate, isOpen, onClose, profile }) => {
+  const isAdmin = profile.role === 'Admin';
+  const isClient = profile.role === 'Cliente';
+
   const navItems = [
     { view: View.DASHBOARD, label: 'Dashboard', icon: 'dashboard' },
-    { view: View.INSPECTION_FORM, label: 'Cadastrar Inspeção', icon: 'assignment_add' },
+    {
+      view: View.INSPECTION_FORM,
+      label: 'Cadastrar Inspeção',
+      icon: 'assignment_add',
+      disabled: isClient
+    },
     { view: View.MATERIALS, label: 'Materiais', icon: 'inventory_2' },
     { view: View.REPORTS, label: 'Relatórios', icon: 'analytics' },
+    ...(isAdmin ? [{ view: View.USERS, label: 'Usuários', icon: 'group' }] : []),
   ];
 
   return (
@@ -43,16 +51,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, isOpe
           {navItems.map((item) => (
             <button
               key={item.view}
-              onClick={() => onNavigate(item.view)}
+              onClick={() => !item.disabled && onNavigate(item.view)}
+              disabled={item.disabled}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${currentView === item.view
                 ? 'bg-blue-50 text-primary font-bold active-nav'
-                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
+                : item.disabled
+                  ? 'opacity-40 cursor-not-allowed grayscale'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
                 }`}
             >
               <span className="material-symbols-rounded">
                 {item.icon}
               </span>
               <p className="text-sm">{item.label}</p>
+              {item.disabled && (
+                <span className="material-symbols-rounded !text-xs ml-auto opacity-50">lock</span>
+              )}
             </button>
           ))}
         </nav>

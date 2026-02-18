@@ -8,6 +8,7 @@ import { Materials } from './components/Materials';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Login } from './components/Login';
+import { UserManagement } from './components/UserManagement';
 import { View, Inspection, UserProfile } from './types';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
@@ -150,7 +151,11 @@ export default function App() {
             onYearChange={setYearFilter}
             onMonthChange={setMonthFilter}
             onWeekChange={setWeekFilter}
-            onAddClick={() => { setEditingInspection(null); setCurrentView(View.INSPECTION_FORM); }}
+            onAddClick={() => {
+              if (userProfile.role === 'Cliente') return;
+              setEditingInspection(null);
+              setCurrentView(View.INSPECTION_FORM);
+            }}
           />
         );
       case View.INSPECTION_FORM:
@@ -203,7 +208,9 @@ export default function App() {
           />
         );
       case View.MATERIALS:
-        return <Materials />;
+        return <Materials role={userProfile.role} />;
+      case View.USERS:
+        return <UserManagement />;
       default:
         return (
           <div className="p-4 md:p-8 flex items-center justify-center h-full">
@@ -236,6 +243,7 @@ export default function App() {
         onNavigate={navigate}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        profile={userProfile}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">

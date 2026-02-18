@@ -30,7 +30,8 @@ interface MotivoRejeicao {
 
 type TabType = 'materiais' | 'fornecedores' | 'motivos';
 
-export const Materials: React.FC = () => {
+export const Materials: React.FC<{ role?: string }> = ({ role }) => {
+    const isClient = role === 'Cliente';
     const [activeTab, setActiveTab] = useState<TabType>('materiais');
     const [searchTerm, setSearchTerm] = useState('');
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -377,24 +378,26 @@ export const Materials: React.FC = () => {
                             className="w-full pl-12 pr-4 h-12 rounded-xl border-slate-200 focus:ring-primary font-medium"
                         />
                     </div>
-                    <button
-                        onClick={() => {
-                            if (activeTab === 'materiais') {
-                                setEditingMaterial(null);
-                                setShowMaterialModal(true);
-                            } else if (activeTab === 'fornecedores') {
-                                setEditingFornecedor(null);
-                                setShowFornecedorModal(true);
-                            } else {
-                                setEditingMotivo(null);
-                                setShowMotivoModal(true);
-                            }
-                        }}
-                        className="h-12 px-6 bg-primary text-white rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-                    >
-                        <span className="material-symbols-rounded">add</span>
-                        Adicionar
-                    </button>
+                    {!isClient && (
+                        <button
+                            onClick={() => {
+                                if (activeTab === 'materiais') {
+                                    setEditingMaterial(null);
+                                    setShowMaterialModal(true);
+                                } else if (activeTab === 'fornecedores') {
+                                    setEditingFornecedor(null);
+                                    setShowFornecedorModal(true);
+                                } else {
+                                    setEditingMotivo(null);
+                                    setShowMotivoModal(true);
+                                }
+                            }}
+                            className="h-12 px-6 bg-primary text-white rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                        >
+                            <span className="material-symbols-rounded">add</span>
+                            Adicionar
+                        </button>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -433,20 +436,22 @@ export const Materials: React.FC = () => {
                                                     </span>
                                                 </td>
                                                 <td className="py-4 px-4">
-                                                    <div className="flex gap-2 justify-end">
-                                                        <button
-                                                            onClick={() => { setEditingMaterial(material); setShowMaterialModal(true); }}
-                                                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                                                        >
-                                                            <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteMaterial(material.id!, material.codigo)}
-                                                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                                                        >
-                                                            <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>
-                                                        </button>
-                                                    </div>
+                                                    {!isClient && (
+                                                        <div className="flex gap-2 justify-end">
+                                                            <button
+                                                                onClick={() => { setEditingMaterial(material); setShowMaterialModal(true); }}
+                                                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                                            >
+                                                                <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteMaterial(material.id!, material.codigo)}
+                                                                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                                            >
+                                                                <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
@@ -482,20 +487,22 @@ export const Materials: React.FC = () => {
                                                 {fornecedor.status}
                                             </span>
                                         </div>
-                                        <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
-                                            <button
-                                                onClick={() => { setEditingFornecedor(fornecedor); setShowFornecedorModal(true); }}
-                                                className="flex-1 h-9 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1"
-                                            >
-                                                <span className="material-symbols-rounded !text-lg">edit</span> Editar
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteFornecedor(fornecedor.id!)}
-                                                className="h-9 px-3 bg-white border border-red-200 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
-                                            >
-                                                <span className="material-symbols-rounded !text-lg">delete</span>
-                                            </button>
-                                        </div>
+                                        {!isClient && (
+                                            <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                                                <button
+                                                    onClick={() => { setEditingFornecedor(fornecedor); setShowFornecedorModal(true); }}
+                                                    className="flex-1 h-9 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1"
+                                                >
+                                                    <span className="material-symbols-rounded !text-lg">edit</span> Editar
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteFornecedor(fornecedor.id!)}
+                                                    className="h-9 px-3 bg-white border border-red-200 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                                                >
+                                                    <span className="material-symbols-rounded !text-lg">delete</span>
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))
                             )}
@@ -522,23 +529,30 @@ export const Materials: React.FC = () => {
                                                 {motivo.categoria && <p className="text-xs text-slate-400">{motivo.categoria}</p>}
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        {!isClient && (
+                                            <div className="flex items-center gap-3">
+                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${motivo.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                    {motivo.status}
+                                                </span>
+                                                <button
+                                                    onClick={() => { setEditingMotivo(motivo); setShowMotivoModal(true); }}
+                                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                                >
+                                                    <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteMotivo(motivo.id!)}
+                                                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                        {isClient && (
                                             <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${motivo.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                                                 {motivo.status}
                                             </span>
-                                            <button
-                                                onClick={() => { setEditingMotivo(motivo); setShowMotivoModal(true); }}
-                                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                                            >
-                                                <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteMotivo(motivo.id!)}
-                                                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                                            >
-                                                <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>
-                                            </button>
-                                        </div>
+                                        )}
                                     </div>
                                 ))
                             )}

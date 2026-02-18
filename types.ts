@@ -31,7 +31,7 @@ export interface Metric {
 
 export interface UserProfile {
   name: string;
-  role: string;
+  role: 'Admin' | 'Inspetor' | 'Cliente' | string;
   avatar?: string;
 }
 
@@ -40,5 +40,6 @@ export enum View {
   INSPECTION_FORM = 'form',
   MATERIALS = 'materials',
   REPORTS = 'reports',
-  SETTINGS = 'settings'
+  SETTINGS = 'settings',
+  USERS = 'users'
 }
