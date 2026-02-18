@@ -179,106 +179,52 @@ export const Dashboard: React.FC<DashboardProps> = ({
       { name: 'Rejeitados', valor: totalRejectedQty, color: '#ef4444' }
     ];
 
-    const reasonsMap = filtered.reduce((acc: any, i) => {
+    // Material Rejection Logic
+    const materialsRejectionMap = filtered.reduce((acc: any, i) => {
+      const materialKey = i.descricao || i.material || 'N/A';
+      if (!acc[materialKey]) {
+        acc[materialKey] = {
+          name: materialKey,
+          code: i.material,
+          total: 0,
+          rejected: 0,
+          suppliers: {} as Record<string, number>,
+          defects: {} as Record<string, number>
+        };
+      }
+      acc[materialKey].total += 1;
+      if (i.status === 'Rejeitado') {
+        acc[materialKey].rejected += 1;
+      }
+      // Track suppliers for this material
+      if (i.fornecedor) {
+        acc[materialKey].suppliers[i.fornecedor] = (acc[materialKey].suppliers[i.fornecedor] || 0) + 1;
+      }
+      // Track defects for this material
       if (i.status === 'Rejeitado' && i.motivoRejeicao) {
-        acc[i.motivoRejeicao] = (acc[i.motivoRejeicao] || 0) + 1;
+        acc[materialKey].defects[i.motivoRejeicao] = (acc[materialKey].defects[i.motivoRejeicao] || 0) + 1;
       }
       return acc;
     }, {});
 
-    const rejectionReasons = Object.entries(reasonsMap).map(([name, value]: [string, any]) => ({
-      name,
-      value,
-      percentage: rejected > 0 ? (value / rejected) * 100 : 0
-    })).sort((a, b) => b.value - a.value);
+    const materialRejectionRanking = Object.values(materialsRejectionMap)
+      .map((m: any) => {
+        const rate = m.total > 0 ? (m.rejected / m.total) * 100 : 0;
+        // Get main supplier
+        const mainSupplier = Object.entries(m.suppliers).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A';
+        // Get main defect
+        const mainDefect = Object.entries(m.defects).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'Nenhum';
 
-    // Trend Data Logic
-    let trendData: any[] = [];
-    let trendDates: { name: string, date: string }[] = [];
-
-    if (trendWeek !== 'all') {
-      // Show days of that specific week
-      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
-      const firstDayOfYear = new Date(year, 0, 1);
-      const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7;
-      const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
-      const startOfWeek = new Date(firstMonday.getTime() + (parseInt(trendWeek) - 1) * 7 * 86400000);
-
-      trendDates = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(startOfWeek);
-        d.setDate(d.getDate() + i);
-        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
-      });
-    } else if (trendMonth !== 'all') {
-      // Show all days of the selected month
-      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
-      const month = parseInt(trendMonth) - 1;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      trendDates = Array.from({ length: daysInMonth }, (_, i) => {
-        const d = new Date(year, month, i + 1);
-        return { name: (i + 1).toString(), date: d.toISOString().split('T')[0] };
-      });
-    } else if (trendYear !== 'all') {
-      // Show monthly summary for the year
-      const year = parseInt(trendYear);
-      trendData = filterOptions.months.map(m => {
-        const monthFiltered = inspections.filter(i => {
-          const d = new Date(i.data);
-          return d.getFullYear() === year && (d.getMonth() + 1).toString() === m.val;
-        });
-
-        // Apply search and supplier filters specifically for trend
-        let finalFiltered = monthFiltered;
-        if (searchTerm) {
-          const term = searchTerm.toLowerCase();
-          finalFiltered = finalFiltered.filter(i =>
-            (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
-          );
-        }
-        if (supplierFilter !== 'Todos') {
-          finalFiltered = finalFiltered.filter(i => i.fornecedor === supplierFilter);
-        }
-
-        const total = finalFiltered.length;
-        const approvedCount = finalFiltered.filter(i => i.status === 'Aprovado').length;
         return {
-          name: m.label.substring(0, 3),
-          volume: total,
-          rate: total > 0 ? (approvedCount / total) * 100 : 100
+          ...m,
+          rejectionRate: rate,
+          mainSupplier,
+          mainDefect
         };
-      });
-    } else {
-      // Default: Last 7 days
-      trendDates = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (6 - i));
-        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
-      });
-    }
-
-    if (trendDates.length > 0) {
-      trendData = trendDates.map(td => {
-        let dayFiltered = inspections.filter(i => i.data === td.date);
-        if (searchTerm) {
-          const term = searchTerm.toLowerCase();
-          dayFiltered = dayFiltered.filter(i =>
-            (i.material?.toLowerCase() || '').includes(term) || (i.fornecedor?.toLowerCase() || '').includes(term)
-          );
-        }
-        if (supplierFilter !== 'Todos') {
-          dayFiltered = dayFiltered.filter(i => i.fornecedor === supplierFilter);
-        }
-
-        const dayTotal = dayFiltered.length;
-        const dayApprovedCount = dayFiltered.filter(i => i.status === 'Aprovado').length;
-        return {
-          name: td.name,
-          volume: dayTotal,
-          rate: dayTotal > 0 ? (dayApprovedCount / dayTotal) * 100 : 100
-        };
-      });
-    }
+      })
+      .filter((m: any) => m.rejected > 0)
+      .sort((a, b) => b.rejectionRate - a.rejectionRate)
+      .slice(0, 5);
 
     return {
       metrics: [
@@ -295,6 +241,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       rejectionReasons: rejectionReasons.length > 0 ? rejectionReasons : [{ name: 'Nenhuma rejeição registrada', value: 0, percentage: 0 }],
       trendData,
       barData,
+      materialRejectionRanking,
       supplierPerformance: Object.entries(
         filtered.reduce((acc: any, i) => {
           if (!acc[i.fornecedor]) acc[i.fornecedor] = { name: i.fornecedor, aprovados: 0, rejeitados: 0 };
@@ -306,7 +253,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     };
   }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek]);
 
-  const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData } = metricsAndData;
+  const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData, materialRejectionRanking } = metricsAndData;
 
   return (
     <div className="p-4 md:p-8 space-y-8 bg-slate-50/50 min-h-full">
@@ -462,13 +409,56 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-12 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+        <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="pb-4">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">Materiais com Maior Rejeição</h2>
+            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Taxa de rejeição por item</p>
+          </div>
+          <div className="flex-1 divide-y divide-slate-50 overflow-y-auto max-h-[400px] custom-scrollbar">
+            {materialRejectionRanking.length > 0 ? materialRejectionRanking.map((item: any, idx) => (
+              <div key={idx} className="py-6 group hover:bg-slate-50 transition-all">
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center font-black text-xs text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-slate-900 leading-tight">{item.name}</p>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cód: {item.code || '---'}</span>
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Fornec: {item.mainSupplier}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-black text-slate-900">{item.rejectionRate.toFixed(1)}%</span>
+                  </div>
+                </div>
+                <div className="px-1">
+                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-2">
+                    <div
+                      className="h-full bg-red-500 rounded-full transition-all duration-1000"
+                      style={{ width: `${item.rejectionRate}%` }}
+                    />
+                  </div>
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
+                    <span className="text-danger">Principal Defeito:</span> {item.mainDefect}
+                  </p>
+                </div>
+              </div>
+            )) : (
+              <div className="p-10 text-center text-slate-400 text-xs font-bold">Nenhum dado de rejeição disponível</div>
+            )}
+          </div>
+        </div>
+
+        <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-10">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Rejeições por Motivo</h3>
             <span className="text-[10px] font-black text-primary px-4 py-1.5 bg-blue-50 rounded-full uppercase tracking-tighter shadow-sm border border-blue-100/50">Por Frequência</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 text-left">
+          <div className="grid grid-cols-1 gap-y-8 text-left">
             {rejectionReasons.map((item, index) => (
               <div key={index} className="space-y-3">
                 <div className="flex justify-between items-center px-1">
