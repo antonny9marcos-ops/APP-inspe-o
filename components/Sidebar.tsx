@@ -27,7 +27,7 @@ export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ cur
 
   return (
     <aside className={`
-      fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
+      fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 
       transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
     `}>
@@ -38,7 +38,7 @@ export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ cur
               <span className="material-symbols-rounded !text-2xl fill-1">factory</span>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-slate-900 dark:text-white text-base font-bold leading-none">MC Industrial</h1>
+              <h1 className="text-slate-900 text-base font-bold leading-none">MC Industrial</h1>
               <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider mt-1">Controle de Qualidade</p>
             </div>
           </div>
@@ -57,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ cur
                 ? 'bg-blue-50 text-primary font-bold active-nav'
                 : item.disabled
                   ? 'opacity-40 cursor-not-allowed grayscale'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
+                  : 'text-slate-500 hover:bg-slate-50 font-medium'
                 }`}
             >
               <span className="material-symbols-rounded">
@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ cur
           ))}
         </nav>
 
-        <div className="px-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-3 pt-6 border-t border-slate-100">
           <button
             onClick={() => onNavigate(View.SETTINGS)}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all ${currentView === View.SETTINGS

@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, UserProfile } from '../types';
+import { useNotifications } from '../hooks/useNotifications';
+import { NotificationDropdown } from './NotificationDropdown';
 
 interface HeaderProps {
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
   currentView: View;
   onMenuClick: () => void;
   profile: UserProfile;
@@ -13,7 +13,10 @@ interface HeaderProps {
   onLogout: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ isDarkMode, currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+
   const getTitle = () => {
     switch (currentView) {
       case View.DASHBOARD: return 'Painel de Controle de Qualidade';
@@ -24,24 +27,24 @@ export const Header: React.FC<HeaderProps> = ({ isDarkMode, currentView, onMenuC
   };
 
   return (
-    <header className="flex items-center justify-between sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 shrink-0">
+    <header className="flex items-center justify-between sticky top-0 z-30 bg-white border-b border-slate-200 px-4 md:px-8 py-4 shrink-0">
       <div className="flex items-center gap-4">
         <button onClick={onMenuClick} className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
           <span className="material-symbols-rounded">menu</span>
         </button>
-        <h2 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">
+        <h2 className="text-slate-900 text-lg font-bold tracking-tight">
           {getTitle()}
         </h2>
       </div>
 
       <div className="flex items-center gap-4 md:gap-8">
         <div className="hidden md:flex relative">
-          <div className="flex w-64 items-center rounded-xl h-11 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <div className="flex w-64 items-center rounded-xl h-11 bg-slate-50 border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <div className="text-slate-400 pl-4">
               <span className="material-symbols-rounded !text-xl">search</span>
             </div>
             <input
-              className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-400 dark:text-white"
+              className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-400"
               placeholder="Buscar dados..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -49,13 +52,32 @@ export const Header: React.FC<HeaderProps> = ({ isDarkMode, currentView, onMenuC
           </div>
         </div>
 
-        <button className="flex items-center justify-center rounded-xl h-11 w-11 bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
-          <span className="material-symbols-rounded !text-2xl">notifications</span>
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`flex items-center justify-center rounded-xl h-11 w-11 transition-colors relative ${showNotifications ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'}`}
+          >
+            <span className="material-symbols-rounded !text-2xl">notifications</span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white animate-in zoom-in duration-300">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
 
-        <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
+          {showNotifications && (
+            <NotificationDropdown
+              notifications={notifications}
+              onMarkAsRead={(id) => markAsRead(id)}
+              onMarkAllAsRead={markAllAsRead}
+              onClose={() => setShowNotifications(false)}
+            />
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
           <div className="hidden sm:flex flex-col items-end">
-            <p className="text-sm font-bold text-slate-900 dark:text-white">{profile.name}</p>
+            <p className="text-sm font-bold text-slate-900">{profile.name}</p>
             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{profile.role}</p>
           </div>
           <img src={profile.avatar} className="h-10 w-10 rounded-full border-2 border-white shadow-sm" alt="User" />

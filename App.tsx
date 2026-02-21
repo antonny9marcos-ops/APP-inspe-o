@@ -67,16 +67,7 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
 
   const fetchInspections = async () => {
     try {
@@ -230,7 +221,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark">
+    <div className="flex h-screen overflow-hidden bg-background-light">
       {/* Sidebar Overlay para Mobile */}
       {isSidebarOpen && (
         <div
@@ -249,8 +240,6 @@ export default function App() {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <Header
-          isDarkMode={isDarkMode}
-          toggleDarkMode={() => setIsDarkMode(!isDarkMode)}
           currentView={currentView}
           onMenuClick={() => setIsSidebarOpen(true)}
           profile={userProfile}

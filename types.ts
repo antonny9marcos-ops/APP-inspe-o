@@ -43,3 +43,14 @@ export enum View {
   SETTINGS = 'settings',
   USERS = 'users'
 }
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  titulo: string;
+  mensagem: string;
+  tipo: 'rejeicao' | 'update' | 'sistema' | 'aviso';
+  lida: boolean;
+  link?: string;
+  created_at: string;
+}
