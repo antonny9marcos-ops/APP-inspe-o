@@ -169,6 +169,7 @@ export default function App() {
               setCurrentView(View.DASHBOARD);
             }}
             onCancel={() => { setEditingInspection(null); setCurrentView(View.DASHBOARD); }}
+            onViewHistory={() => navigate(View.REPORTS)}
           />
         );
       case View.REPORTS:

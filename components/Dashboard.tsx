@@ -377,28 +377,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="p-4 md:p-8 space-y-8 bg-slate-50/50 min-h-full">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Visão Geral Operacional</h1>
-          <p className="text-slate-500 mt-1 font-medium">Métricas de inspeção e dados de desempenho em tempo real</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-center gap-5">
+          <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
+            <span className="material-symbols-rounded !text-3xl fill-1">dashboard</span>
+          </div>
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Visão Geral Operacional</h1>
+            <p className="text-slate-500 mt-1 font-medium">Métricas de inspeção e dados de desempenho em tempo real</p>
+          </div>
         </div>
-        <div className="flex gap-3">
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 w-full md:w-auto">
           <select
             value={periodFilter}
             onChange={(e) => onPeriodChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
           >
-            <option value="últimos 30 dias">Últimos 30 Dias</option>
-            <option value="últimos 7 dias">Últimos 7 Dias</option>
+            <option value="últimos 30 dias">30 Dias</option>
+            <option value="últimos 7 dias">7 Dias</option>
             <option value="hoje">Hoje</option>
-            <option value="este mês">Este Mês</option>
-            <option value="todos">Todo o Período</option>
+            <option value="este mês">Mês</option>
+            <option value="todos">Tudo</option>
           </select>
           <select
             value={yearFilter}
             onChange={(e) => onYearChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
           >
             <option value="all">Ano: Todos</option>
@@ -407,7 +413,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <select
             value={monthFilter}
             onChange={(e) => onMonthChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
           >
             <option value="all">Mês: Todos</option>
@@ -416,18 +422,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <select
             value={weekFilter}
             onChange={(e) => onWeekChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
+            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
           >
-            <option value="all">Semana: Todos</option>
+            <option value="all">Sem: Todos</option>
             {Array.from({ length: 53 }, (_, i) => (
-              <option key={i + 1} value={(i + 1).toString()}>Semana {i + 1}</option>
+              <option key={i + 1} value={(i + 1).toString()}>S {i + 1}</option>
             ))}
           </select>
           <select
             value={supplierFilter}
             onChange={(e) => onSupplierChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-sm font-bold h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8"
+            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 overflow-hidden text-ellipsis whitespace-nowrap"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
           >
             {suppliers.map(s => (

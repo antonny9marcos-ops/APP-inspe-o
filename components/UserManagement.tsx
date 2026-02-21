@@ -86,9 +86,14 @@ export const UserManagement: React.FC = () => {
 
     return (
         <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de Usuários</h1>
-                <p className="text-slate-500 mt-1 font-medium">Controle o acesso de inspetores e clientes à plataforma.</p>
+            <div className="flex items-center gap-5">
+                <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
+                    <span className="material-symbols-rounded !text-3xl fill-1">group</span>
+                </div>
+                <div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Gestão de Usuários</h1>
+                    <p className="text-slate-500 mt-1 font-medium">Controle o acesso de inspetores e clientes à plataforma.</p>
+                </div>
             </div>
 
             {message && (
@@ -126,8 +131,8 @@ export const UserManagement: React.FC = () => {
                                     </div>
                                     <div className="text-right">
                                         <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'Admin' ? 'bg-indigo-100 text-indigo-600' :
-                                                user.role === 'Cliente' ? 'bg-amber-100 text-amber-600' :
-                                                    'bg-slate-100 text-slate-600'
+                                            user.role === 'Cliente' ? 'bg-amber-100 text-amber-600' :
+                                                'bg-slate-100 text-slate-600'
                                             }`}>
                                             {user.role}
                                         </span>
@@ -203,8 +208,8 @@ export const UserManagement: React.FC = () => {
                                             type="button"
                                             onClick={() => setNewRole(role)}
                                             className={`h-11 rounded-xl text-[10px] font-black uppercase transition-all px-1 border-2 ${newRole === role
-                                                    ? 'bg-primary border-primary text-white shadow-md shadow-primary/20'
-                                                    : 'bg-white border-slate-50 text-slate-400 hover:border-slate-100'
+                                                ? 'bg-primary border-primary text-white shadow-md shadow-primary/20'
+                                                : 'bg-white border-slate-50 text-slate-400 hover:border-slate-100'
                                                 }`}
                                         >
                                             {role}

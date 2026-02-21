@@ -7,10 +7,11 @@ interface InspectionFormProps {
   onSave: (inspection: Inspection) => void;
   onDelete?: () => void;
   onCancel: () => void;
+  onViewHistory: () => void;
   initialData?: Inspection;
 }
 
-export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete, onCancel, initialData }) => {
+export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete, onCancel, onViewHistory, initialData }) => {
   const [formData, setFormData] = useState<Partial<Inspection>>(initialData || {
     data: new Date().toLocaleDateString('sv-SE'),
     inspetor: '',
@@ -365,16 +366,24 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         <span className="text-slate-900">Novo Cadastro</span>
       </div>
 
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            {formData.realId ? 'Editar Inspeção' : 'Cadastrar Nova Inspeção'}
-          </h1>
-          <p className="text-slate-500 mt-1 font-medium">
-            {formData.realId ? `Editando registro #${formData.id}` : 'Insira os detalhes do material e resultados da inspeção abaixo.'}
-          </p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-center gap-5">
+          <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
+            <span className="material-symbols-rounded !text-3xl fill-1">assignment</span>
+          </div>
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+              {formData.realId ? 'Editar Inspeção' : 'Cadastrar Nova Inspeção'}
+            </h1>
+            <p className="text-slate-500 mt-1 font-medium">
+              {formData.realId ? `Editando registro #${formData.id}` : 'Insira os detalhes do material e resultados da inspeção abaixo.'}
+            </p>
+          </div>
         </div>
-        <button className="flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all">
+        <button
+          onClick={onViewHistory}
+          className="flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all"
+        >
           <span className="material-symbols-rounded !text-xl">history</span> Ver Histórico
         </button>
       </div>

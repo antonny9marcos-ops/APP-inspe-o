@@ -340,10 +340,15 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
     return (
         <div className="p-4 md:p-8 space-y-6 bg-slate-50/50 min-h-full">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de Cadastros</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Gerencie materiais, fornecedores e motivos de rejeição</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="flex items-center gap-5">
+                    <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
+                        <span className="material-symbols-rounded !text-3xl fill-1">inventory_2</span>
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Gestão de Cadastros</h1>
+                        <p className="text-slate-500 mt-1 font-medium">Gerencie materiais, fornecedores e motivos de rejeição</p>
+                    </div>
                 </div>
             </div>
 

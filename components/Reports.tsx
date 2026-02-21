@@ -141,21 +141,6 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
             <p className="text-slate-500 mt-1 font-medium">Revise métricas e gere documentação de conformidade.</p>
           </div>
         </div>
-        <div className="relative w-full md:w-auto">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-rounded text-slate-400">search</span>
-          <input
-            type="text"
-            placeholder="Buscar por ID, Material ou Fornecedor..."
-            className="w-full md:w-80 h-14 pl-12 pr-6 bg-white border border-slate-100 rounded-2xl shadow-sm focus:ring-primary focus:border-primary font-medium text-sm"
-            value={searchTerm}
-            onChange={(e) => {
-              if (globalSearchTerm === undefined) {
-                setLocalSearchTerm(e.target.value);
-              }
-            }}
-            readOnly={globalSearchTerm !== undefined && globalSearchTerm !== ''}
-          />
-        </div>
       </div>
 
       <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">

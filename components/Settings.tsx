@@ -90,9 +90,14 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, pa
 
     return (
         <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Configurações</h1>
-                <p className="text-slate-500 mt-1 font-medium">Gerencie suas informações pessoais e segurança da conta.</p>
+            <div className="flex items-center gap-5">
+                <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
+                    <span className="material-symbols-rounded !text-3xl fill-1">settings</span>
+                </div>
+                <div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Configurações</h1>
+                    <p className="text-slate-500 mt-1 font-medium">Gerencie suas informações pessoais e segurança da conta.</p>
+                </div>
             </div>
 
             {message && (
