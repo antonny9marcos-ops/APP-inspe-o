@@ -7,6 +7,7 @@ export interface Inspection {
   material: string;
   fornecedor: string;
   data: string;
+  dataChegada?: string;
   status: Status;
   inspetor: string;
   qtdInspecionada?: number;
@@ -41,7 +42,8 @@ export enum View {
   MATERIALS = 'materials',
   REPORTS = 'reports',
   SETTINGS = 'settings',
-  USERS = 'users'
+  USERS = 'users',
+  ANALYTICS = 'analytics'
 }
 
 export interface AppNotification {

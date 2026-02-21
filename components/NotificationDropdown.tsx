@@ -6,6 +6,7 @@ interface NotificationDropdownProps {
     onMarkAsRead: (id: string) => void;
     onMarkAllAsRead: () => void;
     onClose: () => void;
+    onViewDetails: (notification: AppNotification) => void;
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
@@ -13,6 +14,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     onMarkAsRead,
     onMarkAllAsRead,
     onClose,
+    onViewDetails,
 }) => {
     const getTimeAgo = (dateStr: string) => {
         const date = new Date(dateStr);
@@ -54,7 +56,10 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                         return (
                             <div
                                 key={n.id}
-                                onClick={() => onMarkAsRead(n.id)}
+                                onClick={() => {
+                                    onViewDetails(n);
+                                    if (!n.lida) onMarkAsRead(n.id);
+                                }}
                                 className={`p-5 flex gap-4 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50 last:border-0 relative ${!n.lida ? 'bg-blue-50/20' : ''}`}
                             >
                                 {!n.lida && <div className="absolute top-6 right-5 w-2 h-2 bg-primary rounded-full"></div>}

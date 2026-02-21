@@ -15,6 +15,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<AppNotification | null>(null);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const getTitle = () => {
@@ -22,12 +23,23 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
       case View.DASHBOARD: return 'Painel de Controle de Qualidade';
       case View.INSPECTION_FORM: return 'Nova Inspeção Técnica';
       case View.REPORTS: return 'Gestão de Relatórios';
+      case View.ANALYTICS: return 'BI & Central de Inteligência'; // Added case for Analytics
       default: return 'Qualidade Industrial';
+    }
+  };
+
+  const getNotificationIcon = (tipo: string) => {
+    switch (tipo) {
+      case 'rejeicao': return { name: 'cancel', color: 'text-red-500', bg: 'bg-red-50' };
+      case 'update': return { name: 'sync', color: 'text-blue-500', bg: 'bg-blue-50' };
+      case 'aviso': return { name: 'warning', color: 'text-amber-500', bg: 'bg-amber-50' };
+      default: return { name: 'info', color: 'text-slate-500', bg: 'bg-slate-50' };
     }
   };
 
   return (
     <header className="flex items-center justify-between sticky top-0 z-30 bg-white border-b border-slate-200 px-4 md:px-8 py-4 shrink-0">
+      {/* ... existing code ... */}
       <div className="flex items-center gap-4">
         <button onClick={onMenuClick} className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
           <span className="material-symbols-rounded">menu</span>
@@ -71,6 +83,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
               onMarkAsRead={(id) => markAsRead(id)}
               onMarkAllAsRead={markAllAsRead}
               onClose={() => setShowNotifications(false)}
+              onViewDetails={(n) => {
+                setSelectedNotification(n);
+                setShowNotifications(false);
+              }}
             />
           )}
         </div>
@@ -90,6 +106,61 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
           </button>
         </div>
       </div>
+
+      {/* Detail Modal */}
+      {selectedNotification && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+            <div className="p-8 pb-0 flex justify-between items-start">
+              <div className={`p-4 rounded-2xl ${getNotificationIcon(selectedNotification.tipo).bg} ${getNotificationIcon(selectedNotification.tipo).color}`}>
+                <span className="material-symbols-rounded !text-3xl fill-1">
+                  {getNotificationIcon(selectedNotification.tipo).name}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedNotification(null)}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <span className="material-symbols-rounded">close</span>
+              </button>
+            </div>
+
+            <div className="p-8 pt-6 space-y-4">
+              <div>
+                <h3 className="text-2xl font-black text-slate-900 leading-tight">
+                  {selectedNotification.titulo}
+                </h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 px-1">
+                  Enviado em {new Date(selectedNotification.created_at).toLocaleString('pt-BR')}
+                </p>
+              </div>
+
+              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 mt-6 overflow-y-auto max-h-[300px] custom-scrollbar">
+                <p className="text-slate-600 font-medium leading-relaxed italic whitespace-pre-wrap">
+                  {selectedNotification.mensagem}
+                </p>
+              </div>
+
+              {selectedNotification.tipo === 'aviso' && (
+                <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 flex gap-4">
+                  <span className="material-symbols-rounded text-indigo-500 mt-1">lightbulb</span>
+                  <div>
+                    <p className="text-sm font-black text-indigo-900 mb-1">Diretriz da IA</p>
+                    <p className="text-xs text-indigo-600 font-medium font-bold">Consulte o painel de Análises Avançadas para ver os dados detalhados e iniciar o protocolo de correção.</p>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setSelectedNotification(null)}
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-900/20 mt-4"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

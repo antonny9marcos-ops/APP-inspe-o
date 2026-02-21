@@ -22,6 +22,7 @@ export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ cur
     },
     { view: View.MATERIALS, label: 'Materiais', icon: 'inventory_2' },
     { view: View.REPORTS, label: 'Relatórios', icon: 'analytics' },
+    { view: View.ANALYTICS, label: 'BI & Análises', icon: 'monitoring' },
     ...(isAdmin ? [{ view: View.USERS, label: 'Usuários', icon: 'group' }] : []),
   ];
 

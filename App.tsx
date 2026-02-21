@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Login } from './components/Login';
 import { UserManagement } from './components/UserManagement';
+import { Analytics } from './components/Analytics';
 import { View, Inspection, UserProfile } from './types';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
@@ -203,6 +204,8 @@ export default function App() {
         return <Materials role={userProfile.role} />;
       case View.USERS:
         return <UserManagement />;
+      case View.ANALYTICS:
+        return <Analytics inspections={inspections} />;
       default:
         return (
           <div className="p-4 md:p-8 flex items-center justify-center h-full">

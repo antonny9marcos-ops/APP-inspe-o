@@ -14,6 +14,7 @@ interface InspectionFormProps {
 export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete, onCancel, onViewHistory, initialData }) => {
   const [formData, setFormData] = useState<Partial<Inspection>>(initialData || {
     data: new Date().toLocaleDateString('sv-SE'),
+    dataChegada: new Date().toLocaleDateString('sv-SE'),
     inspetor: '',
     material: '',
     descricao: '',
@@ -258,6 +259,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
     try {
       const dbData = {
         data: formData.data,
+        data_chegada: formData.dataChegada,
         inspetor: formData.inspetor,
         material_codigo: formData.material,
         material_descricao: formData.descricao,
@@ -297,6 +299,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         setTimeout(() => {
           setFormData({
             data: new Date().toLocaleDateString('sv-SE'),
+            dataChegada: new Date().toLocaleDateString('sv-SE'),
             inspetor: '',
             material: '',
             descricao: '',
@@ -404,11 +407,20 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Data</label>
+                <label className="text-sm font-bold text-slate-700">Data da Inspeção</label>
                 <input
                   type="date"
                   value={formData.data}
                   onChange={(e) => setFormData(prev => ({ ...prev, data: e.target.value }))}
+                  className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-slate-700">Data de Chegada do Material</label>
+                <input
+                  type="date"
+                  value={formData.dataChegada}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dataChegada: e.target.value }))}
                   className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium"
                 />
               </div>
