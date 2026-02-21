@@ -185,18 +185,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
       if (!acc[materialKey]) {
         acc[materialKey] = {
           name: materialKey,
-          code: i.material,
+          codes: {} as Record<string, number>, // Track rejections per code
           total: 0,
           rejected: 0,
           suppliers: {} as Record<string, number>,
+          rejectionSuppliers: {} as Record<string, number>, // Specifically track rejections per supplier
           defects: {} as Record<string, number>
         };
       }
       acc[materialKey].total += 1;
       if (i.status === 'Rejeitado') {
         acc[materialKey].rejected += 1;
+        // Track which supplier had the rejection
+        if (i.fornecedor) {
+          acc[materialKey].rejectionSuppliers[i.fornecedor] = (acc[materialKey].rejectionSuppliers[i.fornecedor] || 0) + 1;
+        }
+        // Track which code (in case of name grouping) had the rejection
+        if (i.material) {
+          acc[materialKey].codes[i.material] = (acc[materialKey].codes[i.material] || 0) + 1;
+        }
       }
-      // Track suppliers for this material
+      // Track total inspections per supplier (existing behavior)
       if (i.fornecedor) {
         acc[materialKey].suppliers[i.fornecedor] = (acc[materialKey].suppliers[i.fornecedor] || 0) + 1;
       }
@@ -311,13 +320,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const materialRejectionRanking = Object.values(materialsRejectionMap)
       .map((m: any) => {
         const rate = m.total > 0 ? (m.rejected / m.total) * 100 : 0;
-        // Get main supplier
-        const mainSupplier = Object.entries(m.suppliers).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+        // Priority: Supplier with most REJECTIONS
+        const mostRejectionSupplier = Object.entries(m.rejectionSuppliers).sort((a: any, b: any) => b[1] - a[1])[0]?.[0];
+        // Fallback: Supplier with most inspections
+        const mainSupplier = mostRejectionSupplier || Object.entries(m.suppliers).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+        // Priority: Code with most REJECTIONS
+        const mostRejectionCode = Object.entries(m.codes).sort((a: any, b: any) => b[1] - a[1])[0]?.[0];
+        // Fallback: Just take the first code available if no rejections (shouldn't happen due to filter)
+        const code = mostRejectionCode || '---';
+
         // Get main defect
         const mainDefect = Object.entries(m.defects).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'Nenhum';
 
         return {
           ...m,
+          code,
           rejectionRate: rate,
           mainSupplier,
           mainDefect
