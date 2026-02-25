@@ -360,14 +360,6 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8">
-      <div className="flex items-center text-xs font-bold text-slate-400 gap-2 mb-2">
-        <span className="material-symbols-rounded !text-sm">home</span>
-        <span>Início</span>
-        <span>/</span>
-        <span>Inspeções</span>
-        <span>/</span>
-        <span className="text-slate-900">Novo Cadastro</span>
-      </div>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-5">
@@ -622,7 +614,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
             <input
               type="file"
               multiple
-              accept="image/*,application/pdf"
+              accept="image/*"
               className="hidden"
               ref={fileInputRef}
               onChange={handleFileUpload}
@@ -636,7 +628,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                 <span className="material-symbols-rounded text-primary !text-3xl fill-1">{isUploading ? 'sync' : 'upload_file'}</span>
               </div>
               <p className="text-sm font-bold text-slate-700">{isUploading ? 'Enviando...' : 'Clique ou arraste fotos aqui'}</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase mt-2">PNG, JPG ou PDF até 10MB</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase mt-2">PNG ou JPG até 10MB</p>
             </div>
 
             {formData.evidencias && formData.evidencias.length > 0 && (

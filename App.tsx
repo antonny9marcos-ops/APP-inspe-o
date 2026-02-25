@@ -87,6 +87,7 @@ export default function App() {
         descricao: item.material_descricao,
         fornecedor: item.fornecedor,
         data: item.data,
+        dataChegada: item.data_chegada,
         status: (item.qtd_rejeitada > 0 ? 'Rejeitado' : 'Aprovado') as any,
         inspetor: item.inspetor,
         nf: item.nf,

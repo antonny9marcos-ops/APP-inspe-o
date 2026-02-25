@@ -128,7 +128,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     // Period filter
     const now = new Date();
-    const today = now.toISOString().split('T')[0];
+    const today = now.toLocaleDateString('sv-SE');
 
     if (periodFilter === 'hoje') {
       filtered = filtered.filter(i => i.data === today);
@@ -348,10 +348,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     return {
       metrics: [
-        { label: 'Total de Inspeções', value: total.toLocaleString(), trend: '', isPositive: true, icon: 'fact_check', color: 'text-white', bg: 'bg-white/20', gradient: 'from-blue-600 to-blue-400' },
-        { label: '% Aprovados', value: approvalRate.toFixed(1) + '%', trend: '', isPositive: true, icon: 'check_circle', color: 'text-white', bg: 'bg-white/20', gradient: 'from-emerald-600 to-green-400' },
-        { label: '% Rejeitados', value: rejectionRate.toFixed(1) + '%', trend: '', isPositive: false, icon: 'cancel', color: 'text-white', bg: 'bg-white/20', gradient: 'from-rose-600 to-red-400' },
-        { label: 'Qtd Total Inspecionada', value: totalQty.toLocaleString(), unit: 'unid.', trend: '', isPositive: true, icon: 'folder_open', color: 'text-white', bg: 'bg-white/20', gradient: 'from-amber-600 to-orange-400' },
+        { label: 'Total de Inspeções', value: total.toLocaleString(), trend: '', isPositive: true, icon: 'fact_check', color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-100/80 to-white' },
+        { label: '% Aprovados', value: approvalRate.toFixed(1) + '%', trend: '', isPositive: true, icon: 'check_circle', color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-100/80 to-white' },
+        { label: '% Rejeitados', value: rejectionRate.toFixed(1) + '%', trend: '', isPositive: false, icon: 'cancel', color: 'text-rose-600', bg: 'bg-rose-50', gradient: 'from-rose-100/80 to-white' },
+        { label: 'Qtd Total Inspecionada', value: totalQty.toLocaleString(), unit: 'unid.', trend: '', isPositive: true, icon: 'folder_open', color: 'text-amber-600', bg: 'bg-amber-50', gradient: 'from-amber-100/80 to-white' },
       ],
       pieData: [
         { name: 'Aprovados', value: approved, color: '#22c55e' },
@@ -445,16 +445,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric) => (
-          <div key={metric.label} className={`bg-gradient-to-br ${metric.gradient || 'from-white to-white'} rounded-3xl p-7 shadow-2xl shadow-slate-200/50 hover:shadow-primary/20 hover:-translate-y-1.5 transition-all duration-500 border border-white/10`}>
+          <div key={metric.label} className={`bg-gradient-to-t ${metric.gradient || 'from-white to-white'} rounded-3xl p-7 shadow-xl shadow-slate-200/40 hover:shadow-primary/10 hover:-translate-y-1.5 transition-all duration-500 border border-slate-100`}>
             <div className="flex justify-between items-start mb-6">
-              <p className="text-white/80 text-xs font-black uppercase tracking-widest">{metric.label}</p>
-              <div className={`${metric.bg} p-3 rounded-2xl backdrop-blur-md`}>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{metric.label}</p>
+              <div className={`${metric.bg} p-3 rounded-2xl`}>
                 <span className={`material-symbols-rounded ${metric.color} !text-2xl fill-1`}>{metric.icon}</span>
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <p className="text-white text-4xl font-black tracking-tighter">{metric.value}</p>
-              {metric.unit && <span className="text-white/60 text-sm font-bold">{metric.unit}</span>}
+              <p className="text-slate-900 text-4xl font-black tracking-tighter">{metric.value}</p>
+              {metric.unit && <span className="text-slate-400 text-xs font-bold uppercase">{metric.unit}</span>}
             </div>
             {metric.trend && (
               <div className={`flex items-center gap-1 mt-3 font-bold text-sm ${metric.isPositive ? 'text-success' : 'text-danger'}`}>
@@ -523,7 +523,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
                 />
-                <Bar dataKey="valor" radius={[10, 10, 0, 0]} barSize={60}>
+                <Bar name="Valor" dataKey="valor" radius={[10, 10, 0, 0]} barSize={60}>
                   {barData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}

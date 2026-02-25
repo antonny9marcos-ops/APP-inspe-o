@@ -14,7 +14,7 @@ interface AnalyticsProps {
 export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
     const [isGenerating, setIsGenerating] = React.useState(false);
 
-    // 1. Pareto Analysis Data (Rejection Reasons)
+    // 1. Dados da Análise de Pareto (Motivos de Rejeição)
     const paretoData = useMemo(() => {
         const reasonsMap: Record<string, number> = inspections.reduce((acc: Record<string, number>, ins) => {
             if (ins.status === 'Rejeitado') {
@@ -40,7 +40,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         });
     }, [inspections]);
 
-    // 2. Heatmap Data (Material vs Defect)
+    // 2. Dados do Mapa de Calor (Material vs Defeito)
     const heatmapData = useMemo(() => {
         const materials = Array.from(new Set(inspections.filter(i => i.status === 'Rejeitado').map(i => i.descricao || i.material).filter(Boolean))).slice(0, 8);
         const motives = Array.from(new Set(inspections.filter(i => i.status === 'Rejeitado').map(i => i.motivoRejeicao).filter(Boolean))).slice(0, 6);
@@ -49,14 +49,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
             const data: Record<string, any> = { name: m };
             motives.forEach(mot => {
                 if (mot) {
-                    data[mot] = inspections.filter(i => (i.descricao === m || i.material === m) && i.motivoRejeicao === mot).length;
+                    data[mot as string] = inspections.filter(i => (i.descricao === m || i.material === m) && i.motivoRejeicao === mot).length;
                 }
             });
             return data;
         });
     }, [inspections]);
 
-    // 3. Supplier Reliability Scorecard
+    // 3. Scorecard de Confiabilidade do Fornecedor
     const supplierReliability = useMemo(() => {
         const stats = inspections.reduce((acc: Record<string, any>, ins) => {
             if (!acc[ins.fornecedor]) {
@@ -78,7 +78,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
             .slice(0, 6);
     }, [inspections]);
 
-    // 4. Prediction Logic (Simple Trend Analysis)
+    // 4. Lógica de Previsão (Análise de Tendência Simples)
     const predictionData = useMemo(() => {
         const now = new Date();
         const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
@@ -111,7 +111,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
 
         const topDefectMaterial = Object.entries(materialStats).sort((a, b) => b[1] - a[1])[0];
 
-        // Supplier at risk insight
+        // Insight de fornecedor em risco
         const supplierStats: Record<string, { total: number, rejected: number }> = currentInspections.reduce((acc: any, i) => {
             if (!acc[i.fornecedor]) acc[i.fornecedor] = { total: 0, rejected: 0 };
             acc[i.fornecedor].total++;
@@ -201,7 +201,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                         <span className="material-symbols-rounded !text-3xl fill-1">monitoring</span>
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Quality Intelligence</h1>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Inteligência de Qualidade</h1>
                         <p className="text-slate-500 mt-1 font-medium">Insights avançados e análise de causa raiz (Pareto & Correlação)</p>
                     </div>
                 </div>
@@ -248,9 +248,14 @@ PLANOS DE AÇÃO RECOMENDADOS:
                                 <Tooltip
                                     contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                                    formatter={(value: any, name: string) => {
+                                        if (name === 'count' || name === 'Ocorrências') return [value, 'Ocorrências'];
+                                        if (name === 'percentage' || name === '% Acumulada') return [`${value}%`, '% Acumulada'];
+                                        return [value, name];
+                                    }}
                                 />
-                                <Bar yAxisId="left" dataKey="count" fill="#4f46e5" radius={[10, 10, 0, 0]} barSize={40} />
-                                <Line yAxisId="right" type="monotone" dataKey="percentage" stroke="#6366f1" strokeWidth={4} dot={{ r: 6, fill: '#6366f1', strokeWidth: 3, stroke: '#fff' }} />
+                                <Bar name="Ocorrências" yAxisId="left" dataKey="count" fill="#4f46e5" radius={[10, 10, 0, 0]} barSize={40} />
+                                <Line name="% Acumulada" yAxisId="right" type="monotone" dataKey="percentage" stroke="#6366f1" strokeWidth={4} dot={{ r: 6, fill: '#6366f1', strokeWidth: 3, stroke: '#fff' }} />
                             </ComposedChart>
                         </ResponsiveContainer>
                     </div>
@@ -314,7 +319,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total: {s.total} inspeções</p>
                                     </div>
                                     <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-tighter shadow-sm ${s.reliability >= 90 ? 'bg-emerald-500 text-white' : s.reliability >= 70 ? 'bg-amber-500 text-white' : 'bg-rose-500 text-white'}`}>
-                                        SCORE {s.reliability}
+                                        PONTUAÇÃO {s.reliability}
                                     </div>
                                 </div>
                                 <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
@@ -352,7 +357,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                             </div>
 
                             <div className="p-6 bg-white/10 rounded-3xl border border-white/10 backdrop-blur-sm">
-                                <p className="text-xs font-bold text-indigo-100 mb-4 uppercase tracking-widest">Insights IA</p>
+                                <p className="text-xs font-bold text-indigo-100 mb-4 uppercase tracking-widest">Insights da IA</p>
                                 <ul className="space-y-4">
                                     {predictionData.insights.map((insight, idx) => (
                                         <li key={idx} className="flex gap-3">

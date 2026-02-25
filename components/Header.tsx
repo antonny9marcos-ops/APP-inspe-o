@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, UserProfile } from '../types';
+import { View, UserProfile, AppNotification } from '../types';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationDropdown } from './NotificationDropdown';
 

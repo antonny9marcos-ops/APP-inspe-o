@@ -1,24 +1,6 @@
 import React from 'react';
 import { Inspection } from '../types';
 
-const PrintStyles = () => (
-  <style>{`
-    @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area * { visibility: visible; }
-      #print-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: white;
-      }
-      .no-print { display: none !important; }
-      .page-break { page-break-after: always; }
-      @page { margin: 1cm; }
-    }
-  `}</style>
-);
 
 interface ReportsProps {
   inspections: Inspection[];
@@ -83,7 +65,8 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
   const handleExportCSV = () => {
     const headers = [
       'ID',
-      'DT. Entrad',
+      'DT. Entrada',
+      'DT. Chegada',
       'Material',
       'Desc.Mate',
       'Fornecedor',
@@ -102,6 +85,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
     const rows = filteredInspections.map(i => [
       i.id,
       i.data,
+      i.dataChegada || '',
       i.material,
       `"${(i.descricao || 'N/A').replace(/"/g, '""')}"`,
       `"${i.fornecedor.replace(/"/g, '""')}"`,
@@ -123,7 +107,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `export_inspecoes_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `export_inspecoes_${new Date().toLocaleDateString('sv-SE')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -240,9 +224,6 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-black text-slate-900">Histórico de Inspeções</h2>
             <div className="flex gap-3">
-              <button onClick={() => window.print()} className="flex items-center gap-2 px-4 h-10 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 shadow-sm hover:bg-slate-50">
-                <span className="material-symbols-rounded !text-lg text-danger">picture_as_pdf</span> PDF
-              </button>
               <button onClick={handleExportCSV} className="flex items-center gap-2 px-4 h-10 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 shadow-sm hover:bg-slate-50">
                 <span className="material-symbols-rounded !text-lg text-success">table_chart</span> EXCEL
               </button>
@@ -250,46 +231,50 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
           </div>
 
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50/50 border-b border-slate-50">
+            <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+              <table className="w-full text-left border-separate border-spacing-0">
+                <thead className="sticky top-0 z-10 bg-slate-50 group">
                   <tr>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material/Código</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fornecedor</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Data</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Status</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Material/Código</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Fornecedor</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">DT. Chegada</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center border-b border-slate-100">DT. Insp.</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {filteredInspections.length > 0 ? filteredInspections.map((row) => (
-                    <tr
-                      key={row.id}
-                      onClick={() => setViewingInspection(row)}
-                      className="hover:bg-slate-50/50 transition-all cursor-pointer group"
-                    >
-                      <td className="px-8 py-5 text-xs font-black text-slate-900 font-mono tracking-tighter">
-                        <div className="flex items-center gap-3">
-                          <span className="material-symbols-rounded text-slate-300 group-hover:text-primary transition-colors !text-sm">edit</span>
-                          #{row.id}
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <p className="text-sm font-bold text-slate-700">{row.descricao || 'N/A'}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">Cód: {row.material}</p>
-                      </td>
-                      <td className="px-8 py-5 text-sm font-medium text-slate-400">{row.fornecedor}</td>
-                      <td className="px-8 py-5">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Aprovado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="px-8 py-5 text-sm font-bold text-slate-500 text-right">
-                        {new Date(row.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </td>
-                    </tr>
-                  )) : (
+                  {filteredInspections
+                    .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+                    .length > 0 ? filteredInspections.map((row) => (
+                      <tr
+                        key={row.id}
+                        onClick={() => setViewingInspection(row)}
+                        className="hover:bg-slate-50/50 transition-all cursor-pointer group text-center"
+                      >
+                        <td className="px-8 py-5">
+                          <div className="flex flex-col items-center gap-2">
+                            <span className={`inline-flex px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] shadow-lg ${row.status === 'Aprovado' ? 'bg-emerald-600 text-white shadow-emerald-200/50' : 'bg-rose-600 text-white shadow-rose-200/50'
+                              }`}>
+                              {row.status}
+                            </span>
+                            <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <span className="material-symbols-rounded !text-sm">edit</span> Editar
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5">
+                          <p className="text-sm font-bold text-slate-700">{row.descricao || 'N/A'}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase">Cód: {row.material}</p>
+                        </td>
+                        <td className="px-8 py-5 text-sm font-medium text-slate-400">{row.fornecedor}</td>
+                        <td className="px-8 py-5 text-sm font-bold text-slate-500">
+                          {row.dataChegada ? new Date(row.dataChegada).toLocaleDateString('pt-BR') : '---'}
+                        </td>
+                        <td className="px-8 py-5 text-sm font-bold text-slate-500">
+                          {new Date(row.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </td>
+                      </tr>
+                    )) : (
                     <tr>
                       <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-bold">Nenhuma inspeção encontrada com estes filtros.</td>
                     </tr>
@@ -297,7 +282,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                 </tbody>
               </table>
             </div>
-            <div className="px-8 py-6 bg-slate-50/30 flex justify-between items-center">
+            <div className="px-8 py-6 bg-slate-50/30 flex justify-between items-center border-t border-slate-100">
               <span className="text-xs font-bold text-slate-400">Mostrando {filteredInspections.length} de {inspections.length} entradas</span>
             </div>
           </div>
@@ -322,8 +307,8 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl flex flex-col animate-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
-              <div className="flex items-center gap-6">
+            <div className="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white sticky top-0 z-10">
+              <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${viewingInspection.status === 'Aprovado' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
                   <span className="material-symbols-rounded !text-3xl">
                     {viewingInspection.status === 'Aprovado' ? 'check_circle' : 'cancel'}
@@ -332,23 +317,24 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                 <div>
                   <div className="flex items-center gap-3">
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight">Inspeção #{viewingInspection.id}</h2>
-                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${viewingInspection.status === 'Aprovado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] shadow-lg ${viewingInspection.status === 'Aprovado' ? 'bg-emerald-600 text-white shadow-emerald-200/50' : 'bg-rose-600 text-white shadow-rose-200/50'}`}>
                       {viewingInspection.status}
                     </span>
                   </div>
                   <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-wider font-mono">ID: {viewingInspection.realId}</p>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 w-full sm:w-auto justify-end sm:justify-start">
                 <button
                   onClick={() => onEdit(viewingInspection)}
-                  className="flex items-center gap-2 px-6 h-12 bg-primary text-white rounded-2xl text-xs font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white rounded-2xl text-xs font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all"
                 >
-                  <span className="material-symbols-rounded !text-lg">edit</span> EDITAR DADOS
+                  <span className="material-symbols-rounded !text-lg">edit</span> <span className="sm:inline">EDITAR DADOS</span><span className="inline sm:hidden">EDITAR</span>
                 </button>
                 <button
                   onClick={() => setViewingInspection(null)}
-                  className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors flex items-center justify-center"
+                  className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors flex items-center justify-center border border-slate-200"
+                  aria-label="Fechar"
                 >
                   <span className="material-symbols-rounded">close</span>
                 </button>
@@ -360,7 +346,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Main Info Column */}
                 <div className="lg:col-span-2 space-y-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-center">
                     <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/50">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Material e Código</span>
                       <p className="text-lg font-black text-slate-800">{viewingInspection.descricao || 'N/A'}</p>
@@ -372,21 +358,35 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="p-5 border border-slate-100 rounded-3xl">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">DT. Entrada</p>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+                    <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
+                      <div className="min-h-[2.5rem] flex items-center justify-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Chegada</p>
+                      </div>
+                      <p className="text-sm font-black text-slate-700">{viewingInspection.dataChegada ? new Date(viewingInspection.dataChegada).toLocaleDateString() : '---'}</p>
+                    </div>
+                    <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
+                      <div className="min-h-[2.5rem] flex items-center justify-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Entrada/Insp.</p>
+                      </div>
                       <p className="text-sm font-black text-slate-700">{new Date(viewingInspection.data).toLocaleDateString()}</p>
                     </div>
-                    <div className="p-5 border border-slate-100 rounded-3xl">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">NF</p>
+                    <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
+                      <div className="min-h-[2.5rem] flex items-center justify-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">NF</p>
+                      </div>
                       <p className="text-sm font-black text-slate-700">{viewingInspection.nf || 'N/A'}</p>
                     </div>
-                    <div className="p-5 border border-slate-100 rounded-3xl">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pedido</p>
+                    <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
+                      <div className="min-h-[2.5rem] flex items-center justify-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pedido</p>
+                      </div>
                       <p className="text-sm font-black text-slate-700">{viewingInspection.numeroPedido || 'N/A'}</p>
                     </div>
-                    <div className="p-5 border border-slate-100 rounded-3xl">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Inspetor</p>
+                    <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
+                      <div className="min-h-[2.5rem] flex items-center justify-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Inspetor</p>
+                      </div>
                       <p className="text-sm font-black text-slate-700">{viewingInspection.inspetor || '---'}</p>
                     </div>
                   </div>
@@ -410,8 +410,8 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                   </div>
 
                   {viewingInspection.status === 'Rejeitado' && (
-                    <div className="p-6 bg-red-600 text-white rounded-[2rem] shadow-xl shadow-red-200">
-                      <div className="flex items-center gap-3 mb-3">
+                    <div className="p-6 bg-red-600 text-white rounded-[2rem] shadow-xl shadow-red-200 text-center">
+                      <div className="flex items-center justify-center gap-3 mb-3">
                         <span className="material-symbols-rounded">warning</span>
                         <h4 className="text-xs font-black uppercase tracking-widest">Motivo da Rejeição</h4>
                       </div>
@@ -419,14 +419,24 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                     </div>
                   )}
 
-                  <div className="p-8 bg-slate-900 rounded-[2rem] text-white">
-                    <div className="flex items-center gap-3 mb-4">
+                  <div className="p-8 bg-slate-900 rounded-[2rem] text-white text-center">
+                    <div className="flex items-center justify-center gap-3 mb-4">
                       <span className="material-symbols-rounded text-primary">notes</span>
                       <h4 className="text-xs font-black uppercase tracking-widest">Observações Detalhadas</h4>
                     </div>
                     <p className="text-slate-300 text-sm italic font-medium leading-relaxed">
                       "{viewingInspection.observacoes || 'Nenhuma observação registrada.'}"
                     </p>
+                  </div>
+
+                  {/* Mobile-only bottom close button */}
+                  <div className="pt-4 sm:hidden pb-4">
+                    <button
+                      onClick={() => setViewingInspection(null)}
+                      className="w-full h-14 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest border border-slate-200"
+                    >
+                      Fechar Visualização
+                    </button>
                   </div>
                 </div>
 
@@ -482,99 +492,6 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
         </div>
       )}
 
-      {/* Print-only Detailed View */}
-      <div id="print-area" className="hidden print:block p-8">
-        <PrintStyles />
-        <div className="flex justify-between items-center mb-10 border-b-2 border-slate-900 pb-6">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Relatório de Inspeções Detalhado</h1>
-            <p className="text-sm font-bold text-slate-500 uppercase mt-1">Gerado em {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xl font-black text-primary">MC Industrial</p>
-            <p className="text-xs font-bold text-slate-400 font-mono">#{Math.random().toString(36).substring(7).toUpperCase()}</p>
-          </div>
-        </div>
-
-        <div className="space-y-12">
-          {filteredInspections.map((ins, index) => (
-            <div key={ins.id} className={`border-2 border-slate-100 rounded-3xl p-8 page-break`}>
-              <div className="flex justify-between items-start mb-8">
-                <div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID da Inspeção</span>
-                  <h2 className="text-2xl font-black text-slate-900 font-mono">#{ins.id}</h2>
-                </div>
-                <div className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${ins.status === 'Aprovado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  Status: {ins.status}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-12 gap-y-6">
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Material / Descrição</p>
-                  <p className="text-sm font-black text-slate-800">{ins.descricao || 'N/A'}</p>
-                  <p className="text-xs font-bold text-slate-500 mt-0.5">Cód: {ins.material}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fornecedor</p>
-                  <p className="text-sm font-black text-slate-800">{ins.fornecedor}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Data e Inspetor</p>
-                  <p className="text-sm font-black text-slate-800">{new Date(ins.data).toLocaleDateString('pt-BR')} — {ins.inspetor || 'Não informado'}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Documentação (NF / Pedido)</p>
-                  <p className="text-sm font-black text-slate-800">NF: {ins.nf || 'N/A'} — Pedido: {ins.numeroPedido || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Quantidades</p>
-                  <div className="flex gap-4 mt-1">
-                    <div className="text-center bg-slate-50 px-3 py-1 rounded-lg">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase">Insp</p>
-                      <p className="text-xs font-black text-slate-700">{ins.qtdInspecionada || 0}</p>
-                    </div>
-                    <div className="text-center bg-green-50 px-3 py-1 rounded-lg">
-                      <p className="text-[9px] font-bold text-green-400 uppercase">Aprov</p>
-                      <p className="text-xs font-black text-green-700">{ins.qtdAprovada || 0}</p>
-                    </div>
-                    <div className="text-center bg-red-50 px-3 py-1 rounded-lg">
-                      <p className="text-[9px] font-bold text-red-400 uppercase">Rejeit</p>
-                      <p className="text-xs font-black text-red-700">{ins.qtdRejeitada || 0}</p>
-                    </div>
-                  </div>
-                </div>
-                {ins.status === 'Rejeitado' && (
-                  <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-danger">Motivo da Rejeição</p>
-                    <p className="text-sm font-black text-danger">{ins.motivoRejeicao || 'Não especificado'}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-8">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Observações Adicionais</p>
-                <p className="text-xs font-medium text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl italic">
-                  {ins.observacoes || 'Nenhuma observação registrada para esta inspeção.'}
-                </p>
-              </div>
-
-              {ins.evidencias && ins.evidencias.length > 0 && (
-                <div className="mt-8">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Evidências Fotográficas</p>
-                  <div className="grid grid-cols-4 gap-4">
-                    {ins.evidencias.map((url, i) => (
-                      <div key={i} className="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
-                        <img src={url} alt={`Evidência ${i + 1}`} className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
