@@ -51,7 +51,6 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
 
   const ranking = Object.values(supplierStats)
     .sort((a: any, b: any) => b.count - a.count)
-    .slice(0, 4)
     .map((item: any, idx) => ({
       pos: idx + 1,
       name: item.name,
@@ -192,7 +191,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
             <h2 className="text-xl font-black text-slate-900">Ranking de Fornecedores</h2>
             <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Baseado no volume de inspeções</p>
           </div>
-          <div className="flex-1 divide-y divide-slate-50">
+          <div className="flex-1 divide-y divide-slate-50 overflow-y-auto custom-scrollbar max-h-[450px]">
             {ranking.length > 0 ? ranking.map((item) => (
               <div key={item.pos} className="p-6 flex items-center justify-between group hover:bg-slate-50 transition-all">
                 <div className="flex items-center gap-5">

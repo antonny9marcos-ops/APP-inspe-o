@@ -30,7 +30,7 @@ export default function App() {
 
   // Estados dos Filtros
   const [searchTerm, setSearchTerm] = useState('');
-  const [periodFilter, setPeriodFilter] = useState('últimos 30 dias');
+  const [periodFilter, setPeriodFilter] = useState('todos');
   const [supplierFilter, setSupplierFilter] = useState('Todos');
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [monthFilter, setMonthFilter] = useState<string>('all');
@@ -108,6 +108,27 @@ export default function App() {
 
   useEffect(() => {
     fetchInspections();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('public:inspecoes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen for ALL events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'inspecoes'
+        },
+        (payload) => {
+          console.log('Realtime change detected:', payload);
+          fetchInspections(); // Refresh the list
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Fecha a sidebar ao mudar de view no mobile

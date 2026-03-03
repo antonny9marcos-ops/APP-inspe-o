@@ -290,7 +290,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
       trendDates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - (6 - i));
-        return { name: d.getDate().toString(), date: d.toISOString().split('T')[0] };
+        const dayName = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+        const formattedName = `${d.getDate()}/${d.getMonth() + 1} (${dayName})`;
+        return { name: formattedName, date: d.toISOString().split('T')[0] };
+      });
+    }
+
+    // Apply similar formatting for week and month views if needed
+    if (trendWeek !== 'all' || trendMonth !== 'all') {
+      trendDates = trendDates.map(td => {
+        const d = new Date(td.date + 'T00:00:00'); // Ensure local time
+        const dayName = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+        return { ...td, name: `${d.getDate()}/${d.getMonth() + 1} (${dayName})` };
       });
     }
 
@@ -343,8 +354,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         };
       })
       .filter((m: any) => m.rejected > 0)
-      .sort((a, b) => b.rejectionRate - a.rejectionRate)
-      .slice(0, 5);
+      .sort((a, b) => b.rejectionRate - a.rejectionRate);
 
     return {
       metrics: [
@@ -369,7 +379,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           else if (i.status === 'Rejeitado') acc[i.fornecedor].rejeitados += 1;
           return acc;
         }, {})
-      ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados)).slice(0, 5)
+      ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))
     };
   }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek]);
 
@@ -395,11 +405,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
           >
+            <option value="todos">Geral</option>
             <option value="últimos 30 dias">30 Dias</option>
             <option value="últimos 7 dias">7 Dias</option>
             <option value="hoje">Hoje</option>
             <option value="este mês">Mês</option>
-            <option value="todos">Tudo</option>
           </select>
           <select
             value={yearFilter}
@@ -540,7 +550,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <h2 className="text-xl font-black text-slate-900 tracking-tight">Materiais com Maior Rejeição</h2>
             <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Taxa de rejeição por item</p>
           </div>
-          <div className="flex-1 divide-y divide-slate-50 overflow-y-auto max-h-[400px] custom-scrollbar">
+          <div className="flex-1 divide-y divide-slate-50 overflow-y-auto max-h-[450px] custom-scrollbar">
             {materialRejectionRanking.length > 0 ? materialRejectionRanking.map((item: any, idx) => (
               <div key={idx} className="py-6 group hover:bg-slate-50 transition-all">
                 <div className="flex items-center justify-between mb-3 px-1">
@@ -622,51 +632,54 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="h-[28rem] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                layout="vertical"
-                data={supplierPerformance}
-                margin={{ top: 5, right: 30, left: 120, bottom: 20 }}
-                barGap={2}
-              >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} opacity={0.1} />
-                <XAxis
-                  type="number"
-                  axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-                  tickLine={{ stroke: '#cbd5e1' }}
-                  tick={{ fontSize: 13, fontWeight: 600, fill: '#64748b' }}
-                  dy={10}
-                />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={<CustomYAxisTick />}
-                  width={120}
-                />
-                <Tooltip
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                />
-                <Bar
-                  dataKey="aprovados"
-                  name="Aprovados"
-                  fill="#22c55e"
-                  radius={[0, 4, 4, 0]}
-                  barSize={18}
-                />
-                <Bar
-                  dataKey="rejeitados"
-                  name="Rejeitados"
-                  fill="#ef4444"
-                  radius={[0, 4, 4, 0]}
-                  barSize={18}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="flex-1 w-full overflow-y-auto custom-scrollbar pr-2" style={{ maxHeight: '500px' }}>
+            <div style={{ height: Math.max(448, supplierPerformance.length * 45 + 60) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  layout="vertical"
+                  data={supplierPerformance}
+                  margin={{ top: 5, right: 30, left: 120, bottom: 20 }}
+                  barGap={2}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} opacity={0.1} />
+                  <XAxis
+                    type="number"
+                    axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+                    tickLine={{ stroke: '#cbd5e1' }}
+                    tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }}
+                    dy={10}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={<CustomYAxisTick />}
+                    width={120}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '8px 12px' }}
+                    itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
+                    labelStyle={{ fontSize: '11px', fontWeight: '800', marginBottom: '4px', color: '#1e293b' }}
+                  />
+                  <Bar
+                    dataKey="aprovados"
+                    name="Aprovados"
+                    fill="#22c55e"
+                    radius={[0, 4, 4, 0]}
+                    barSize={12}
+                  />
+                  <Bar
+                    dataKey="rejeitados"
+                    name="Rejeitados"
+                    fill="#ef4444"
+                    radius={[0, 4, 4, 0]}
+                    barSize={12}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       </div>
@@ -675,7 +688,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="flex justify-between items-center mb-10">
           <div>
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Tendência de Inspeções</h3>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">
+              {trendYear !== 'all' ? `Resumo Mensal de ${trendYear}` :
+                trendMonth !== 'all' ? `Detalhamento Diário` :
+                  trendWeek !== 'all' ? `Semana ${trendWeek}` :
+                    'Últimos 7 Dias'}
+            </p>
+            <div className="flex flex-wrap gap-2 mt-3">
               <select
                 value={trendYear}
                 onChange={(e) => setTrendYear(e.target.value)}
@@ -723,14 +742,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
               <YAxis yAxisId="right" orientation="right" hide />
               <Tooltip
-                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{
+                  borderRadius: '16px',
+                  border: 'none',
+                  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                  padding: '12px'
+                }}
+                labelStyle={{ fontWeight: '900', color: '#1e293b', marginBottom: '8px', fontSize: '12px' }}
                 formatter={(value: any, name: string) => {
                   if (name === 'rate') return [`${Number(value).toFixed(1)}%`, 'Taxa de Aprovação'];
-                  if (name === 'volume') return [value, 'Volume'];
+                  if (name === 'volume') return [value, 'Total Inspecionado'];
                   return [value, name];
                 }}
               />
-              <Bar yAxisId="left" dataKey="volume" fill="#137fec" radius={[6, 6, 0, 0]} barSize={44} fillOpacity={0.08} />
+              <Bar yAxisId="left" dataKey="volume" fill="#137fec" radius={[6, 6, 0, 0]} barSize={32} fillOpacity={0.15} />
               <Line yAxisId="right" type="monotone" dataKey="rate" stroke="#22c55e" strokeWidth={4} dot={{ r: 5, fill: '#22c55e', strokeWidth: 3, stroke: '#fff' }} activeDot={{ r: 7, strokeWidth: 0 }} />
             </ComposedChart>
           </ResponsiveContainer>
