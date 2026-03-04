@@ -19,7 +19,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         const reasonsMap: Record<string, number> = inspections.reduce((acc: Record<string, number>, ins) => {
             if (ins.status === 'Rejeitado') {
                 const reason = ins.motivoRejeicao || 'Não especificado';
-                acc[reason] = (acc[reason] || 0) + 1;
+                acc[reason] = (acc[reason] || 0) + (ins.qtdRejeitada || 0);
             }
             return acc;
         }, {});
@@ -49,7 +49,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
             const data: Record<string, any> = { name: m };
             motives.forEach(mot => {
                 if (mot) {
-                    data[mot as string] = inspections.filter(i => (i.descricao === m || i.material === m) && i.motivoRejeicao === mot).length;
+                    data[mot as string] = inspections
+                        .filter(i => (i.descricao === m || i.material === m) && i.motivoRejeicao === mot)
+                        .reduce((sum, i) => sum + (i.qtdRejeitada || 0), 0);
                 }
             });
             return data;
@@ -60,18 +62,17 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
     const supplierReliability = useMemo(() => {
         const stats = inspections.reduce((acc: Record<string, any>, ins) => {
             if (!acc[ins.fornecedor]) {
-                acc[ins.fornecedor] = { name: ins.fornecedor, total: 0, approved: 0, rejected: 0 };
+                acc[ins.fornecedor] = { name: ins.fornecedor, totalQty: 0, approvedQty: 0, rejectedQty: 0 };
             }
-            acc[ins.fornecedor].total += 1;
-            if (ins.status === 'Aprovado') acc[ins.fornecedor].approved += 1;
-            else acc[ins.fornecedor].rejected += 1;
+            acc[ins.fornecedor].totalQty += (ins.qtdInspecionada || 0);
+            acc[ins.fornecedor].approvedQty += (ins.qtdAprovada || 0);
+            acc[ins.fornecedor].rejectedQty += (ins.qtdRejeitada || 0);
             return acc;
         }, {});
 
         return Object.values(stats)
             .map((s: any) => {
-                // Simple Reliability Formula: (Approved / Total) * 100
-                const reliability = s.total > 0 ? (s.approved / s.total) * 100 : 0;
+                const reliability = s.totalQty > 0 ? (s.approvedQty / s.totalQty) * 100 : 0;
                 return { ...s, reliability: Math.round(reliability) };
             })
             .sort((a, b) => b.reliability - a.reliability)
@@ -84,28 +85,43 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
         const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000));
 
-        const currentInspections = inspections.filter(i => new Date(i.data).getTime() >= thirtyDaysAgo.getTime());
+        const currentInspections = inspections.filter(i => new Date(i.data + 'T00:00:00').getTime() >= thirtyDaysAgo.getTime());
         const previousInspections = inspections.filter(i => {
-            const date = new Date(i.data).getTime();
+            const date = new Date(i.data + 'T00:00:00').getTime();
             return date >= sixtyDaysAgo.getTime() && date < thirtyDaysAgo.getTime();
         });
 
-        const currentRate = currentInspections.length > 0
-            ? (currentInspections.filter(i => i.status === 'Rejeitado').length / currentInspections.length) * 100
-            : 0;
+        const currentTotalQty = currentInspections.reduce((sum, i) => sum + (i.qtdInspecionada || 0), 0);
+        const currentRejectedQty = currentInspections.reduce((sum, i) => sum + (i.qtdRejeitada || 0), 0);
+        const currentRate = currentTotalQty > 0 ? (currentRejectedQty / currentTotalQty) * 100 : 0;
 
-        const previousRate = previousInspections.length > 0
-            ? (previousInspections.filter(i => i.status === 'Rejeitado').length / previousInspections.length) * 100
-            : 0;
+        const previousTotalQty = previousInspections.reduce((sum, i) => sum + (i.qtdInspecionada || 0), 0);
+        const previousRejectedQty = previousInspections.reduce((sum, i) => sum + (i.qtdRejeitada || 0), 0);
+        const previousRate = previousTotalQty > 0 ? (previousRejectedQty / previousTotalQty) * 100 : 0;
+
+        // --- SPC Logic (Statistical Process Control) ---
+        const dailyRates = Array.from({ length: 60 }).map((_, i) => {
+            const start = new Date(now.getTime() - ((i + 1) * 24 * 60 * 60 * 1000));
+            const end = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
+            const dayInspections = inspections.filter(ins => {
+                const d = new Date(ins.data + 'T00:00:00').getTime();
+                return d >= start.getTime() && d < end.getTime();
+            });
+            const total = dayInspections.reduce((sum, ins) => sum + (ins.qtdInspecionada || 0), 0);
+            const rejected = dayInspections.reduce((sum, ins) => sum + (ins.qtdRejeitada || 0), 0);
+            return total > 0 ? (rejected / total) * 100 : null;
+        }).filter(r => r !== null) as number[];
+
+        const meanRate = dailyRates.length > 0 ? dailyRates.reduce((a, b) => a + b, 0) / dailyRates.length : 0;
+        const variance = dailyRates.length > 0 ? dailyRates.reduce((a, b) => a + Math.pow(b - meanRate, 2), 0) / dailyRates.length : 0;
+        const stdDev = Math.sqrt(variance);
 
         const trend = currentRate - previousRate;
 
         // Highest rejected material insight
         const materialStats: Record<string, number> = currentInspections.reduce((acc: any, i) => {
-            if (i.status === 'Rejeitado') {
-                const name = i.descricao || i.material;
-                acc[name] = (acc[name] || 0) + 1;
-            }
+            const name = i.descricao || i.material;
+            acc[name] = (acc[name] || 0) + (i.qtdRejeitada || 0);
             return acc;
         }, {});
 
@@ -114,8 +130,8 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         // Insight de fornecedor em risco
         const supplierStats: Record<string, { total: number, rejected: number }> = currentInspections.reduce((acc: any, i) => {
             if (!acc[i.fornecedor]) acc[i.fornecedor] = { total: 0, rejected: 0 };
-            acc[i.fornecedor].total++;
-            if (i.status === 'Rejeitado') acc[i.fornecedor].rejected++;
+            acc[i.fornecedor].total += (i.qtdInspecionada || 0);
+            acc[i.fornecedor].rejected += (i.qtdRejeitada || 0);
             return acc;
         }, {});
 
@@ -123,14 +139,24 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
             .map(([name, stats]) => ({ name, rate: (stats.rejected / stats.total) * 100 }))
             .sort((a, b) => b.rate - a.rate)[0];
 
+        // Anomaly detected if currentRate is > mean + 2*stdDev (95% confidence)
+        const isAnomaly = currentRate > (meanRate + 2 * stdDev) && currentTotalQty > 0;
+
+        // Forecast with Risk Buffer: Prevent dropping to 0% if there are active rejections
+        let rawProjection = currentRate + (trend * 0.5);
+        const riskBuffer = currentRejectedQty > 0 ? (currentRate * 0.3) : 0; // 30% of current rate as floor
+        const predictedRate = Math.max(riskBuffer, rawProjection);
+
         return {
-            predictedRate: Math.max(0, Math.round(currentRate + (trend * 0.5))), // Weighted projection
+            predictedRate,
             insights: [
-                topDefectMaterial
-                    ? { icon: 'warning', color: 'text-amber-400', text: `Atenção: ${topDefectMaterial[0]} representa o maior volume de rejeições recentes.` }
-                    : { icon: 'check_circle', color: 'text-emerald-400', text: 'Nenhum material apresenta desvios críticos no momento.' },
+                isAnomaly
+                    ? { icon: 'error', color: 'text-rose-400', text: `Anomalia Detectada: A taxa atual de ${currentRate.toFixed(1)}% está estatisticamente fora de controle (SPC).` }
+                    : topDefectMaterial && topDefectMaterial[1] > 0
+                        ? { icon: 'warning', color: 'text-amber-400', text: `Atenção: ${topDefectMaterial[0]} representa o maior volume de peças rejeitadas recentemente.` }
+                        : { icon: 'check_circle', color: 'text-emerald-400', text: 'Fluxo produtivo dentro dos limites estatísticos de controle.' },
                 topRiskSupplier && topRiskSupplier.rate > 0
-                    ? { icon: 'trending_up', color: 'text-rose-400', text: `Risco: ${topRiskSupplier.name} está com taxa de rejeição de ${Math.round(topRiskSupplier.rate)}%.` }
+                    ? { icon: 'trending_up', color: 'text-rose-400', text: `Risco: ${topRiskSupplier.name} está com taxa de rejeição de ${topRiskSupplier.rate.toFixed(1)}%.` }
                     : { icon: 'info', color: 'text-blue-400', text: 'Estabilidade detectada no fluxo de fornecimento atual.' }
             ]
         };
@@ -233,7 +259,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                                     tickLine={false}
                                     tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
                                     allowDecimals={false}
-                                    label={{ value: 'Ocorrências', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: 10, fontWeight: 800 } }}
+                                    label={{ value: 'Quantidade de Peças', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: 10, fontWeight: 800 } }}
                                 />
                                 <YAxis
                                     yAxisId="right"
@@ -249,7 +275,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                                     contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                                     formatter={(value: any, name: string) => {
-                                        if (name === 'count' || name === 'Ocorrências') return [value, 'Ocorrências'];
+                                        if (name === 'count' || name === 'Ocorrências') return [value, 'Qtd Rejeitada'];
                                         if (name === 'percentage' || name === '% Acumulada') return [`${value}%`, '% Acumulada'];
                                         return [value, name];
                                     }}
@@ -268,27 +294,30 @@ PLANOS DE AÇÃO RECOMENDADOS:
                         <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Correlação entre componentes e principais falhas</p>
                     </div>
                     <div className="flex-1 overflow-auto custom-scrollbar">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse table-fixed">
                             <thead>
                                 <tr>
-                                    <th className="p-3 bg-slate-50 sticky left-0 z-10 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Material</th>
+                                    <th className="w-[35%] p-4 bg-slate-50 sticky left-0 z-10 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Material</th>
                                     {heatmapData[0] && Object.keys(heatmapData[0]).filter(k => k !== 'name').map(mot => (
-                                        <th key={mot} className="p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">{mot}</th>
+                                        <th key={mot} className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center leading-[1.1] break-words whitespace-normal align-middle">{mot}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {(heatmapData as Record<string, any>[]).map((row, idx) => (
                                     <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                        <td className="p-3 bg-white sticky left-0 z-10 text-xs font-black text-slate-900 border-b border-slate-50">{row.name}</td>
+                                        <td className="p-4 bg-white sticky left-0 z-10 text-xs font-black text-slate-900 border-b border-slate-50 truncate">{row.name}</td>
                                         {Object.keys(row).filter(k => k !== 'name').map(mot => {
                                             const value = (row as Record<string, any>)[mot];
                                             const opacity = value > 0 ? Math.min(0.1 + (value * 0.2), 0.9) : 0.02;
                                             return (
                                                 <td key={mot} className="p-1 border-b border-slate-50">
                                                     <div
-                                                        className={`h-12 w-full rounded-xl flex items-center justify-center text-xs font-black transition-all ${value > 0 ? 'text-indigo-700' : 'text-slate-200'}`}
-                                                        style={{ backgroundColor: value > 0 ? `rgba(79, 70, 229, ${opacity})` : 'transparent' }}
+                                                        className={`h-12 w-full rounded-xl flex items-center justify-center text-xs font-black transition-all shadow-sm ${value > 0 ? 'text-white shadow-indigo-100' : 'text-slate-300'}`}
+                                                        style={{
+                                                            backgroundColor: value > 0 ? `rgba(79, 70, 229, ${opacity + 0.1})` : 'transparent',
+                                                            boxShadow: value > 0 ? `0 4px 12px rgba(79, 70, 229, ${opacity * 0.4})` : 'none'
+                                                        }}
                                                     >
                                                         {value}
                                                     </div>
@@ -316,7 +345,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
                                         <p className="text-sm font-black text-slate-900 line-clamp-1">{s.name}</p>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total: {s.total} inspeções</p>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Inspecionadas: {s.totalQty.toLocaleString()}</p>
                                     </div>
                                     <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-tighter shadow-sm ${s.reliability >= 90 ? 'bg-emerald-500 text-white' : s.reliability >= 70 ? 'bg-amber-500 text-white' : 'bg-rose-500 text-white'}`}>
                                         PONTUAÇÃO {s.reliability}
@@ -330,12 +359,12 @@ PLANOS DE AÇÃO RECOMENDADOS:
                                 </div>
                                 <div className="mt-4 flex gap-4">
                                     <div className="text-center">
-                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">Aprovados</p>
-                                        <p className="text-xs font-black text-emerald-600">{s.approved}</p>
+                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">Qtd Aprovada</p>
+                                        <p className="text-xs font-black text-emerald-600">{s.approvedQty.toLocaleString()}</p>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">Rejeitados</p>
-                                        <p className="text-xs font-black text-rose-600">{s.rejected}</p>
+                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">Qtd Rejeitada</p>
+                                        <p className="text-xs font-black text-rose-600">{s.rejectedQty.toLocaleString()}</p>
                                     </div>
                                 </div>
                             </div>
@@ -352,7 +381,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
 
                         <div className="space-y-8">
                             <div className="flex items-end gap-2">
-                                <span className="text-5xl font-black tracking-tighter">~{predictionData.predictedRate}%</span>
+                                <span className="text-5xl font-black tracking-tighter">~{predictionData.predictedRate.toFixed(1)}%</span>
                                 <span className="text-indigo-200 font-bold mb-2 uppercase text-[10px] tracking-widest">Taxa de Rejeição</span>
                             </div>
 

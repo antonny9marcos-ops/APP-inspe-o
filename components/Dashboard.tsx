@@ -86,7 +86,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     inspections.forEach(i => {
       if (i.data) {
-        const d = new Date(i.data);
+        const d = new Date(i.data + 'T00:00:00');
         years.add(d.getFullYear().toString());
       }
     });
@@ -103,7 +103,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [inspections]);
 
   const suppliers = useMemo(() => {
-    const list = Array.from(new Set(inspections.map(i => i.fornecedor).filter(Boolean)));
+    const list = Array.from(new Set(inspections.map(i => (i.fornecedor || '').trim()).filter(Boolean)));
     return ['Todos', ...list.sort()];
   }, [inspections]);
 
@@ -135,29 +135,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
     } else if (periodFilter === 'últimos 7 dias') {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(now.getDate() - 7);
-      filtered = filtered.filter(i => new Date(i.data) >= sevenDaysAgo);
+      filtered = filtered.filter(i => new Date(i.data + 'T00:00:00') >= sevenDaysAgo);
     } else if (periodFilter === 'últimos 30 dias') {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(now.getDate() - 30);
-      filtered = filtered.filter(i => new Date(i.data) >= thirtyDaysAgo);
+      filtered = filtered.filter(i => new Date(i.data + 'T00:00:00') >= thirtyDaysAgo);
     } else if (periodFilter === 'este mês') {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      filtered = filtered.filter(i => new Date(i.data) >= startOfMonth);
+      filtered = filtered.filter(i => new Date(i.data + 'T00:00:00') >= startOfMonth);
     } else if (periodFilter === 'todos') {
       // No additional filter needed
     }
 
     // New Year/Month Filters
     if (yearFilter !== 'all') {
-      filtered = filtered.filter(i => new Date(i.data).getFullYear().toString() === yearFilter);
+      filtered = filtered.filter(i => new Date(i.data + 'T00:00:00').getFullYear().toString() === yearFilter);
     }
     if (monthFilter !== 'all') {
-      filtered = filtered.filter(i => (new Date(i.data).getMonth() + 1).toString() === monthFilter);
+      filtered = filtered.filter(i => (new Date(i.data + 'T00:00:00').getMonth() + 1).toString() === monthFilter);
     }
     // Simple week filter (relative to year)
     if (weekFilter !== 'all') {
       filtered = filtered.filter(i => {
-        const d = new Date(i.data);
+        const d = new Date(i.data + 'T00:00:00');
         const onejan = new Date(d.getFullYear(), 0, 1);
         const week = Math.ceil((((d.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
         return week.toString() === weekFilter;
@@ -261,7 +261,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       const year = parseInt(trendYear);
       trendData = filterOptions.months.map(m => {
         const monthFiltered = inspections.filter(i => {
-          const d = new Date(i.data);
+          const d = new Date(i.data + 'T00:00:00');
           return d.getFullYear() === year && (d.getMonth() + 1).toString() === m.val;
         });
 
@@ -278,10 +278,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
 
         const total = finalFiltered.length;
+        const totalQty = finalFiltered.reduce((acc, i) => acc + (i.qtdInspecionada || 0), 0);
         const approvedCount = finalFiltered.filter(i => i.status === 'Aprovado').length;
         return {
           name: m.label.substring(0, 3),
-          volume: total,
+          volume: totalQty,
           rate: total > 0 ? (approvedCount / total) * 100 : 100
         };
       });
@@ -319,10 +320,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
 
         const dayTotal = dayFiltered.length;
+        const dayTotalQty = dayFiltered.reduce((acc, i) => acc + (i.qtdInspecionada || 0), 0);
         const dayApprovedCount = dayFiltered.filter(i => i.status === 'Aprovado').length;
         return {
           name: td.name,
-          volume: dayTotal,
+          volume: dayTotalQty,
           rate: dayTotal > 0 ? (dayApprovedCount / dayTotal) * 100 : 100
         };
       });
@@ -374,9 +376,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
       materialRejectionRanking,
       supplierPerformance: Object.entries(
         filtered.reduce((acc: any, i) => {
-          if (!acc[i.fornecedor]) acc[i.fornecedor] = { name: i.fornecedor, aprovados: 0, rejeitados: 0 };
-          if (i.status === 'Aprovado') acc[i.fornecedor].aprovados += 1;
-          else if (i.status === 'Rejeitado') acc[i.fornecedor].rejeitados += 1;
+          const supplierName = (i.fornecedor || '').trim();
+          if (!acc[supplierName]) acc[supplierName] = { name: supplierName, aprovados: 0, rejeitados: 0 };
+          if (i.status === 'Aprovado') acc[supplierName].aprovados += 1;
+          else if (i.status === 'Rejeitado') acc[supplierName].rejeitados += 1;
           return acc;
         }, {})
       ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))
@@ -751,7 +754,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 labelStyle={{ fontWeight: '900', color: '#1e293b', marginBottom: '8px', fontSize: '12px' }}
                 formatter={(value: any, name: string) => {
                   if (name === 'rate') return [`${Number(value).toFixed(1)}%`, 'Taxa de Aprovação'];
-                  if (name === 'volume') return [value, 'Total Inspecionado'];
+                  if (name === 'volume') return [Number(value).toLocaleString(), 'Qtd Inspecionada'];
                   return [value, name];
                 }}
               />

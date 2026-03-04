@@ -32,9 +32,9 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
     const matchesSupplier = selectedSupplier === 'Todos' || ins.fornecedor === selectedSupplier;
     const matchesStatus = statusFilter === 'Todos' || ins.status === statusFilter;
 
-    const insDate = new Date(ins.data);
-    const matchesStart = !startDate || insDate >= new Date(startDate);
-    const matchesEnd = !endDate || insDate <= new Date(endDate);
+    const insDate = new Date(ins.data + 'T00:00:00');
+    const matchesStart = !startDate || insDate >= new Date(startDate + 'T00:00:00');
+    const matchesEnd = !endDate || insDate <= new Date(endDate + 'T00:00:00');
 
     return matchesSearch && matchesSupplier && matchesStatus && matchesStart && matchesEnd;
   });
@@ -243,7 +243,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredInspections
-                    .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+                    .sort((a, b) => new Date(b.data + 'T00:00:00').getTime() - new Date(a.data + 'T00:00:00').getTime())
                     .length > 0 ? filteredInspections.map((row) => (
                       <tr
                         key={row.id}
@@ -267,10 +267,10 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                         </td>
                         <td className="px-8 py-5 text-sm font-medium text-slate-400">{row.fornecedor}</td>
                         <td className="px-8 py-5 text-sm font-bold text-slate-500">
-                          {row.dataChegada ? new Date(row.dataChegada).toLocaleDateString('pt-BR') : '---'}
+                          {row.dataChegada ? new Date(row.dataChegada + 'T00:00:00').toLocaleDateString('pt-BR') : '---'}
                         </td>
                         <td className="px-8 py-5 text-sm font-bold text-slate-500">
-                          {new Date(row.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          {new Date(row.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </td>
                       </tr>
                     )) : (
@@ -362,13 +362,13 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                       <div className="min-h-[2.5rem] flex items-center justify-center">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Chegada</p>
                       </div>
-                      <p className="text-sm font-black text-slate-700">{viewingInspection.dataChegada ? new Date(viewingInspection.dataChegada).toLocaleDateString() : '---'}</p>
+                      <p className="text-sm font-black text-slate-700">{viewingInspection.dataChegada ? new Date(viewingInspection.dataChegada + 'T00:00:00').toLocaleDateString() : '---'}</p>
                     </div>
                     <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
                       <div className="min-h-[2.5rem] flex items-center justify-center">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Entrada/Insp.</p>
                       </div>
-                      <p className="text-sm font-black text-slate-700">{new Date(viewingInspection.data).toLocaleDateString()}</p>
+                      <p className="text-sm font-black text-slate-700">{new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString()}</p>
                     </div>
                     <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
                       <div className="min-h-[2.5rem] flex items-center justify-center">

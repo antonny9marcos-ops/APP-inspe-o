@@ -85,7 +85,7 @@ export default function App() {
         id: item.id.substring(0, 8).toUpperCase(), // Shortened ID for UI
         material: item.material_codigo,
         descricao: item.material_descricao,
-        fornecedor: item.fornecedor,
+        fornecedor: (item.fornecedor || '').trim(),
         data: item.data,
         dataChegada: item.data_chegada,
         status: (item.qtd_rejeitada > 0 ? 'Rejeitado' : 'Aprovado') as any,
