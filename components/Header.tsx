@@ -11,9 +11,10 @@ interface HeaderProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onLogout: () => void;
+  onRefresh?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout, onRefresh }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AppNotification | null>(null);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
@@ -92,6 +93,13 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
         </div>
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
+          <button
+            onClick={() => onRefresh?.()}
+            className="flex items-center justify-center rounded-xl h-10 w-10 bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 transition-all active:rotate-180 duration-500"
+            title="Sincronizar Dados"
+          >
+            <span className="material-symbols-rounded !text-xl">sync</span>
+          </button>
           <div className="hidden sm:flex flex-col items-end">
             <p className="text-sm font-bold text-slate-900">{profile.name}</p>
             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{profile.role}</p>

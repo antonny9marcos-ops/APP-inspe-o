@@ -270,6 +270,7 @@ export default function App() {
           profile={userProfile}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
+          onRefresh={fetchInspections}
           onLogout={async () => {
             await supabase.auth.signOut();
             setSession(null);

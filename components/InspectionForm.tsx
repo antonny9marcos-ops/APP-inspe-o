@@ -295,28 +295,12 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
       setMessage({ type: 'success', text: formData.realId ? 'Inspeção atualizada com sucesso!' : 'Inspeção salva com sucesso!' });
 
       if (!formData.realId) {
-        // Reset only if it was a new entry
+        // Reset and notify parent for NEW entries
         setTimeout(() => {
-          setFormData({
-            data: new Date().toLocaleDateString('sv-SE'),
-            dataChegada: new Date().toLocaleDateString('sv-SE'),
-            inspetor: '',
-            material: '',
-            descricao: '',
-            fornecedor: '',
-            qtdInspecionada: 0,
-            qtdAprovada: 0,
-            qtdRejeitada: 0,
-            motivoRejeicao: 'Nenhum / Conforme',
-            numeroPedido: '',
-            nf: '',
-            observacoes: '',
-            evidencias: []
-          });
-          setMessage(null);
-        }, 3000);
+          onSave(formData as Inspection);
+        }, 1500);
       } else {
-        // For updates, wait a bit and call onSave to return to dashboard
+        // For updates
         setTimeout(() => {
           onSave(formData as Inspection);
         }, 1500);
