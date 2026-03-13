@@ -245,11 +245,20 @@ export const UserManagement: React.FC = () => {
                             {isRegistering ? 'CADASTRANDO...' : 'CADASTRAR USUÁRIO'}
                         </button>
 
-                        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100/50">
+                        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100/50 space-y-4">
                             <p className="text-[9px] font-bold text-amber-700 leading-relaxed uppercase">
                                 <span className="material-symbols-rounded !text-xs align-middle mr-1">info</span>
                                 O cliente terá acesso a dashboards e relatórios, mas não poderá realizar novos registros de inspeção.
                             </p>
+                            <div className="pt-2 border-t border-amber-100/50">
+                                <p className="text-[9px] font-black text-rose-600 uppercase tracking-widest mb-1">
+                                    <span className="material-symbols-rounded !text-xs align-middle mr-1">warning</span>
+                                    Alerta de Segurança
+                                </p>
+                                <p className="text-[9px] font-bold text-slate-500 leading-relaxed uppercase">
+                                    Certifique-se de desativar o "Public Signup" no dashboard do Supabase (Auth {'>'} Settings) para evitar cadastros externos.
+                                </p>
+                            </div>
                         </div>
                     </form>
                 </div>

@@ -5,16 +5,13 @@ import { supabase } from '../lib/supabase';
 interface SettingsProps {
     profile: UserProfile;
     onUpdateProfile: (profile: UserProfile) => Promise<void>;
-    password: string;
     onUpdatePassword: (password: string) => void;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, password, onUpdatePassword }) => {
+export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, onUpdatePassword }) => {
     const [name, setName] = useState(profile.name);
-    const [role, setRole] = useState(profile.role);
     const [avatar, setAvatar] = useState(profile.avatar);
 
-    const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -56,7 +53,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, pa
     const handleSaveProfile = async () => {
         setIsSaving(true);
         try {
-            await onUpdateProfile({ ...profile, name, role, avatar });
+            await onUpdateProfile({ ...profile, name, avatar });
             setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
             setTimeout(() => setMessage(null), 3000);
         } catch (err: any) {
@@ -67,10 +64,6 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, pa
     };
 
     const handleChangePassword = () => {
-        if (oldPassword !== password) {
-            setMessage({ type: 'error', text: 'Senha atual incorreta.' });
-            return;
-        }
         if (newPassword !== confirmPassword) {
             setMessage({ type: 'error', text: 'A nova senha e a confirmação não coincidem.' });
             return;
@@ -81,7 +74,6 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, pa
         }
 
         onUpdatePassword(newPassword);
-        setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
         setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
@@ -163,16 +155,6 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, pa
                                 placeholder="Seu nome"
                             />
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-bold text-slate-700">Cargo / Função</label>
-                            <input
-                                type="text"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium"
-                                placeholder="Ex: Gerente de Qualidade"
-                            />
-                        </div>
                     </div>
 
                     <button
@@ -194,16 +176,6 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, pa
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-bold text-slate-700">Senha Atual</label>
-                            <input
-                                type="password"
-                                value={oldPassword}
-                                onChange={(e) => setOldPassword(e.target.value)}
-                                className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium"
-                                placeholder="••••••••"
-                            />
-                        </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-bold text-slate-700">Nova Senha</label>
                             <input

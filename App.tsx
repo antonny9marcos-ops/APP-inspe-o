@@ -44,25 +44,44 @@ export default function App() {
   });
 
   useEffect(() => {
+    const loadUserProfile = async (user: any) => {
+      try {
+        const { data, error } = await supabase
+          .from('perfis')
+          .select('nome, role, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          // Se não encontrar o perfil, usa os metadados como fallback seguro ou padrão baixo
+          setUserProfile({
+            name: user.user_metadata.full_name || user.email?.split('@')[0] || 'Usuário',
+            role: user.user_metadata.role || 'Cliente', 
+            avatar: user.user_metadata.avatar_url || `https://picsum.photos/seed/${user.id}/100`
+          });
+        } else {
+          setUserProfile({
+            name: data.nome || 'Usuário',
+            role: data.role || 'Inspetor',
+            avatar: data.avatar_url || `https://picsum.photos/seed/${user.id}/100`
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao carregar perfil:', err);
+      }
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        setUserProfile({
-          name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'Usuário',
-          role: session.user.user_metadata.role || 'Operador',
-          avatar: session.user.user_metadata.avatar_url || `https://picsum.photos/seed/${session.user.id}/100`
-        });
+        loadUserProfile(session.user);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session?.user) {
-        setUserProfile({
-          name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'Usuário',
-          role: session.user.user_metadata.role || 'Operador',
-          avatar: session.user.user_metadata.avatar_url || `https://picsum.photos/seed/${session.user.id}/100`
-        });
+        loadUserProfile(session.user);
       }
     });
 
@@ -263,7 +282,6 @@ export default function App() {
                 throw error;
               }
             }}
-            password="*****"
             onUpdatePassword={async (newPassword) => {
               await supabase.auth.updateUser({ password: newPassword });
             }}

@@ -143,15 +143,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
       filtered = filtered.filter(i => i.categoria === categoryFilter);
     }
 
-    const total = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
-    const approved = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Aprovado' ? 1 : 0) : (i.qtdAprovada || 0)), 0);
-    const rejected = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
-    const approvalRate = total > 0 ? (approved / total) * 100 : 0;
-    const rejectionRate = total > 0 ? (rejected / total) * 100 : 0;
+    const normalizedVolume = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+    const approvedVolume = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Aprovado' ? 1 : 0) : (i.qtdAprovada || 0)), 0);
+    const rejectedVolume = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
+    const approvalRate = normalizedVolume > 0 ? (approvedVolume / normalizedVolume) * 100 : 0;
+    const rejectionRate = normalizedVolume > 0 ? (rejectedVolume / normalizedVolume) * 100 : 0;
 
-    // Sum of quantities (Normalized)
-    const totalQty = filtered.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
-    const totalRejectedQty = filtered.reduce((acc, i) => acc + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
+    const reportCount = filtered.length;
+    const rejectedReportCount = filtered.filter(i => i.status === 'Rejeitado').length;
+    const totalQty = normalizedVolume;
+    const totalRejectedQty = rejectedVolume;
 
     const barData = [
       { name: 'Inspecionados', valor: totalQty, color: '#137fec' },
@@ -205,7 +206,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const rejectionReasons = Object.entries(reasonsMap).map(([name, value]: [string, any]) => ({
       name,
       value,
-      percentage: rejected > 0 ? (value / rejected) * 100 : 0
+      percentage: rejectedReportCount > 0 ? (value / rejectedReportCount) * 100 : 0
     })).sort((a, b) => b.value - a.value);
 
     // Trend Data Logic
@@ -339,14 +340,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     return {
       metrics: [
-        { label: 'Total de Inspeções', value: total.toLocaleString(), trend: '', isPositive: true, icon: 'fact_check', color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-100/80 to-white' },
+        { label: 'Total de Inspeções', value: reportCount.toLocaleString(), trend: '', isPositive: true, icon: 'fact_check', color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-100/80 to-white' },
         { label: '% Aprovados', value: approvalRate.toFixed(1) + '%', trend: '', isPositive: true, icon: 'check_circle', color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-100/80 to-white' },
         { label: '% Rejeitados', value: rejectionRate.toFixed(1) + '%', trend: '', isPositive: false, icon: 'cancel', color: 'text-rose-600', bg: 'bg-rose-50', gradient: 'from-rose-100/80 to-white' },
         { label: 'Qtd Total Inspecionada', value: totalQty.toLocaleString(), unit: 'unid.', trend: '', isPositive: true, icon: 'folder_open', color: 'text-amber-600', bg: 'bg-amber-50', gradient: 'from-amber-100/80 to-white' },
       ],
       pieData: [
-        { name: 'Aprovados', value: approved, color: '#22c55e' },
-        { name: 'Rejeitados', value: rejected, color: '#ef4444' },
+        { name: 'Aprovados', value: approvedVolume, color: '#22c55e' },
+        { name: 'Rejeitados', value: rejectedVolume, color: '#ef4444' },
       ],
       approvalPercentage: Math.round(approvalRate),
       rejectionReasons: rejectionReasons.length > 0 ? rejectionReasons : [{ name: 'Nenhuma rejeição registrada', value: 0, percentage: 0 }],
