@@ -26,7 +26,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
     numeroPedido: '',
     nf: '',
     observacoes: '',
-    evidencias: []
+    evidencias: [],
+    unidade: 'UN'
   });
 
   useEffect(() => {
@@ -197,12 +198,17 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         try {
           const { data, error } = await supabase
             .from('materiais')
-            .select('descricao')
+            .select('descricao, categoria, unidade')
             .eq('codigo', numericValue)
             .single();
-
+          
           if (data && !error) {
-            setFormData(prev => ({ ...prev, descricao: data.descricao }));
+            setFormData(prev => ({ 
+              ...prev, 
+              descricao: data.descricao, 
+              categoria: data.categoria,
+              unidade: data.unidade || 'UN'
+            }));
           }
         } catch (err) {
           console.error('Erro ao buscar material:', err);
@@ -271,7 +277,9 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         qtd_rejeitada: formData.qtdRejeitada,
         motivo_rejeicao: formData.motivoRejeicao,
         observacoes: formData.observacoes,
-        evidencias: formData.evidencias || []
+        evidencias: formData.evidencias || [],
+        categoria: formData.categoria || 'Outros',
+        unidade: formData.unidade || 'UN'
       };
 
       let error;
@@ -506,36 +514,53 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
             <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-8 pb-4 border-b border-slate-50">
               <span className="material-symbols-rounded text-primary !text-2xl fill-1">fact_check</span> Resultados da Inspeção
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Qtd Inspecionada</label>
-                <input
-                  type="number"
-                  value={formData.qtdInspecionada || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, qtdInspecionada: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0.00"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary"
-                />
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1 flex justify-between">
+                  Qtd Inspecionada <span className="text-primary">{formData.unidade || 'UN'}</span>
+                </label>
+                <div className="relative group">
+                  <input
+                    type="number"
+                    step="any"
+                    value={formData.qtdInspecionada || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, qtdInspecionada: parseFloat(e.target.value) || 0 }))}
+                    className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
+
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-success">Qtd Aprovada</label>
-                <input
-                  type="number"
-                  value={formData.qtdAprovada || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, qtdAprovada: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0.00"
-                  className="rounded-xl border-green-200 h-12 focus:ring-success"
-                />
+                <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 ml-1 flex justify-between">
+                  Qtd Aprovada <span className="text-emerald-500">{formData.unidade || 'UN'}</span>
+                </label>
+                <div className="relative group">
+                  <input
+                    type="number"
+                    step="any"
+                    value={formData.qtdAprovada || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, qtdAprovada: parseFloat(e.target.value) || 0 }))}
+                    className="w-full bg-emerald-50/50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
+
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-danger">Qtd Rejeitada</label>
-                <input
-                  type="number"
-                  value={formData.qtdRejeitada || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, qtdRejeitada: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0.00"
-                  className="rounded-xl border-red-200 h-12 focus:ring-danger"
-                />
+                <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1 ml-1 flex justify-between">
+                  Qtd Rejeitada <span className="text-rose-500">{formData.unidade || 'UN'}</span>
+                </label>
+                <div className="relative group">
+                  <input
+                    type="number"
+                    step="any"
+                    value={formData.qtdRejeitada || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, qtdRejeitada: parseFloat(e.target.value) || 0 }))}
+                    className="w-full bg-rose-50/50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-rose-500/20 transition-all outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
             </div>
             <div className="flex flex-col gap-2 relative">

@@ -9,17 +9,95 @@ import { supabase } from '../lib/supabase';
 
 interface AnalyticsProps {
     inspections: Inspection[];
+    searchTerm?: string;
+    periodFilter?: string;
+    supplierFilter?: string;
+    yearFilter?: string;
+    monthFilter?: string;
+    weekFilter?: string;
+    categoryFilter?: string;
 }
 
-export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
+export const Analytics: React.FC<AnalyticsProps> = ({ 
+    inspections,
+    searchTerm = '',
+    periodFilter = 'todos',
+    supplierFilter = 'Todos',
+    yearFilter = 'all',
+    monthFilter = 'all',
+    weekFilter = 'all',
+    categoryFilter = 'Todos'
+}) => {
     const [isGenerating, setIsGenerating] = React.useState(false);
+
+    const filteredInspections = useMemo(() => {
+        let filtered = [...inspections];
+
+        // Search filter
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(i =>
+                (i.material?.toLowerCase() || '').includes(term) ||
+                (i.fornecedor?.toLowerCase() || '').includes(term) ||
+                (i.id?.toLowerCase() || '').includes(term)
+            );
+        }
+
+        // Supplier filter
+        if (supplierFilter !== 'Todos') {
+            filtered = filtered.filter(i => i.fornecedor === supplierFilter);
+        }
+
+        // Period filter (Date range logic)
+        const now = new Date();
+        const today = now.toLocaleDateString('sv-SE');
+
+        if (periodFilter === 'hoje') {
+            filtered = filtered.filter(i => i.data === today);
+        } else if (periodFilter === 'últimos 7 dias') {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(now.getDate() - 7);
+            filtered = filtered.filter(i => new Date(i.data + 'T00:00:00') >= sevenDaysAgo);
+        } else if (periodFilter === 'últimos 30 dias') {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(now.getDate() - 30);
+            filtered = filtered.filter(i => new Date(i.data + 'T00:00:00') >= thirtyDaysAgo);
+        } else if (periodFilter === 'este mês') {
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            filtered = filtered.filter(i => new Date(i.data + 'T00:00:00') >= startOfMonth);
+        }
+
+        // Year/Month/Week Filters (Individual selections)
+        if (yearFilter !== 'all') {
+            filtered = filtered.filter(i => new Date(i.data + 'T00:00:00').getFullYear().toString() === yearFilter);
+        }
+        if (monthFilter !== 'all') {
+            filtered = filtered.filter(i => (new Date(i.data + 'T00:00:00').getMonth() + 1).toString() === monthFilter);
+        }
+        if (weekFilter !== 'all') {
+            filtered = filtered.filter(i => {
+                const d = new Date(i.data + 'T00:00:00');
+                const onejan = new Date(d.getFullYear(), 0, 1);
+                const week = Math.ceil((((d.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
+                return week.toString() === weekFilter;
+            });
+        }
+
+        // Category filter
+        if (categoryFilter !== 'Todos') {
+            filtered = filtered.filter(i => i.categoria === categoryFilter);
+        }
+
+        return filtered;
+    }, [inspections, searchTerm, periodFilter, supplierFilter, yearFilter, monthFilter, weekFilter, categoryFilter]);
 
     // 1. Dados da Análise de Pareto (Motivos de Rejeição)
     const paretoData = useMemo(() => {
-        const reasonsMap: Record<string, number> = inspections.reduce((acc: Record<string, number>, ins) => {
+        const reasonsMap: Record<string, number> = filteredInspections.reduce((acc: Record<string, number>, ins) => {
             if (ins.status === 'Rejeitado') {
                 const reason = ins.motivoRejeicao || 'Não especificado';
-                acc[reason] = (acc[reason] || 0) + (ins.qtdRejeitada || 0);
+                const qtyVal = ins.unidade === 'M' ? 1 : (ins.qtdRejeitada || 0);
+                acc[reason] = (acc[reason] || 0) + qtyVal;
             }
             return acc;
         }, {});
@@ -42,16 +120,16 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
 
     // 2. Dados do Mapa de Calor (Material vs Defeito)
     const heatmapData = useMemo(() => {
-        const materials = Array.from(new Set(inspections.filter(i => i.status === 'Rejeitado').map(i => i.descricao || i.material).filter(Boolean))).slice(0, 8);
-        const motives = Array.from(new Set(inspections.filter(i => i.status === 'Rejeitado').map(i => i.motivoRejeicao).filter(Boolean))).slice(0, 6);
+        const materials = Array.from(new Set(filteredInspections.filter(i => i.status === 'Rejeitado').map(i => i.descricao || i.material).filter(Boolean))).slice(0, 8);
+        const motives = Array.from(new Set(filteredInspections.filter(i => i.status === 'Rejeitado').map(i => i.motivoRejeicao).filter(Boolean))).slice(0, 6);
 
         return materials.map(m => {
             const data: Record<string, any> = { name: m };
             motives.forEach(mot => {
                 if (mot) {
-                    data[mot as string] = inspections
+                    data[mot as string] = filteredInspections
                         .filter(i => (i.descricao === m || i.material === m) && i.motivoRejeicao === mot)
-                        .reduce((sum, i) => sum + (i.qtdRejeitada || 0), 0);
+                        .reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdRejeitada || 0)), 0);
                 }
             });
             return data;
@@ -60,13 +138,13 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
 
     // 3. Scorecard de Confiabilidade do Fornecedor
     const supplierReliability = useMemo(() => {
-        const stats = inspections.reduce((acc: Record<string, any>, ins) => {
+        const stats = filteredInspections.reduce((acc: Record<string, any>, ins) => {
             if (!acc[ins.fornecedor]) {
                 acc[ins.fornecedor] = { name: ins.fornecedor, totalQty: 0, approvedQty: 0, rejectedQty: 0 };
             }
-            acc[ins.fornecedor].totalQty += (ins.qtdInspecionada || 0);
-            acc[ins.fornecedor].approvedQty += (ins.qtdAprovada || 0);
-            acc[ins.fornecedor].rejectedQty += (ins.qtdRejeitada || 0);
+            acc[ins.fornecedor].totalQty += (ins.unidade === 'M' ? 1 : (ins.qtdInspecionada || 0));
+            acc[ins.fornecedor].approvedQty += (ins.unidade === 'M' ? (ins.status === 'Aprovado' ? 1 : 0) : (ins.qtdAprovada || 0));
+            acc[ins.fornecedor].rejectedQty += (ins.unidade === 'M' ? (ins.status === 'Rejeitado' ? 1 : 0) : (ins.qtdRejeitada || 0));
             return acc;
         }, {});
 
@@ -85,30 +163,30 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
         const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000));
 
-        const currentInspections = inspections.filter(i => new Date(i.data + 'T00:00:00').getTime() >= thirtyDaysAgo.getTime());
-        const previousInspections = inspections.filter(i => {
+        const currentInspections = filteredInspections.filter(i => new Date(i.data + 'T00:00:00').getTime() >= thirtyDaysAgo.getTime());
+        const previousInspections = filteredInspections.filter(i => {
             const date = new Date(i.data + 'T00:00:00').getTime();
             return date >= sixtyDaysAgo.getTime() && date < thirtyDaysAgo.getTime();
         });
 
-        const currentTotalQty = currentInspections.reduce((sum, i) => sum + (i.qtdInspecionada || 0), 0);
-        const currentRejectedQty = currentInspections.reduce((sum, i) => sum + (i.qtdRejeitada || 0), 0);
+        const currentTotalQty = currentInspections.reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+        const currentRejectedQty = currentInspections.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
         const currentRate = currentTotalQty > 0 ? (currentRejectedQty / currentTotalQty) * 100 : 0;
 
-        const previousTotalQty = previousInspections.reduce((sum, i) => sum + (i.qtdInspecionada || 0), 0);
-        const previousRejectedQty = previousInspections.reduce((sum, i) => sum + (i.qtdRejeitada || 0), 0);
+        const previousTotalQty = previousInspections.reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+        const previousRejectedQty = previousInspections.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
         const previousRate = previousTotalQty > 0 ? (previousRejectedQty / previousTotalQty) * 100 : 0;
 
         // --- SPC Logic (Statistical Process Control) ---
         const dailyRates = Array.from({ length: 60 }).map((_, i) => {
             const start = new Date(now.getTime() - ((i + 1) * 24 * 60 * 60 * 1000));
             const end = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
-            const dayInspections = inspections.filter(ins => {
+            const dayInspections = filteredInspections.filter(ins => {
                 const d = new Date(ins.data + 'T00:00:00').getTime();
                 return d >= start.getTime() && d < end.getTime();
             });
-            const total = dayInspections.reduce((sum, ins) => sum + (ins.qtdInspecionada || 0), 0);
-            const rejected = dayInspections.reduce((sum, ins) => sum + (ins.qtdRejeitada || 0), 0);
+            const total = dayInspections.reduce((sum, ins) => sum + (ins.unidade === 'M' ? 1 : (ins.qtdInspecionada || 0)), 0);
+            const rejected = dayInspections.reduce((sum, ins) => sum + (ins.unidade === 'M' ? (ins.status === 'Rejeitado' ? 1 : 0) : (ins.qtdRejeitada || 0)), 0);
             return total > 0 ? (rejected / total) * 100 : null;
         }).filter(r => r !== null) as number[];
 
@@ -121,7 +199,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         // Highest rejected material insight
         const materialStats: Record<string, number> = currentInspections.reduce((acc: any, i) => {
             const name = i.descricao || i.material;
-            acc[name] = (acc[name] || 0) + (i.qtdRejeitada || 0);
+            acc[name] = (acc[name] || 0) + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0));
             return acc;
         }, {});
 
@@ -130,8 +208,8 @@ export const Analytics: React.FC<AnalyticsProps> = ({ inspections }) => {
         // Insight de fornecedor em risco
         const supplierStats: Record<string, { total: number, rejected: number }> = currentInspections.reduce((acc: any, i) => {
             if (!acc[i.fornecedor]) acc[i.fornecedor] = { total: 0, rejected: 0 };
-            acc[i.fornecedor].total += (i.qtdInspecionada || 0);
-            acc[i.fornecedor].rejected += (i.qtdRejeitada || 0);
+            acc[i.fornecedor].total += (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0));
+            acc[i.fornecedor].rejected += (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0));
             return acc;
         }, {});
 
@@ -231,6 +309,7 @@ PLANOS DE AÇÃO RECOMENDADOS:
                         <p className="text-slate-500 mt-1 font-medium">Insights avançados e análise de causa raiz (Pareto & Correlação)</p>
                     </div>
                 </div>
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

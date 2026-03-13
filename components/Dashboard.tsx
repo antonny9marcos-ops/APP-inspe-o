@@ -14,9 +14,11 @@ interface DashboardProps {
   weekFilter: string;
   onPeriodChange: (period: string) => void;
   onSupplierChange: (supplier: string) => void;
-  onYearChange: (year: string) => void;
-  onMonthChange: (month: string) => void;
-  onWeekChange: (week: string) => void;
+  onCategoryChange: (category: string) => void;
+  filterOptions: {
+    years: string[];
+    months: { val: string; label: string }[];
+  };
 }
 
 const CustomYAxisTick = (props: any) => {
@@ -62,9 +64,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   yearFilter,
   monthFilter,
   weekFilter,
-  onYearChange,
-  onMonthChange,
-  onWeekChange
+  categoryFilter,
+  onCategoryChange,
+  filterOptions
 }) => {
   // Local state for Trend card filters
   const [trendYear, setTrendYear] = useState(yearFilter);
@@ -78,34 +80,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (weekFilter !== 'all') setTrendWeek(weekFilter);
   }, [yearFilter, monthFilter, weekFilter]);
 
-  // Get unique values for filters
-  const filterOptions = useMemo(() => {
-    const years = new Set<string>();
-    const months = new Set<string>();
-    const weeks = new Set<string>();
-
-    inspections.forEach(i => {
-      if (i.data) {
-        const d = new Date(i.data + 'T00:00:00');
-        years.add(d.getFullYear().toString());
-      }
-    });
-
-    return {
-      years: Array.from(years).sort((a, b) => b.localeCompare(a)),
-      months: [
-        { val: '1', label: 'Janeiro' }, { val: '2', label: 'Fevereiro' }, { val: '3', label: 'Março' },
-        { val: '4', label: 'Abril' }, { val: '5', label: 'Maio' }, { val: '6', label: 'Junho' },
-        { val: '7', label: 'Julho' }, { val: '8', label: 'Agosto' }, { val: '9', label: 'Setembro' },
-        { val: '10', label: 'Outubro' }, { val: '11', label: 'Novembro' }, { val: '12', label: 'Dezembro' }
-      ]
-    };
-  }, [inspections]);
-
-  const suppliers = useMemo(() => {
-    const list = Array.from(new Set(inspections.map(i => (i.fornecedor || '').trim()).filter(Boolean)));
-    return ['Todos', ...list.sort()];
-  }, [inspections]);
 
   const metricsAndData = useMemo(() => {
     // 1. Apply Filters
@@ -163,16 +137,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
         return week.toString() === weekFilter;
       });
     }
+    
+    // Category filter
+    if (categoryFilter !== 'Todos') {
+      filtered = filtered.filter(i => i.categoria === categoryFilter);
+    }
 
-    const total = filtered.length || 0;
-    const approved = filtered.filter(i => i.status === 'Aprovado').length;
-    const rejected = total - approved;
+    const total = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+    const approved = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Aprovado' ? 1 : 0) : (i.qtdAprovada || 0)), 0);
+    const rejected = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
     const approvalRate = total > 0 ? (approved / total) * 100 : 0;
     const rejectionRate = total > 0 ? (rejected / total) * 100 : 0;
 
-    // Sum of qtdInspecionada
-    const totalQty = filtered.reduce((acc, i) => acc + (i.qtdInspecionada || 0), 0);
-    const totalRejectedQty = filtered.reduce((acc, i) => acc + (i.qtdRejeitada || 0), 0);
+    // Sum of quantities (Normalized)
+    const totalQty = filtered.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+    const totalRejectedQty = filtered.reduce((acc, i) => acc + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
 
     const barData = [
       { name: 'Inspecionados', valor: totalQty, color: '#137fec' },
@@ -320,7 +299,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
 
         const dayTotal = dayFiltered.length;
-        const dayTotalQty = dayFiltered.reduce((acc, i) => acc + (i.qtdInspecionada || 0), 0);
+        const dayTotalQty = dayFiltered.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
         const dayApprovedCount = dayFiltered.filter(i => i.status === 'Aprovado').length;
         return {
           name: td.name,
@@ -399,60 +378,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">Visão Geral Operacional</h1>
             <p className="text-slate-500 mt-1 font-medium">Métricas de inspeção e dados de desempenho em tempo real</p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 w-full md:w-auto">
-          <select
-            value={periodFilter}
-            onChange={(e) => onPeriodChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
-            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
-          >
-            <option value="todos">Geral</option>
-            <option value="últimos 30 dias">30 Dias</option>
-            <option value="últimos 7 dias">7 Dias</option>
-            <option value="hoje">Hoje</option>
-            <option value="este mês">Mês</option>
-          </select>
-          <select
-            value={yearFilter}
-            onChange={(e) => onYearChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
-            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
-          >
-            <option value="all">Ano: Todos</option>
-            {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
-          <select
-            value={monthFilter}
-            onChange={(e) => onMonthChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
-            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
-          >
-            <option value="all">Mês: Todos</option>
-            {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
-          </select>
-          <select
-            value={weekFilter}
-            onChange={(e) => onWeekChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 relative"
-            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
-          >
-            <option value="all">Sem: Todos</option>
-            {Array.from({ length: 53 }, (_, i) => (
-              <option key={i + 1} value={(i + 1).toString()}>S {i + 1}</option>
-            ))}
-          </select>
-          <select
-            value={supplierFilter}
-            onChange={(e) => onSupplierChange(e.target.value)}
-            className="bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest h-11 px-4 focus:ring-primary shadow-sm outline-none cursor-pointer hover:border-primary transition-colors appearance-none pr-8 overflow-hidden text-ellipsis whitespace-nowrap"
-            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem' }}
-          >
-            {suppliers.map(s => (
-              <option key={s} value={s}>{s === 'Todos' ? 'Fornecedor: Todos' : s}</option>
-            ))}
-          </select>
         </div>
       </div>
 

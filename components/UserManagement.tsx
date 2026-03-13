@@ -9,6 +9,7 @@ interface UserRecord {
     avatar_url?: string;
     cargo?: string;
     created_at: string;
+    ultimo_acesso?: string;
 }
 
 export const UserManagement: React.FC = () => {
@@ -118,28 +119,44 @@ export const UserManagement: React.FC = () => {
                         <div className="divide-y divide-slate-50 max-h-[600px] overflow-y-auto custom-scrollbar">
                             {isLoading ? (
                                 <div className="p-12 text-slate-300">Carregando usuários...</div>
-                            ) : users.length > 0 ? users.map(user => (
-                                <div key={user.id} className="p-5 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                                    <img
-                                        src={user.avatar_url || `https://picsum.photos/seed/${user.id}/100`}
-                                        className="w-12 h-12 rounded-2xl object-cover shadow-sm"
-                                        alt={user.nome}
-                                    />
-                                    <div className="flex-1 text-left">
-                                        <p className="text-sm font-black text-slate-800">{user.nome}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{user.cargo || 'Membro'}</p>
+                            ) : users.length > 0 ? users.map(user => {
+                                const isOnline = user.ultimo_acesso ? (new Date().getTime() - new Date(user.ultimo_acesso).getTime()) < (5 * 60 * 1000) : false;
+                                return (
+                                    <div key={user.id} className="p-5 flex items-center gap-4 hover:bg-slate-50 transition-colors relative">
+                                        <div className="relative">
+                                            <img
+                                                src={user.avatar_url || `https://picsum.photos/seed/${user.id}/100`}
+                                                className="w-12 h-12 rounded-2xl object-cover shadow-sm bg-slate-100"
+                                                alt={user.nome}
+                                            />
+                                            {isOnline && (
+                                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-black text-slate-800">{user.nome}</p>
+                                                {isOnline && <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">Online</span>}
+                                            </div>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{user.cargo || 'Membro'}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'Admin' ? 'bg-indigo-100 text-indigo-600' :
+                                                user.role === 'Cliente' ? 'bg-amber-100 text-amber-600' :
+                                                    'bg-slate-100 text-slate-600'
+                                                }`}>
+                                                {user.role}
+                                            </span>
+                                            <p className="text-[9px] font-bold text-slate-300 mt-1 uppercase">
+                                                {user.ultimo_acesso 
+                                                    ? `Acesso: ${new Date(user.ultimo_acesso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                                                    : `Entrou em ${new Date(user.created_at).toLocaleDateString()}`
+                                                }
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'Admin' ? 'bg-indigo-100 text-indigo-600' :
-                                            user.role === 'Cliente' ? 'bg-amber-100 text-amber-600' :
-                                                'bg-slate-100 text-slate-600'
-                                            }`}>
-                                            {user.role}
-                                        </span>
-                                        <p className="text-[9px] font-bold text-slate-300 mt-1 uppercase">Entrou em {new Date(user.created_at).toLocaleDateString()}</p>
-                                    </div>
-                                </div>
-                            )) : (
+                                );
+                            }) : (
                                 <div className="p-12">
                                     <span className="material-symbols-rounded text-slate-200 !text-5xl mb-3">group_off</span>
                                     <p className="text-slate-400 font-bold text-sm">Nenhum usuário encontrado.</p>

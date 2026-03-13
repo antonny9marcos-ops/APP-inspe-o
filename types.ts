@@ -19,6 +19,8 @@ export interface Inspection {
   nf?: string;
   evidencias?: string[];
   observacoes?: string;
+  categoria?: string;
+  unidade?: string;
 }
 
 export interface Metric {

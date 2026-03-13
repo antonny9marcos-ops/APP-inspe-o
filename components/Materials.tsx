@@ -9,6 +9,7 @@ interface Material {
     fornecedor_padrao: string;
     criticidade: 'alta' | 'media' | 'baixa';
     status: 'ativo' | 'inativo';
+    unidade?: string;
     created_at?: string;
 }
 
@@ -38,7 +39,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     // Categories for materials
-    const categorias = ['Roletes', 'Correias', 'Rolos de Carga', 'Rolamentos', 'Componentes Mecânicos', 'Outros'];
+    const categorias = ['ROLO TRANSPORTADOR', 'Correias', 'Rolamentos', 'Componentes Mecânicos', 'Outros'];
 
     // Default data (used as initial values and fallback)
     const defaultFornecedores: Fornecedor[] = [
@@ -174,7 +175,8 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                         categoria: material.categoria,
                         fornecedor_padrao: material.fornecedor_padrao,
                         criticidade: material.criticidade,
-                        status: material.status
+                        status: material.status,
+                        unidade: material.unidade
                     })
                     .eq('codigo', material.codigo);
 
@@ -190,7 +192,8 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                         categoria: material.categoria,
                         fornecedor_padrao: material.fornecedor_padrao,
                         criticidade: material.criticidade,
-                        status: material.status
+                        status: material.status,
+                        unidade: material.unidade
                     }])
                     .select()
                     .single();
@@ -433,6 +436,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                             <th className="pb-4 px-4">Descrição</th>
                                             <th className="pb-4 px-4 hidden md:table-cell">Categoria</th>
                                             <th className="pb-4 px-4 hidden lg:table-cell">Fornecedor</th>
+                                            <th className="pb-4 px-4 text-center">Unid.</th>
                                             <th className="pb-4 px-4">Status</th>
                                             <th className="pb-4 px-4 text-right">Ações</th>
                                         </tr>
@@ -444,6 +448,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                                 <td className="py-4 px-4 text-slate-600">{material.descricao}</td>
                                                 <td className="py-4 px-4 text-slate-500 hidden md:table-cell">{material.categoria}</td>
                                                 <td className="py-4 px-4 text-slate-500 hidden lg:table-cell text-sm">{material.fornecedor_padrao}</td>
+                                                <td className="py-4 px-4 text-center text-xs font-black text-slate-400">{material.unidade || 'UN'}</td>
                                                 <td className="py-4 px-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${material.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                                                         {material.status}
@@ -621,7 +626,8 @@ const MaterialModal: React.FC<{
         categoria: categorias[0],
         fornecedor_padrao: '',
         criticidade: 'media',
-        status: 'ativo'
+        status: 'ativo',
+        unidade: 'UN'
     });
 
     return (

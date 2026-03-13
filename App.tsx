@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { InspectionForm } from './components/InspectionForm';
 import { Reports } from './components/Reports';
@@ -35,6 +35,7 @@ export default function App() {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [monthFilter, setMonthFilter] = useState<string>('all');
   const [weekFilter, setWeekFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('ROLO TRANSPORTADOR');
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: 'Usuário',
@@ -68,6 +69,30 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const updateLastAccess = async (userId: string) => {
+    try {
+      await supabase
+        .from('perfis')
+        .update({ ultimo_acesso: new Date().toISOString() })
+        .eq('id', userId);
+    } catch (err) {
+      console.error('Erro ao atualizar último acesso:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      updateLastAccess(session.user.id);
+      
+      // Heartbeat every 2 minutes
+      const interval = setInterval(() => {
+        updateLastAccess(session.user.id);
+      }, 2 * 60 * 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [session]);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchInspections = async () => {
@@ -97,7 +122,11 @@ export default function App() {
         qtdRejeitada: item.qtd_rejeitada,
         motivoRejeicao: item.motivo_rejeicao,
         observacoes: item.observacoes,
-        evidencias: item.evidencias
+        evidencias: item.evidencias,
+        categoria: (item.categoria === 'Roletes' || item.categoria === 'Rolos de Carga') 
+          ? 'ROLO TRANSPORTADOR' 
+          : (item.categoria || 'Outros'),
+        unidade: item.unidade || 'UN'
       }));
 
       setInspections(mappedData);
@@ -143,6 +172,24 @@ export default function App() {
     setCurrentView(View.DASHBOARD);
   };
 
+  const filterOptions = useMemo(() => {
+    const years = Array.from(new Set(inspections.map(i => new Date(i.data + 'T00:00:00').getFullYear().toString()))).sort().reverse();
+    return {
+      years,
+      months: [
+        { val: '1', label: 'Janeiro' }, { val: '2', label: 'Fevereiro' }, { val: '3', label: 'Março' },
+        { val: '4', label: 'Abril' }, { val: '5', label: 'Maio' }, { val: '6', label: 'Junho' },
+        { val: '7', label: 'Julho' }, { val: '8', label: 'Agosto' }, { val: '9', label: 'Setembro' },
+        { val: '10', label: 'Outubro' }, { val: '11', label: 'Novembro' }, { val: '12', label: 'Dezembro' }
+      ]
+    };
+  }, [inspections]);
+
+  const suppliers = useMemo(() => {
+    const list = Array.from(new Set(inspections.map(i => (i.fornecedor || '').trim()).filter(Boolean)));
+    return ['Todos', ...list.sort()];
+  }, [inspections]);
+
   const handleEditClick = (inspection: Inspection) => {
     setEditingInspection(inspection);
     setCurrentView(View.INSPECTION_FORM);
@@ -160,11 +207,11 @@ export default function App() {
             yearFilter={yearFilter}
             monthFilter={monthFilter}
             weekFilter={weekFilter}
+            categoryFilter={categoryFilter}
+            filterOptions={filterOptions}
             onPeriodChange={setPeriodFilter}
             onSupplierChange={setSupplierFilter}
-            onYearChange={setYearFilter}
-            onMonthChange={setMonthFilter}
-            onWeekChange={setWeekFilter}
+            onCategoryChange={setCategoryFilter}
             onAddClick={() => {
               if (userProfile.role === 'Cliente') return;
               setEditingInspection(null);
@@ -227,7 +274,18 @@ export default function App() {
       case View.USERS:
         return <UserManagement />;
       case View.ANALYTICS:
-        return <Analytics inspections={inspections} />;
+        return (
+          <Analytics 
+            inspections={inspections}
+            searchTerm={searchTerm}
+            periodFilter={periodFilter}
+            supplierFilter={supplierFilter}
+            yearFilter={yearFilter}
+            monthFilter={monthFilter}
+            weekFilter={weekFilter}
+            categoryFilter={categoryFilter}
+          />
+        );
       default:
         return (
           <div className="p-4 md:p-8 flex items-center justify-center h-full">
@@ -277,6 +335,90 @@ export default function App() {
           }}
         />
         <main className="flex-1 overflow-y-auto">
+          {(currentView === View.DASHBOARD || currentView === View.ANALYTICS) && (
+            <div className="px-4 md:px-8 mt-6">
+              <div className="flex flex-wrap gap-3 items-center bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="material-symbols-rounded text-slate-400 !text-lg">filter_list</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtros</span>
+                </div>
+                
+                <select
+                  value={periodFilter}
+                  onChange={(e) => setPeriodFilter(e.target.value)}
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative"
+                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                >
+                  <option value="todos">Geral</option>
+                  <option value="últimos 30 dias">30 Dias</option>
+                  <option value="últimos 7 dias">7 Dias</option>
+                  <option value="hoje">Hoje</option>
+                  <option value="este mês">Mês</option>
+                </select>
+
+                <select
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative font-bold"
+                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                >
+                  <option value="all">Ano: Todos</option>
+                  {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+
+                <select
+                  value={monthFilter}
+                  onChange={(e) => setMonthFilter(e.target.value)}
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative"
+                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                >
+                  <option value="all">Mês: Todos</option>
+                  {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
+                </select>
+
+                <select
+                  value={weekFilter}
+                  onChange={(e) => setWeekFilter(e.target.value)}
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative"
+                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                >
+                  <option value="all">Sem: Todos</option>
+                  {Array.from({ length: 53 }, (_, i) => (
+                    <option key={i + 1} value={(i + 1).toString()}>S {i + 1}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={supplierFilter}
+                  onChange={(e) => setSupplierFilter(e.target.value)}
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 overflow-hidden text-ellipsis whitespace-nowrap max-w-[150px]"
+                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                >
+                  {suppliers.map(s => (
+                    <option key={s} value={s}>{s === 'Todos' ? 'Fornecedor: Todos' : s}</option>
+                  ))}
+                </select>
+
+                <div className="h-6 w-[1px] bg-slate-100 mx-1 hidden sm:block"></div>
+
+                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                  {['ROLO TRANSPORTADOR', 'Correias', 'Todos'].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                        categoryFilter === cat 
+                        ? 'bg-white text-primary shadow-sm border border-slate-100' 
+                        : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           {renderContent()}
         </main>
       </div>
