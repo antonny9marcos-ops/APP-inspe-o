@@ -12,6 +12,7 @@ interface DashboardProps {
   yearFilter: string;
   monthFilter: string;
   weekFilter: string;
+  categoryFilter: string;
   onPeriodChange: (period: string) => void;
   onSupplierChange: (supplier: string) => void;
   onCategoryChange: (category: string) => void;
