@@ -142,7 +142,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
     
     // Category filter
-    if (categoryFilter !== 'Todos') {
+    if (categoryFilter !== 'Todos' && categoryFilter !== 'TODOS') {
       filtered = filtered.filter(i => i.categoria === categoryFilter);
     }
 
@@ -367,7 +367,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }, {})
       ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))
     };
-  }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek]);
+  }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek, categoryFilter]);
 
   const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData, materialRejectionRanking } = metricsAndData;
 

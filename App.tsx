@@ -142,9 +142,9 @@ export default function App() {
         motivoRejeicao: item.motivo_rejeicao,
         observacoes: item.observacoes,
         evidencias: item.evidencias,
-        categoria: (item.categoria === 'Roletes' || item.categoria === 'Rolos de Carga') 
+        categoria: (item.categoria === 'Roletes' || item.categoria === 'Rolos de Carga' || item.categoria === 'ROLO TRANSPORTADOR') 
           ? 'ROLO TRANSPORTADOR' 
-          : (item.categoria || 'Outros'),
+          : 'OUTROS',
         unidade: item.unidade || 'UN'
       }));
 
@@ -420,7 +420,7 @@ export default function App() {
                 <div className="h-6 w-[1px] bg-slate-100 mx-1 hidden sm:block"></div>
 
                 <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
-                  {['ROLO TRANSPORTADOR', 'Correias', 'Todos'].map((cat) => (
+                  {['ROLO TRANSPORTADOR', 'OUTROS', 'TODOS'].map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setCategoryFilter(cat)}
