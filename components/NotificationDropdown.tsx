@@ -5,6 +5,7 @@ interface NotificationDropdownProps {
     notifications: AppNotification[];
     onMarkAsRead: (id: string) => void;
     onMarkAllAsRead: () => void;
+    onClearAll: () => void;
     onClose: () => void;
     onViewDetails: (notification: AppNotification) => void;
 }
@@ -13,6 +14,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     notifications,
     onMarkAsRead,
     onMarkAllAsRead,
+    onClearAll,
     onClose,
     onViewDetails,
 }) => {
@@ -41,12 +43,21 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         <div className="absolute top-full right-0 mt-3 w-80 md:w-96 bg-white rounded-3xl border border-slate-100 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                 <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Notificações</h3>
-                <button
-                    onClick={onMarkAllAsRead}
-                    className="text-[10px] font-black text-primary uppercase tracking-tighter hover:underline"
-                >
-                    Marcar todas como lidas
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={onMarkAllAsRead}
+                        className="text-[10px] font-black text-primary uppercase tracking-tighter hover:underline"
+                    >
+                        Lidas
+                    </button>
+                    <div className="w-[1px] h-3 bg-slate-200 self-center"></div>
+                    <button
+                        onClick={onClearAll}
+                        className="text-[10px] font-black text-red-500 uppercase tracking-tighter hover:underline"
+                    >
+                        Limpar
+                    </button>
+                </div>
             </div>
 
             <div className="max-h-[400px] overflow-y-auto custom-scrollbar">

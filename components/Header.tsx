@@ -17,7 +17,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout, onRefresh }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AppNotification | null>(null);
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
 
   const getTitle = () => {
     switch (currentView) {
@@ -83,6 +83,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
               notifications={notifications}
               onMarkAsRead={(id) => markAsRead(id)}
               onMarkAllAsRead={markAllAsRead}
+              onClearAll={clearAll}
               onClose={() => setShowNotifications(false)}
               onViewDetails={(n) => {
                 setSelectedNotification(n);

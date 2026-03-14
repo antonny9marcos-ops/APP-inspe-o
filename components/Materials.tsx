@@ -39,7 +39,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     // Categories for materials
-    const categorias = ['ROLO TRANSPORTADOR', 'Correias', 'Rolamentos', 'Componentes Mecânicos', 'Outros'];
+    const categorias = ['ROLO TRANSPORTADOR', 'OUTROS'];
 
     // Default data (used as initial values and fallback)
     const defaultFornecedores: Fornecedor[] = [

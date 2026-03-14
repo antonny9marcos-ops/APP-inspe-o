@@ -35,7 +35,7 @@ export default function App() {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [monthFilter, setMonthFilter] = useState<string>('all');
   const [weekFilter, setWeekFilter] = useState<string>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('ROLO TRANSPORTADOR');
+  const [categoryFilter, setCategoryFilter] = useState<string>('TODOS');
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: 'Usuário',
@@ -142,9 +142,21 @@ export default function App() {
         motivoRejeicao: item.motivo_rejeicao,
         observacoes: item.observacoes,
         evidencias: item.evidencias,
-        categoria: (item.categoria === 'Roletes' || item.categoria === 'Rolos de Carga' || item.categoria === 'ROLO TRANSPORTADOR') 
-          ? 'ROLO TRANSPORTADOR' 
-          : 'OUTROS',
+        categoria: (() => {
+          const rawCat = (item.categoria || '').toUpperCase();
+          const rawDesc = (item.material_descricao || '').toUpperCase();
+          const rawForn = (item.fornecedor || '').toUpperCase();
+          
+          const isRolo = (
+            rawCat.includes('ROLO') || 
+            rawCat.includes('ROLETE') || 
+            rawDesc.includes('ROLO') || 
+            rawDesc.includes('ROLETE') ||
+            ['IMEPEL', 'SUPERIOR'].some(f => rawForn.includes(f))
+          );
+          
+          return isRolo ? 'ROLO TRANSPORTADOR' : 'OUTROS';
+        })(),
         unidade: item.unidade || 'UN'
       }));
 
@@ -189,6 +201,16 @@ export default function App() {
     fetchInspections(); // Refresh data from Supabase
     setEditingInspection(null);
     setCurrentView(View.DASHBOARD);
+  };
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setPeriodFilter('todos');
+    setSupplierFilter('Todos');
+    setYearFilter('all');
+    setMonthFilter('all');
+    setWeekFilter('all');
+    setCategoryFilter('TODOS');
   };
 
   const filterOptions = useMemo(() => {
@@ -353,13 +375,16 @@ export default function App() {
           }}
         />
         <main className="flex-1 overflow-y-auto">
-          {(currentView === View.DASHBOARD || currentView === View.ANALYTICS) && (
+          {(currentView === View.DASHBOARD) && (
             <div className="px-4 md:px-8 mt-6">
               <div className="flex flex-wrap gap-3 items-center bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100">
-                  <span className="material-symbols-rounded text-slate-400 !text-lg">filter_list</span>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtros</span>
-                </div>
+                <button 
+                  onClick={resetFilters}
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-all active:scale-95 group"
+                >
+                  <span className="material-symbols-rounded text-slate-400 group-hover:text-primary !text-lg transition-colors">filter_list_off</span>
+                  <span className="text-[10px] font-black text-slate-400 group-hover:text-primary uppercase tracking-widest transition-colors">Limpar</span>
+                </button>
                 
                 <select
                   value={periodFilter}
@@ -423,14 +448,17 @@ export default function App() {
                   {['ROLO TRANSPORTADOR', 'OUTROS', 'TODOS'].map((cat) => (
                     <button
                       key={cat}
-                      onClick={() => setCategoryFilter(cat)}
+                      onClick={() => {
+                        if (cat === 'TODOS') resetFilters();
+                        else setCategoryFilter(cat);
+                      }}
                       className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                         categoryFilter === cat 
                         ? 'bg-white text-primary shadow-sm border border-slate-100' 
                         : 'text-slate-400 hover:text-slate-600'
                       }`}
                     >
-                      {cat}
+                      {cat === 'TODOS' ? 'Todos' : cat}
                     </button>
                   ))}
                 </div>

@@ -95,12 +95,31 @@ export const useNotifications = () => {
         }
     };
 
+    const clearAll = async () => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { error } = await supabase
+                .from('notificacoes')
+                .delete()
+                .eq('user_id', user.id);
+
+            if (error) throw error;
+            setNotifications([]);
+            setUnreadCount(0);
+        } catch (err) {
+            console.error('Erro ao limpar notificações:', err);
+        }
+    };
+
     return {
         notifications,
         unreadCount,
         loading,
         markAsRead,
         markAllAsRead,
+        clearAll,
         refresh: fetchNotifications
     };
 };

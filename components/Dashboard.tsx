@@ -76,9 +76,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   // Sync with global filters initially or when they change if local is 'all'
   useEffect(() => {
-    if (yearFilter !== 'all') setTrendYear(yearFilter);
-    if (monthFilter !== 'all') setTrendMonth(monthFilter);
-    if (weekFilter !== 'all') setTrendWeek(weekFilter);
+    setTrendYear(yearFilter);
+    setTrendMonth(monthFilter);
+    setTrendWeek(weekFilter);
   }, [yearFilter, monthFilter, weekFilter]);
 
 
@@ -165,7 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     // Material Rejection Logic
     const materialsRejectionMap = filtered.reduce((acc: any, i) => {
-      const materialKey = i.descricao || i.material || 'N/A';
+      const materialKey = i.descricao || i.material || 'Não Identificado';
       if (!acc[materialKey]) {
         acc[materialKey] = {
           name: materialKey,
@@ -362,8 +362,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         filtered.reduce((acc: any, i) => {
           const supplierName = (i.fornecedor || '').trim();
           if (!acc[supplierName]) acc[supplierName] = { name: supplierName, aprovados: 0, rejeitados: 0 };
-          if (i.status === 'Aprovado' || i.status === 'Atenção') acc[supplierName].aprovados += 1;
-          else if (i.status === 'Rejeitado') acc[supplierName].rejeitados += 1;
+          
+          const qAprov = (i.unidade === 'M' ? ((i.status === 'Aprovado' || i.status === 'Atenção') ? 1 : 0) : (i.qtdAprovada || 0));
+          const qRej = (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0));
+          
+          acc[supplierName].aprovados += qAprov;
+          acc[supplierName].rejeitados += qRej;
           return acc;
         }, {})
       ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))

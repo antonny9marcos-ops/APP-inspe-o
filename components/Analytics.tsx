@@ -6,6 +6,11 @@ import {
 import { Inspection } from '../types';
 
 import { supabase } from '../lib/supabase';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 interface AnalyticsProps {
     inspections: Inspection[];
@@ -84,7 +89,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
         }
 
         // Category filter
-        if (categoryFilter !== 'Todos') {
+        if (categoryFilter !== 'Todos' && categoryFilter !== 'TODOS') {
             filtered = filtered.filter(i => i.categoria === categoryFilter);
         }
 
@@ -120,8 +125,8 @@ export const Analytics: React.FC<AnalyticsProps> = ({
 
     // 2. Dados do Mapa de Calor (Material vs Defeito)
     const heatmapData = useMemo(() => {
-        const materials = Array.from(new Set(filteredInspections.filter(i => i.status === 'Rejeitado').map(i => i.descricao || i.material).filter(Boolean))).slice(0, 8);
-        const motives = Array.from(new Set(filteredInspections.filter(i => i.status === 'Rejeitado').map(i => i.motivoRejeicao).filter(Boolean))).slice(0, 6);
+        const materials = Array.from(new Set(filteredInspections.filter(i => i.status === 'Rejeitado').map(i => i.descricao || i.material).filter(Boolean)));
+        const motives = Array.from(new Set(filteredInspections.filter(i => i.status === 'Rejeitado').map(i => i.motivoRejeicao).filter(Boolean)));
 
         return materials.map(m => {
             const data: Record<string, any> = { name: m };
@@ -153,8 +158,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                 const reliability = s.totalQty > 0 ? (s.approvedQty / s.totalQty) * 100 : 0;
                 return { ...s, reliability: Math.round(reliability) };
             })
-            .sort((a, b) => b.reliability - a.reliability)
-            .slice(0, 6);
+            .sort((a, b) => b.reliability - a.reliability);
     }, [inspections]);
 
     // 4. Lógica de Previsão (Análise de Tendência Simples)
@@ -229,7 +233,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             predictedRate,
             insights: [
                 isAnomaly
-                    ? { icon: 'error', color: 'text-rose-400', text: `Anomalia Detectada: A taxa atual de ${currentRate.toFixed(1)}% está estatisticamente fora de controle (SPC).` }
+                    ? { icon: 'error', color: 'text-rose-400', text: `Anomalia Detectada: A taxa atual de ${currentRate.toFixed(1)}% está estatisticamente fora de controle (CEP).` }
                     : topDefectMaterial && topDefectMaterial[1] > 0
                         ? { icon: 'warning', color: 'text-amber-400', text: `Atenção: ${topDefectMaterial[0]} representa o maior volume de peças rejeitadas recentemente.` }
                         : { icon: 'check_circle', color: 'text-emerald-400', text: 'Fluxo produtivo dentro dos limites estatísticos de controle.' },
@@ -238,12 +242,55 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                     : { icon: 'info', color: 'text-blue-400', text: 'Estabilidade detectada no fluxo de fornecimento atual.' }
             ]
         };
-    }, [inspections]);
+    }, [inspections, filteredInspections]); // Fixed dependency to include filtered inspections
 
     const handleGenerateActionPlan = async () => {
+        if (!import.meta.env.VITE_GEMINI_API_KEY) {
+            alert('Configuração ausente: Chave de API do Gemini não encontrada no arquivo .env.local');
+            return;
+        }
+
         setIsGenerating(true);
         try {
-            // 1. Get all users with roles ADMIN, CLIENTE, INSPETOR
+            // 1. Prepare structured data for Gemini
+            const paretoTop = paretoData.slice(0, 5).map(p => `${p.name} (${p.count} peças)`).join(', ');
+            const riskSuppliers = supplierReliability.filter(s => s.reliability < 90).slice(0, 3).map(s => `${s.name} (Conf: ${s.reliability}%)`).join(', ');
+            const topRiskMaterial = predictionData.insights.find(i => i.icon === 'warning')?.text || 'Sem anomalias críticas no momento';
+            
+            const prompt = `
+Contexto: Você é um Especialista Sênior em Qualidade Industrial e Lean Manufacturing (KAIZEN/Six Sigma).
+Seu objetivo é gerar um Plano de Ação Estratégico baseado nos dados reais de inspeção de materiais abaixo.
+
+DADOS ATUAIS:
+- Principais Defeitos (Pareto): ${paretoTop}
+- Fornecedores em Risco: ${riskSuppliers}
+- Alerta do Sistema: ${topRiskMaterial}
+- Taxa de Rejeição Prevista: ${predictionData.predictedRate.toFixed(1)}%
+
+INSTRUÇÕES:
+1. Seja técnico, direto e profissional.
+2. Não use introduções genéricas. Comece direto no título "📋 PLANO DE AÇÃO ESTRATÉGICO".
+3. Forneça 3 passos práticos e variados que mudem conforme os dados. Use nomes reais de fornecedores e materiais se disponíveis nos dados.
+4. Sugira melhorias reais como: Auditoria de Processo, Revisão de Calibragem, Treinamento de Setup, Abertura de RNC ou Troca de Lote.
+5. Formate em Markdown.
+6. Responda em Português Brasileiro (PT-BR).
+
+Formato esperado:
+📋 PLANO DE AÇÃO ESTRATÉGICO
+[Data Atualizada]
+
+1. FOCO NO MATERIAL: [Ação técnica baseada no Pareto]
+2. CONTROLE DE FORNECEDOR: [Ação estratégica para os fornecedores citados]
+3. MONITORAMENTO: [Sugestão de melhoria de processo ou ferramenta]
+
+(Mantenha a resposta curta, impactante e sem "enchimento".)
+            `.trim();
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const detailedPlan = response.text();
+
+            // 2. Get all users with roles ADMIN, CLIENTE, INSPETOR
             const { data: users, error: userError } = await supabase
                 .from('perfis')
                 .select('id')
@@ -252,45 +299,26 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             if (userError) throw userError;
             if (!users || users.length === 0) return;
 
-            // 2. Generate a structured Action Plan based on insights
-            const primaryInsight = predictionData.insights[0];
-            const secondaryInsight = predictionData.insights[1];
-
-            const detailedPlan = `
-PLANOS DE AÇÃO RECOMENDADOS:
-
-1. CONTROLE DE MATERIAL: ${primaryInsight.text}
-   - Ação: Iniciar inspeção 100% no próximo lote recebido.
-   - Responsável: Equipe de Recebimento.
-
-2. GESTÃO DE FORNECEDORES: ${secondaryInsight.text}
-   - Ação: Agendar auditoria extraordinária de processo ou solicitar RNC (Relatório de Não Conformidade).
-   - Prazo: Imediato.
-
-3. MONITORAMENTO:
-   - Ação: Revisar tolerâncias de medição e calibragem de equipamentos envolvidos.
-            `.trim();
-
             // 3. Prepare notifications for all these users
             const notifications = users.map(user => ({
                 user_id: user.id,
-                titulo: '📋 Plano de Ação Estratégico',
+                titulo: '📋 Plano de Ação Estratégico (IA)',
                 mensagem: detailedPlan,
                 tipo: 'aviso',
                 lida: false
             }));
 
-            // 3. Bulk Insert
+            // 4. Bulk Insert
             const { error: notifyError } = await supabase
                 .from('notificacoes')
                 .insert(notifications);
 
             if (notifyError) throw notifyError;
 
-            alert(`Plano de ação detalhado enviado com sucesso para ${users.length} usuários.`);
+            alert(`Plano de ação estratégico gerado por IA com sucesso e enviado para ${users.length} usuários.`);
         } catch (error: any) {
-            console.error('Erro ao gerar plano de ação:', error);
-            alert('Falha ao gerar o plano de ação: ' + error.message);
+            console.error('Erro ao gerar plano de ação via Gemini:', error);
+            alert('Falha ao gerar o plano de ação: ' + (error.message || 'Erro na conexão com a IA'));
         } finally {
             setIsGenerating(false);
         }

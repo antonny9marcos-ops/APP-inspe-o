@@ -1,0 +1,16 @@
+﻿Checking: https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=[HIDDEN]
+[FAIL] v1/gemini-1.5-flash: 404 - models/gemini-1.5-flash is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=[HIDDEN]
+[FAIL] v1/gemini-1.5-pro: 404 - models/gemini-1.5-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=[HIDDEN]
+[FAIL] v1/gemini-pro: 404 - models/gemini-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=[HIDDEN]
+[FAIL] v1/gemini-1.0-pro: 404 - models/gemini-1.0-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=[HIDDEN]
+[FAIL] v1beta/gemini-1.5-flash: 404 - models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=[HIDDEN]
+[FAIL] v1beta/gemini-1.5-pro: 404 - models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=[HIDDEN]
+[FAIL] v1beta/gemini-pro: 404 - models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Checking: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=[HIDDEN]
+[FAIL] v1beta/gemini-1.0-pro: 404 - models/gemini-1.0-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
