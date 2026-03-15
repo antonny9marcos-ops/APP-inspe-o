@@ -262,7 +262,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
 Contexto: Você é um Especialista Sênior em Qualidade Industrial e Lean Manufacturing (KAIZEN/Six Sigma).
 Seu objetivo é gerar um Plano de Ação Estratégico baseado nos dados reais de inspeção de materiais abaixo.
 
-DATA DE HOJE: ${today}
+DATA DE HOJE: ${today} (USE ESTA DATA EXATA LOGO ABAIXO DO TÍTULO).
 
 DADOS ATUAIS:
 - Principais Defeitos (Pareto): ${paretoTop}
@@ -273,14 +273,15 @@ DADOS ATUAIS:
 INSTRUÇÕES:
 1. Seja técnico, direto e profissional.
 2. Não use introduções genéricas. Comece direto no título "📋 PLANO DE AÇÃO ESTRATÉGICO".
-3. Forneça 3 passos práticos e variados que mudem conforme os dados. Use nomes reais de fornecedores e materiais se disponíveis nos dados.
-4. Sugira melhorias reais como: Auditoria de Processo, Revisão de Calibragem, Treinamento de Setup, Abertura de RNC ou Troca de Lote.
-5. Formate em Markdown.
-6. Responda em Português Brasileiro (PT-BR).
+3. Use obrigatoriamente a data "${today}" na segunda linha do texto.
+4. Forneça 3 passos práticos e variados que mudem conforme os dados. Use nomes reais de fornecedores e materiais se disponíveis nos dados.
+5. Sugira melhorias reais como: Auditoria de Processo, Revisão de Calibragem, Treinamento de Setup, Abertura de RNC ou Troca de Lote.
+6. Formate em Markdown.
+7. Responda apenas em Português Brasileiro (PT-BR).
 
 Formato esperado:
 📋 PLANO DE AÇÃO ESTRATÉGICO
-[Data Atualizada]
+${today}
 
 1. FOCO NO MATERIAL: [Ação técnica baseada no Pareto]
 2. CONTROLE DE FORNECEDOR: [Ação estratégica para os fornecedores citados]
