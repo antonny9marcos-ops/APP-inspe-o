@@ -88,6 +88,8 @@ export const useNotifications = () => {
                 .eq('lida', false);
 
             if (error) throw error;
+            
+            // Update local state
             setNotifications(prev => prev.map(n => ({ ...n, lida: true })));
             setUnreadCount(0);
         } catch (err) {
@@ -100,16 +102,29 @@ export const useNotifications = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const { error } = await supabase
+            // Tentativa de delete físico
+            const { error, count } = await supabase
                 .from('notificacoes')
-                .delete()
+                .delete({ count: 'exact' })
                 .eq('user_id', user.id);
 
             if (error) throw error;
+
+            console.log(`Sucesso ao limpar notificações. Linhas deletadas: ${count}`);
+
+            if (count === 0 && notifications.length > 0) {
+                console.warn('Aviso: Nenhuma linha foi deletada no banco, mas havia notificações no estado local. Verifique as políticas de RLS.');
+            }
+
+            // Sempre limpa o estado local para dar feedback imediato
             setNotifications([]);
             setUnreadCount(0);
         } catch (err) {
             console.error('Erro ao limpar notificações:', err);
+            // Mesmo com erro no banco, limpamos localmente para não travar a UI, 
+            // mas o usuário verá o erro no console.
+            setNotifications([]);
+            setUnreadCount(0);
         }
     };
 
