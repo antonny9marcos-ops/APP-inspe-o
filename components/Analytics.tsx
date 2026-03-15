@@ -10,7 +10,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 interface AnalyticsProps {
     inspections: Inspection[];
@@ -246,7 +246,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
 
     const handleGenerateActionPlan = async () => {
         if (!import.meta.env.VITE_GEMINI_API_KEY) {
-            alert('Configuração ausente: Chave de API do Gemini não encontrada no arquivo .env.local');
+            alert('Configuração ausente: Chave de API do Gemini não encontrada.\n\nSe você estiver usando a Vercel, adicione a variável VITE_GEMINI_API_KEY nas configurações de Environment Variables do projeto e faça um novo Deploy.');
             return;
         }
 
@@ -256,10 +256,13 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             const paretoTop = paretoData.slice(0, 5).map(p => `${p.name} (${p.count} peças)`).join(', ');
             const riskSuppliers = supplierReliability.filter(s => s.reliability < 90).slice(0, 3).map(s => `${s.name} (Conf: ${s.reliability}%)`).join(', ');
             const topRiskMaterial = predictionData.insights.find(i => i.icon === 'warning')?.text || 'Sem anomalias críticas no momento';
+            const today = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
             
             const prompt = `
 Contexto: Você é um Especialista Sênior em Qualidade Industrial e Lean Manufacturing (KAIZEN/Six Sigma).
 Seu objetivo é gerar um Plano de Ação Estratégico baseado nos dados reais de inspeção de materiais abaixo.
+
+DATA DE HOJE: ${today}
 
 DADOS ATUAIS:
 - Principais Defeitos (Pareto): ${paretoTop}
