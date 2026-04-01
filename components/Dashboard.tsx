@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, Legend } from 'recharts';
 import { Inspection } from '../types';
+import { SectorSwitcher } from './SectorSwitcher';
 
 interface DashboardProps {
   inspections: Inspection[];
@@ -20,6 +21,9 @@ interface DashboardProps {
     years: string[];
     months: { val: string; label: string }[];
   };
+  selectedSector: string;
+  sectors: string[];
+  onSectorChange: (sector: string) => void;
 }
 
 const CustomYAxisTick = (props: any) => {
@@ -67,7 +71,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
   weekFilter,
   categoryFilter,
   onCategoryChange,
-  filterOptions
+  filterOptions,
+  selectedSector,
+  sectors,
+  onSectorChange
 }) => {
   // Local state for Trend card filters
   const [trendYear, setTrendYear] = useState(yearFilter);
@@ -84,7 +91,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const metricsAndData = useMemo(() => {
     // 1. Apply Filters
-    let filtered = [...inspections];
+    let filtered = inspections;
+    
+    // Filtro de Setor
+    if (selectedSector !== 'TODOS') {
+      filtered = filtered.filter(i => i.setor === selectedSector);
+    }
+
+    // Filtro de Categoria
+    if (categoryFilter !== 'TODOS') {
+      filtered = filtered.filter(i => (i.categoria || '').toUpperCase() === categoryFilter.toUpperCase());
+    }
 
     // Search filter
     if (searchTerm) {
@@ -142,11 +159,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       });
     }
     
-    // Category filter
-    if (categoryFilter !== 'Todos' && categoryFilter !== 'TODOS') {
-      filtered = filtered.filter(i => i.categoria === categoryFilter);
-    }
-
     const normalizedVolume = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
     const approvedVolume = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? ((i.status === 'Aprovado' || i.status === 'Atenção') ? 1 : 0) : (i.qtdAprovada || 0)), 0);
     const rejectedVolume = filtered.reduce((sum, i) => sum + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0);
@@ -372,7 +384,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }, {})
       ).map(([_, val]: [any, any]) => val).sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))
     };
-  }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek, categoryFilter]);
+  }, [inspections, searchTerm, periodFilter, supplierFilter, trendYear, trendMonth, trendWeek, categoryFilter, selectedSector]);
 
   const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData, materialRejectionRanking } = metricsAndData;
 
@@ -387,6 +399,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">Visão Geral Operacional</h1>
             <p className="text-slate-500 mt-1 font-medium">Métricas de inspeção e dados de desempenho em tempo real</p>
           </div>
+        </div>
+
+        <div className="hidden lg:block">
+          <SectorSwitcher 
+            sectors={sectors} 
+            selectedSector={selectedSector} 
+            onSectorChange={onSectorChange} 
+          />
         </div>
       </div>
 

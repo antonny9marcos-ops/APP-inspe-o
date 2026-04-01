@@ -8,6 +8,7 @@ interface UserRecord {
     role: string;
     avatar_url?: string;
     cargo?: string;
+    setor?: string;
     created_at: string;
     ultimo_acesso?: string;
 }
@@ -22,6 +23,7 @@ export const UserManagement: React.FC = () => {
     const [newEmail, setNewEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [newRole, setNewRole] = useState<'Admin' | 'Inspetor' | 'Cliente'>('Inspetor');
+    const [newSector, setNewSector] = useState('1058 Carajás');
     const [isRegistering, setIsRegistering] = useState(false);
 
     const fetchUsers = async () => {
@@ -63,6 +65,7 @@ export const UserManagement: React.FC = () => {
                     data: {
                         full_name: newName,
                         role: newRole,
+                        setor: newRole === 'Inspetor' ? newSector : null,
                     }
                 }
             });
@@ -138,7 +141,9 @@ export const UserManagement: React.FC = () => {
                                                 <p className="text-sm font-black text-slate-800">{user.nome}</p>
                                                 {isOnline && <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">Online</span>}
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{user.cargo || 'Membro'}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                {user.cargo || 'Membro'} {user.setor ? `• ${user.setor}` : ''}
+                                            </p>
                                         </div>
                                         <div className="text-right">
                                             <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'Admin' ? 'bg-indigo-100 text-indigo-600' :
@@ -215,7 +220,6 @@ export const UserManagement: React.FC = () => {
                                     placeholder="••••••••"
                                 />
                             </div>
-
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nível de Acesso</label>
                                 <div className="grid grid-cols-3 gap-2">
@@ -234,6 +238,24 @@ export const UserManagement: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
+
+                            {newRole === 'Inspetor' && (
+                                <div className="flex flex-col gap-2 font-center animate-in slide-in-from-top-2 duration-300">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Setor Designado</label>
+                                    <div className="relative group">
+                                        <select
+                                            value={newSector}
+                                            onChange={(e) => setNewSector(e.target.value)}
+                                            className="w-full rounded-2xl border-slate-100 h-12 bg-slate-50 focus:bg-white focus:ring-primary font-bold text-sm transition-all appearance-none px-5"
+                                        >
+                                            <option value="1058 Carajás">1058 Carajás</option>
+                                            <option value="4065 São Luis">4065 São Luis</option>
+                                            <option value="4050 S11D">4050 S11D</option>
+                                        </select>
+                                        <span className="material-symbols-rounded absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-primary transition-colors">expand_more</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <button

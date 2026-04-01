@@ -12,9 +12,10 @@ interface HeaderProps {
   onSearchChange: (value: string) => void;
   onLogout: () => void;
   onRefresh?: () => void;
+  children?: React.ReactNode;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout, onRefresh }) => {
+export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout, onRefresh, children }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AppNotification | null>(null);
   const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
@@ -48,6 +49,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
         <h2 className="text-slate-900 text-lg font-bold tracking-tight">
           {getTitle()}
         </h2>
+      </div>
+
+      <div className="hidden lg:flex flex-1 justify-center max-w-xl mx-8">
+        {children}
       </div>
 
       <div className="flex items-center gap-4 md:gap-8">

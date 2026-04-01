@@ -4,6 +4,7 @@ import {
     ComposedChart, Line, Cell, AreaChart, Area
 } from 'recharts';
 import { Inspection } from '../types';
+import { SectorSwitcher } from './SectorSwitcher';
 
 import { supabase } from '../lib/supabase';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -21,6 +22,9 @@ interface AnalyticsProps {
     monthFilter?: string;
     weekFilter?: string;
     categoryFilter?: string;
+    selectedSector: string;
+    sectors: string[];
+    onSectorChange: (sector: string) => void;
 }
 
 export const Analytics: React.FC<AnalyticsProps> = ({ 
@@ -31,12 +35,19 @@ export const Analytics: React.FC<AnalyticsProps> = ({
     yearFilter = 'all',
     monthFilter = 'all',
     weekFilter = 'all',
-    categoryFilter = 'Todos'
+    categoryFilter = 'Todos',
+    selectedSector,
+    sectors,
+    onSectorChange
 }) => {
     const [isGenerating, setIsGenerating] = React.useState(false);
 
     const filteredInspections = useMemo(() => {
-        let filtered = [...inspections];
+        let filtered = inspections;
+        
+        if (selectedSector !== 'TODOS') {
+            filtered = filtered.filter(i => i.setor === selectedSector);
+        }
 
         // Search filter
         if (searchTerm) {
@@ -90,11 +101,11 @@ export const Analytics: React.FC<AnalyticsProps> = ({
 
         // Category filter
         if (categoryFilter !== 'Todos' && categoryFilter !== 'TODOS') {
-            filtered = filtered.filter(i => i.categoria === categoryFilter);
+            filtered = filtered.filter(i => (i.categoria || '').toUpperCase() === (categoryFilter || '').toUpperCase());
         }
 
         return filtered;
-    }, [inspections, searchTerm, periodFilter, supplierFilter, yearFilter, monthFilter, weekFilter, categoryFilter]);
+    }, [inspections, searchTerm, periodFilter, supplierFilter, yearFilter, monthFilter, weekFilter, categoryFilter, selectedSector]);
 
     // 1. Dados da Análise de Pareto (Motivos de Rejeição)
     const paretoData = useMemo(() => {
@@ -121,7 +132,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                 percentage: totalRejections > 0 ? Math.round((cumulativeCount / totalRejections) * 100) : 0
             };
         });
-    }, [inspections]);
+    }, [filteredInspections]);
 
     // 2. Dados do Mapa de Calor (Material vs Defeito)
     const heatmapData = useMemo(() => {
@@ -139,7 +150,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             });
             return data;
         });
-    }, [inspections]);
+    }, [filteredInspections]);
 
     // 3. Scorecard de Confiabilidade do Fornecedor
     const supplierReliability = useMemo(() => {
@@ -159,7 +170,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                 return { ...s, reliability: Math.round(reliability) };
             })
             .sort((a, b) => b.reliability - a.reliability);
-    }, [inspections]);
+    }, [filteredInspections]);
 
     // 4. Lógica de Previsão (Análise de Tendência Simples)
     const predictionData = useMemo(() => {
@@ -260,7 +271,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             
             const prompt = `
 Contexto: Você é um Especialista Sênior em Qualidade Industrial e Lean Manufacturing (KAIZEN/Six Sigma).
-Seu objetivo é gerar um Plano de Ação Estratégico baseado nos dados reais de inspeção de materiais abaixo.
+Seu objetivo é gerar um Plano de Ação Estratégico baseado nos dados reais de inspeção de materiais da unidade ${selectedSector} abaixo.
 
 DATA DE HOJE: ${today} (USE ESTA DATA EXATA LOGO ABAIXO DO TÍTULO).
 
@@ -342,6 +353,13 @@ ${today}
                     </div>
                 </div>
 
+                <div className="hidden lg:block">
+                    <SectorSwitcher 
+                        sectors={sectors} 
+                        selectedSector={selectedSector} 
+                        onSectorChange={onSectorChange} 
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -450,7 +468,8 @@ ${today}
                         <h3 className="text-lg font-black text-slate-800 tracking-tight">Índice de Confiabilidade do Fornecedor</h3>
                         <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Performance baseada em conformidade e volume histórico</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {supplierReliability.map((s) => (
                             <div key={s.name} className="p-6 rounded-3xl bg-slate-50/50 border border-slate-100 hover:border-indigo-100 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
@@ -480,11 +499,12 @@ ${today}
                                 </div>
                             </div>
                         ))}
+                        </div>
                     </div>
                 </div>
 
                 {/* Prediction / Trend Area */}
-                <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 text-white flex flex-col relative overflow-hidden">
+                <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 text-white flex flex-col relative overflow-hidden h-fit self-start">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
                     <div className="relative z-10">
                         <h3 className="text-lg font-black tracking-tight mb-2">Previsão Próximo Ciclo</h3>

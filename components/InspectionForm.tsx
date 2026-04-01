@@ -9,32 +9,47 @@ interface InspectionFormProps {
   onCancel: () => void;
   onViewHistory: () => void;
   initialData?: Inspection;
+  userProfile?: import('../types').UserProfile;
 }
 
-export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete, onCancel, onViewHistory, initialData }) => {
-  const [formData, setFormData] = useState<Partial<Inspection>>(initialData || {
-    data: new Date().toLocaleDateString('sv-SE'),
-    dataChegada: new Date().toLocaleDateString('sv-SE'),
-    inspetor: '',
-    material: '',
-    descricao: '',
-    fornecedor: '',
-    qtdInspecionada: 0,
-    qtdAprovada: 0,
-    qtdRejeitada: 0,
-    motivoRejeicao: 'Nenhum / Conforme',
-    numeroPedido: '',
-    nf: '',
-    observacoes: '',
-    evidencias: [],
-    unidade: 'UN'
+export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete, onCancel, onViewHistory, initialData, userProfile }) => {
+  const [formData, setFormData] = useState<Partial<Inspection>>({
+    data: initialData?.data || new Date().toLocaleDateString('sv-SE'),
+    dataChegada: initialData?.dataChegada || new Date().toLocaleDateString('sv-SE'),
+    inspetor: initialData?.inspetor || '',
+    material: initialData?.material || '',
+    descricao: initialData?.descricao || '',
+    fornecedor: initialData?.fornecedor || '',
+    qtdInspecionada: initialData?.qtdInspecionada || 0,
+    qtdAprovada: initialData?.qtdAprovada || 0,
+    qtdRejeitada: initialData?.qtdRejeitada || 0,
+    motivoRejeicao: initialData?.motivoRejeicao || 'Nenhum / Conforme',
+    numeroPedido: initialData?.numeroPedido || '',
+    nf: initialData?.nf || '',
+    observacoes: initialData?.observacoes || '',
+    evidencias: initialData?.evidencias || [],
+    unidade: initialData?.unidade || 'UN',
+    setor: (userProfile?.role === 'Inspetor' && userProfile?.setor) ? userProfile.setor : (initialData?.setor || '')
   });
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData(prev => ({
+        ...prev,
+        ...initialData,
+        // Override setor if inspector is locked
+        setor: (userProfile?.role === 'Inspetor' && userProfile?.setor) ? userProfile.setor : (initialData.setor || prev.setor),
+        // Pre-fill inspetor name if empty
+        inspetor: (userProfile?.role === 'Inspetor' && !initialData.inspetor) ? userProfile.name : (initialData.inspetor || prev.inspetor)
+      }));
+    } else if (userProfile?.role === 'Inspetor') {
+      setFormData(prev => ({ 
+        ...prev, 
+        setor: userProfile.setor || prev.setor,
+        inspetor: userProfile.name || prev.inspetor 
+      }));
     }
-  }, [initialData]);
+  }, [initialData, userProfile]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -279,7 +294,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         observacoes: formData.observacoes,
         evidencias: formData.evidencias || [],
         categoria: formData.categoria || 'Outros',
-        unidade: formData.unidade || 'UN'
+        unidade: formData.unidade || 'UN',
+        setor: formData.setor || '1058 Carajás'
       };
 
       let error;
@@ -408,6 +424,33 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                   className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium"
                 />
               </div>
+              <div className="flex flex-col gap-2 relative group">
+                <label className="text-sm font-bold text-slate-700 font-black uppercase tracking-widest text-[10px]">Setor / Área</label>
+                
+                {userProfile?.role === 'Inspetor' ? (
+                  <div className="bg-slate-100 border border-slate-200 rounded-xl h-12 flex items-center px-4 gap-3 cursor-not-allowed group">
+                    <span className="material-symbols-rounded text-slate-400 !text-xl group-hover:text-primary transition-colors">lock</span>
+                    <span className="text-slate-600 font-bold text-sm tracking-tight">{formData.setor}</span>
+                  </div>
+                ) : (
+                  <select
+                    value={formData.setor || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, setor: e.target.value }))}
+                    className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium bg-slate-50 border-primary/20"
+                  >
+                    <option value="1058 Carajás">1058 Carajás</option>
+                    <option value="4065 São Luis">4065 São Luis</option>
+                    <option value="4050 S11D">4050 S11D</option>
+                  </select>
+                )}
+
+                {userProfile?.role === 'Inspetor' && (
+                  <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-primary rounded-full"></span>
+                    Unidade fixa para seu perfil
+                  </p>
+                )}
+              </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-slate-700">Inspetor</label>
                 <input
@@ -415,7 +458,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                   value={formData.inspetor || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, inspetor: e.target.value }))}
                   placeholder="Nome do inspetor"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary"
+                  className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium bg-slate-50 border-primary/20"
                 />
               </div>
               <div className="flex flex-col gap-2">

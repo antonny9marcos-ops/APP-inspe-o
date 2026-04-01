@@ -1,15 +1,28 @@
 import React from 'react';
 import { Inspection } from '../types';
+import { SectorSwitcher } from './SectorSwitcher';
 
 
 interface ReportsProps {
   inspections: Inspection[];
   onEdit: (inspection: Inspection) => void;
-  globalSearchTerm?: string;
   globalSupplierFilter?: string;
+  selectedSector: string;
+  sectors: string[];
+  onSectorChange: (sector: string) => void;
+  categoryFilter?: string;
 }
 
-export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSearchTerm = '', globalSupplierFilter = 'Todos' }) => {
+export const Reports: React.FC<ReportsProps> = ({ 
+  inspections, 
+  onEdit, 
+  globalSearchTerm = '', 
+  globalSupplierFilter = 'Todos', 
+  selectedSector,
+  sectors,
+  onSectorChange,
+  categoryFilter = 'TODOS'
+}) => {
   const [localSearchTerm, setLocalSearchTerm] = React.useState('');
   const [startDate, setStartDate] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
@@ -23,7 +36,10 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
   const selectedSupplier = globalSupplierFilter !== 'Todos' ? globalSupplierFilter : localSelectedSupplier;
 
   // Dynamic Filtering Logic
-  const filteredInspections = inspections.filter(ins => {
+  const filteredInspections = inspections
+    .filter(ins => selectedSector === 'TODOS' || ins.setor === selectedSector)
+    .filter(ins => categoryFilter === 'TODOS' || (ins.categoria || '').toUpperCase() === (categoryFilter || '').toUpperCase())
+    .filter(ins => {
     const matchesSearch =
       ins.material.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ins.fornecedor.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,7 +56,8 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
   });
 
   // Calculate Dynamic Ranking
-  const supplierStats = inspections.reduce((acc: any, ins) => {
+  const sectorInspections = inspections.filter(i => selectedSector === 'TODOS' || i.setor === selectedSector);
+  const supplierStats = sectorInspections.reduce((acc: any, ins) => {
     if (!acc[ins.fornecedor]) {
       acc[ins.fornecedor] = { name: ins.fornecedor, count: 0, approvals: 0 };
     }
@@ -55,15 +72,16 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
       pos: idx + 1,
       name: item.name,
       cat: 'Fornecedor Ativo',
-      val: ((item.count / (inspections.length || 1)) * 100).toFixed(1) + '%',
+      val: ((item.count / (sectorInspections.length || 1)) * 100).toFixed(1) + '%',
       color: idx === 0 ? 'bg-success' : idx === 1 ? 'bg-primary' : 'bg-slate-400'
     }));
 
-  const suppliers = Array.from(new Set(inspections.map(i => i.fornecedor))).filter(Boolean);
+  const suppliers = Array.from(new Set(sectorInspections.map(i => i.fornecedor))).filter(Boolean);
 
   const handleExportCSV = () => {
     const headers = [
       'ID',
+      'Setor',
       'DT. Entrada',
       'DT. Chegada',
       'Material',
@@ -83,6 +101,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
 
     const rows = filteredInspections.map(i => [
       i.id,
+      i.setor || '',
       i.data,
       i.dataChegada || '',
       i.material,
@@ -123,6 +142,14 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">Relatórios e Análises</h1>
             <p className="text-slate-500 mt-1 font-medium">Revise métricas e gere documentação de conformidade.</p>
           </div>
+        </div>
+
+        <div className="hidden lg:block">
+          <SectorSwitcher 
+            sectors={sectors} 
+            selectedSector={selectedSector} 
+            onSectorChange={onSectorChange} 
+          />
         </div>
       </div>
 
@@ -357,7 +384,13 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
+                    <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
+                      <div className="min-h-[2.5rem] flex items-center justify-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Setor</p>
+                      </div>
+                      <p className="text-sm font-black text-primary">{viewingInspection.setor || '---'}</p>
+                    </div>
                     <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
                       <div className="min-h-[2.5rem] flex items-center justify-center">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Chegada</p>
@@ -366,7 +399,7 @@ export const Reports: React.FC<ReportsProps> = ({ inspections, onEdit, globalSea
                     </div>
                     <div className="p-5 border border-slate-100 rounded-3xl flex flex-col items-center">
                       <div className="min-h-[2.5rem] flex items-center justify-center">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Entrada/Insp.</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">DT. Insp.</p>
                       </div>
                       <p className="text-sm font-black text-slate-700">{new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString()}</p>
                     </div>

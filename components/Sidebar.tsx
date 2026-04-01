@@ -6,9 +6,10 @@ interface SidebarProps {
   onNavigate: (view: View) => void;
   isOpen: boolean;
   onClose: () => void;
+  selectedSector: string;
 }
 
-export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ currentView, onNavigate, isOpen, onClose, profile }) => {
+export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ currentView, onNavigate, isOpen, onClose, profile, selectedSector }) => {
   const isAdmin = profile.role === 'Admin';
   const isClient = profile.role === 'Cliente';
 
@@ -40,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps & { profile: UserProfile }> = ({ cur
             </div>
             <div className="flex flex-col">
               <h1 className="text-slate-900 text-base font-bold leading-none">MC Industrial</h1>
-              <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider mt-1">Controle de Qualidade</p>
+              <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider mt-1">{selectedSector}</p>
             </div>
           </div>
           <button onClick={onClose} className="lg:hidden text-slate-400">

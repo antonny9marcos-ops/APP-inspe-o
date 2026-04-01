@@ -21,6 +21,7 @@ export interface Inspection {
   observacoes?: string;
   categoria?: string;
   unidade?: string;
+  setor?: string;
 }
 
 export interface Metric {
@@ -36,6 +37,7 @@ export interface UserProfile {
   name: string;
   role: 'Admin' | 'Inspetor' | 'Cliente' | string;
   avatar?: string;
+  setor?: string;
 }
 
 export enum View {

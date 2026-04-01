@@ -13,6 +13,10 @@ import { Analytics } from './components/Analytics';
 import { View, Inspection, UserProfile } from './types';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
+import { SectorSwitcher } from './components/SectorSwitcher';
+import { WhatIsNew } from './components/WhatIsNew';
+
+const SECTORS = ['1058 Carajás', '4065 São Luis', '4050 S11D'];
 
 
 const INITIAL_INSPECTIONS: Inspection[] = [
@@ -24,9 +28,11 @@ const INITIAL_INSPECTIONS: Inspection[] = [
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
+  const [showWhatIsNew, setShowWhatIsNew] = useState(false);
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
+  const [selectedSector, setSelectedSector] = useState<string>('TODOS');
 
   // Estados dos Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,7 +54,7 @@ export default function App() {
       try {
         const { data, error } = await supabase
           .from('perfis')
-          .select('nome, role, avatar_url')
+          .select('nome, role, avatar_url, setor')
           .eq('id', user.id)
           .single();
 
@@ -57,13 +63,15 @@ export default function App() {
           setUserProfile({
             name: user.user_metadata.full_name || user.email?.split('@')[0] || 'Usuário',
             role: user.user_metadata.role || 'Cliente', 
-            avatar: user.user_metadata.avatar_url || `https://picsum.photos/seed/${user.id}/100`
+            avatar: user.user_metadata.avatar_url || `https://picsum.photos/seed/${user.id}/100`,
+            setor: user.user_metadata.setor
           });
         } else {
           setUserProfile({
             name: data.nome || 'Usuário',
             role: data.role || 'Inspetor',
-            avatar: data.avatar_url || `https://picsum.photos/seed/${user.id}/100`
+            avatar: data.avatar_url || `https://picsum.photos/seed/${user.id}/100`,
+            setor: data.setor
           });
         }
       } catch (err) {
@@ -87,6 +95,16 @@ export default function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (session) {
+      const lastSeenVersion = localStorage.getItem('app_version_seen');
+      const CURRENT_VERSION = '1.2';
+      if (lastSeenVersion !== CURRENT_VERSION) {
+        setShowWhatIsNew(true);
+      }
+    }
+  }, [session]);
 
   const updateLastAccess = async (userId: string) => {
     try {
@@ -157,7 +175,8 @@ export default function App() {
           
           return isRolo ? 'ROLO TRANSPORTADOR' : 'OUTROS';
         })(),
-        unidade: item.unidade || 'UN'
+        unidade: item.unidade || 'UN',
+        setor: item.setor || '1058 Carajás'
       }));
 
       setInspections(mappedData);
@@ -227,9 +246,15 @@ export default function App() {
   }, [inspections]);
 
   const suppliers = useMemo(() => {
-    const list = Array.from(new Set(inspections.map(i => (i.fornecedor || '').trim()).filter(Boolean)));
+    const list = Array.from(new Set(inspections
+      .filter(i => selectedSector === 'TODOS' || i.setor === selectedSector)
+      .map(i => (i.fornecedor || '').trim()).filter(Boolean)));
     return ['Todos', ...list.sort()];
-  }, [inspections]);
+  }, [inspections, selectedSector]);
+
+  const filteredBySector = useMemo(() => {
+    return inspections.filter(i => i.setor === selectedSector);
+  }, [inspections, selectedSector]);
 
   const handleEditClick = (inspection: Inspection) => {
     setEditingInspection(inspection);
@@ -253,6 +278,9 @@ export default function App() {
             onPeriodChange={setPeriodFilter}
             onSupplierChange={setSupplierFilter}
             onCategoryChange={setCategoryFilter}
+            selectedSector={selectedSector}
+            sectors={SECTORS}
+            onSectorChange={setSelectedSector}
             onAddClick={() => {
               if (userProfile.role === 'Cliente') return;
               setEditingInspection(null);
@@ -263,7 +291,8 @@ export default function App() {
       case View.INSPECTION_FORM:
         return (
           <InspectionForm
-            initialData={editingInspection || undefined}
+            initialData={editingInspection || { setor: selectedSector } as any}
+            userProfile={userProfile}
             onSave={handleAddInspection}
             onDelete={() => {
               fetchInspections();
@@ -281,6 +310,10 @@ export default function App() {
             onEdit={handleEditClick}
             globalSearchTerm={searchTerm}
             globalSupplierFilter={supplierFilter}
+            selectedSector={selectedSector}
+            sectors={SECTORS}
+            onSectorChange={setSelectedSector}
+            categoryFilter={categoryFilter}
           />
         );
       case View.SETTINGS:
@@ -324,6 +357,9 @@ export default function App() {
             monthFilter={monthFilter}
             weekFilter={weekFilter}
             categoryFilter={categoryFilter}
+            selectedSector={selectedSector}
+            sectors={SECTORS}
+            onSectorChange={setSelectedSector}
           />
         );
       default:
@@ -359,6 +395,7 @@ export default function App() {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         profile={userProfile}
+        selectedSector={selectedSector}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
@@ -468,6 +505,15 @@ export default function App() {
           {renderContent()}
         </main>
       </div>
+      
+      {showWhatIsNew && (
+        <WhatIsNew 
+          onClose={() => {
+            setShowWhatIsNew(false);
+            localStorage.setItem('app_version_seen', '1.2');
+          }} 
+        />
+      )}
     </div>
   );
 }
