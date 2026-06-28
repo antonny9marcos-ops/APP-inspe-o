@@ -51,18 +51,19 @@ async function generateWithRetry(prompt: string, maxRetries = 3): Promise<string
 const CustomizedAxisTick = (props: any) => {
     const { x, y, payload } = props;
     const value = payload.value || '';
-    const truncatedValue = value.length > 14 ? value.substring(0, 11) + '...' : value;
+    const truncatedValue = value.length > 20 ? value.substring(0, 17) + '...' : value;
     return (
         <g transform={`translate(${x},${y})`}>
             <text 
                 x={0} 
                 y={0} 
-                dy={12} 
+                dy={10} 
                 textAnchor="end" 
-                fill="#94a3b8" 
-                fontSize={9} 
-                fontWeight={700} 
-                transform="rotate(-35)"
+                fill="#64748b" 
+                fontSize={10} 
+                fontWeight={600} 
+                fontFamily="Inter, sans-serif"
+                transform="rotate(-45)"
             >
                 {truncatedValue}
             </text>
@@ -437,15 +438,16 @@ ${today}
                     </div>
                     <div className="flex-1 min-h-0">
                         <ResponsiveContainer width="100%" height="100%">
-                            <ComposedChart data={paretoData} barCategoryGap="20%" margin={{ top: 20, right: 10, bottom: isMobile ? 80 : 40, left: 10 }}>
+                            <ComposedChart data={paretoData} barCategoryGap="20%" margin={{ top: 20, right: 10, bottom: 100, left: 10 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis
                                     dataKey="name"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={isMobile ? <CustomizedAxisTick /> : { fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                                    tick={<CustomizedAxisTick />}
                                     padding={{ left: 20, right: 20 }}
                                     interval={0}
+                                    height={80}
                                 />
                                 <YAxis
                                     yAxisId="left"
