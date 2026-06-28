@@ -28,32 +28,36 @@ interface DashboardProps {
 
 const CustomYAxisTick = (props: any) => {
   const { x, y, payload } = props;
-  const parts = payload.value.split(' ');
+  const value = payload.value || '';
+  const truncated = value.length > 18 ? value.substring(0, 15) + '...' : value;
+  const parts = truncated.split(' ');
   const firstLine = parts.slice(0, Math.ceil(parts.length / 2)).join(' ');
   const secondLine = parts.slice(Math.ceil(parts.length / 2)).join(' ');
 
   return (
     <g transform={`translate(${x},${y})`}>
       <text
-        x={-10}
+        x={-8}
         y={0}
-        dy={-6}
+        dy={secondLine ? -4 : 2}
         textAnchor="end"
         fill="#64748b"
-        style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'Inter, sans-serif' }}
+        style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'Inter, sans-serif' }}
       >
         {firstLine}
       </text>
-      <text
-        x={-10}
-        y={0}
-        dy={8}
-        textAnchor="end"
-        fill="#64748b"
-        style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'Inter, sans-serif' }}
-      >
-        {secondLine}
-      </text>
+      {secondLine && (
+        <text
+          x={-8}
+          y={0}
+          dy={6}
+          textAnchor="end"
+          fill="#64748b"
+          style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'Inter, sans-serif' }}
+        >
+          {secondLine}
+        </text>
+      )}
     </g>
   );
 };
@@ -76,6 +80,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   sectors,
   onSectorChange
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   // Local state for Trend card filters
   const [trendYear, setTrendYear] = useState(yearFilter);
   const [trendMonth, setTrendMonth] = useState(monthFilter);
@@ -401,7 +412,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="hidden lg:block">
+        <div className="w-full lg:w-auto mt-4 lg:mt-0 flex justify-start lg:justify-end">
           <SectorSwitcher 
             sectors={sectors} 
             selectedSector={selectedSector} 
@@ -412,7 +423,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric) => (
-          <div key={metric.label} className={`bg-gradient-to-t ${metric.gradient || 'from-white to-white'} rounded-3xl p-7 shadow-xl shadow-slate-200/40 hover:shadow-primary/10 hover:-translate-y-1.5 transition-all duration-500 border border-slate-100`}>
+          <div key={metric.label} className={`bg-gradient-to-t ${metric.gradient || 'from-white to-white'} rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/40 hover:shadow-primary/10 hover:-translate-y-1.5 transition-all duration-500 border border-slate-100`}>
             <div className="flex justify-between items-start mb-6">
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{metric.label}</p>
               <div className={`${metric.bg} p-3 rounded-2xl`}>
@@ -420,7 +431,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <p className="text-slate-900 text-4xl font-black tracking-tighter">{metric.value}</p>
+              <p className="text-slate-900 text-3xl sm:text-4xl font-black tracking-tighter">{metric.value}</p>
               {metric.unit && <span className="text-slate-400 text-xs font-bold uppercase">{metric.unit}</span>}
             </div>
             {metric.trend && (
@@ -436,7 +447,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-slate-900">
+        <div className="lg:col-span-5 bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm text-slate-900">
           <div className="flex justify-between items-start mb-8">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Aprovados x Rejeitados</h3>
             <div className="flex flex-wrap gap-4 justify-end">
@@ -467,7 +478,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+        <div className="lg:col-span-7 bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Inspecionados x Rejeitados</h3>
             <div className="flex gap-4">
@@ -571,7 +582,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-12 bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col">
+        <div className="lg:col-span-12 bg-white p-5 sm:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col">
           <div className="flex justify-between items-start mb-10">
             <div>
               <h3 className="text-2xl font-black text-slate-900 tracking-tight">Desempenho por Fornecedor</h3>
@@ -595,7 +606,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <BarChart
                   layout="vertical"
                   data={supplierPerformance}
-                  margin={{ top: 5, right: 30, left: 120, bottom: 20 }}
+                  margin={{ top: 5, right: 30, left: isMobile ? 80 : 120, bottom: 20 }}
                   barGap={2}
                 >
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} opacity={0.1} />
@@ -612,7 +623,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     axisLine={false}
                     tickLine={false}
                     tick={<CustomYAxisTick />}
-                    width={120}
+                    width={isMobile ? 80 : 120}
                   />
                   <Tooltip
                     cursor={{ fill: '#f8fafc' }}
@@ -641,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+      <div className="bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm">
         <div className="flex justify-between items-center mb-10">
           <div>
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Tendência de Inspeções</h3>

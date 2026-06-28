@@ -48,6 +48,28 @@ async function generateWithRetry(prompt: string, maxRetries = 3): Promise<string
     throw new Error('Todos os modelos do Gemini estão indisponíveis no momento. Tente novamente em alguns minutos.');
 }
 
+const CustomizedAxisTick = (props: any) => {
+    const { x, y, payload } = props;
+    const value = payload.value || '';
+    const truncatedValue = value.length > 14 ? value.substring(0, 11) + '...' : value;
+    return (
+        <g transform={`translate(${x},${y})`}>
+            <text 
+                x={0} 
+                y={0} 
+                dy={12} 
+                textAnchor="end" 
+                fill="#94a3b8" 
+                fontSize={9} 
+                fontWeight={700} 
+                transform="rotate(-35)"
+            >
+                {truncatedValue}
+            </text>
+        </g>
+    );
+};
+
 interface AnalyticsProps {
     inspections: Inspection[];
     searchTerm?: string;
@@ -76,6 +98,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({
     onSectorChange
 }) => {
     const [isGenerating, setIsGenerating] = React.useState(false);
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const filteredInspections = useMemo(() => {
         let filtered = inspections;
@@ -387,7 +417,7 @@ ${today}
                     </div>
                 </div>
 
-                <div className="hidden lg:block">
+                <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-start md:justify-end">
                     <SectorSwitcher 
                         sectors={sectors} 
                         selectedSector={selectedSector} 
@@ -398,7 +428,7 @@ ${today}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Pareto Chart */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-[500px]">
+                <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-[420px] sm:h-[500px]">
                     <div className="mb-6 flex justify-between items-start">
                         <div>
                             <h3 className="text-lg font-black text-slate-800 tracking-tight">Análise de Pareto (Regra 80/20)</h3>
@@ -407,14 +437,15 @@ ${today}
                     </div>
                     <div className="flex-1 min-h-0">
                         <ResponsiveContainer width="100%" height="100%">
-                            <ComposedChart data={paretoData} barCategoryGap="20%">
+                            <ComposedChart data={paretoData} barCategoryGap="20%" margin={{ top: 20, right: 10, bottom: isMobile ? 80 : 40, left: 10 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis
                                     dataKey="name"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                                    tick={isMobile ? <CustomizedAxisTick /> : { fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
                                     padding={{ left: 20, right: 20 }}
+                                    interval={0}
                                 />
                                 <YAxis
                                     yAxisId="left"
@@ -422,7 +453,7 @@ ${today}
                                     tickLine={false}
                                     tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
                                     allowDecimals={false}
-                                    label={{ value: 'Quantidade de Peças', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: 10, fontWeight: 800 } }}
+                                    label={isMobile ? undefined : { value: 'Quantidade de Peças', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: 10, fontWeight: 800 } }}
                                 />
                                 <YAxis
                                     yAxisId="right"
@@ -432,7 +463,7 @@ ${today}
                                     tick={{ fill: '#6366f1', fontSize: 10, fontWeight: 700 }}
                                     unit="%"
                                     domain={[0, 100]}
-                                    label={{ value: '% Acumulada', angle: 90, position: 'insideRight', style: { fill: '#6366f1', fontSize: 10, fontWeight: 800 } }}
+                                    label={isMobile ? undefined : { value: '% Acumulada', angle: 90, position: 'insideRight', style: { fill: '#6366f1', fontSize: 10, fontWeight: 800 } }}
                                 />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
@@ -443,33 +474,33 @@ ${today}
                                         return [value, name];
                                     }}
                                 />
-                                <Bar name="Ocorrências" yAxisId="left" dataKey="count" fill="#4f46e5" radius={[10, 10, 0, 0]} barSize={40} />
-                                <Line name="% Acumulada" yAxisId="right" type="monotone" dataKey="percentage" stroke="#6366f1" strokeWidth={4} dot={{ r: 6, fill: '#6366f1', strokeWidth: 3, stroke: '#fff' }} />
+                                <Bar name="Ocorrências" yAxisId="left" dataKey="count" fill="#4f46e5" radius={[10, 10, 0, 0]} barSize={isMobile ? 25 : 40} />
+                                <Line name="% Acumulada" yAxisId="right" type="monotone" dataKey="percentage" stroke="#6366f1" strokeWidth={4} dot={{ r: 5, fill: '#6366f1', strokeWidth: 3, stroke: '#fff' }} />
                             </ComposedChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Heatmap/Matrix View */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-[500px]">
+                <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-[420px] sm:h-[500px]">
                     <div className="mb-6">
                         <h3 className="text-lg font-black text-slate-800 tracking-tight">Matriz de Defeitos por Material</h3>
                         <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Correlação entre componentes e principais falhas</p>
                     </div>
                     <div className="flex-1 overflow-auto custom-scrollbar">
-                        <table className="w-full text-left border-collapse table-fixed">
+                        <table className="w-full text-left border-collapse table-fixed min-w-[750px]">
                             <thead>
                                 <tr>
-                                    <th className="w-[35%] p-4 bg-slate-50 sticky left-0 z-10 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Material</th>
+                                    <th className="w-[180px] min-w-[180px] p-4 bg-slate-50 sticky left-0 z-10 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-r border-slate-100 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">Material</th>
                                     {heatmapData[0] && Object.keys(heatmapData[0]).filter(k => k !== 'name').map(mot => (
-                                        <th key={mot} className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center leading-[1.1] break-words whitespace-normal align-middle">{mot}</th>
+                                        <th key={mot} className="w-[100px] min-w-[100px] p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center leading-[1.1] break-words whitespace-normal align-middle">{mot}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {(heatmapData as Record<string, any>[]).map((row, idx) => (
                                     <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                        <td className="p-4 bg-white sticky left-0 z-10 text-xs font-black text-slate-900 border-b border-slate-50 truncate">{row.name}</td>
+                                        <td className="p-4 bg-white sticky left-0 z-10 text-xs font-black text-slate-900 border-b border-r border-slate-50 truncate shadow-[2px_0_5px_rgba(0,0,0,0.02)]">{row.name}</td>
                                         {Object.keys(row).filter(k => k !== 'name').map(mot => {
                                             const value = (row as Record<string, any>)[mot];
                                             const opacity = value > 0 ? Math.min(0.1 + (value * 0.2), 0.9) : 0.02;

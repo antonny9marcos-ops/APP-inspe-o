@@ -144,7 +144,7 @@ export const Reports: React.FC<ReportsProps> = ({
           </div>
         </div>
 
-        <div className="hidden lg:block">
+        <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-start md:justify-end">
           <SectorSwitcher 
             sectors={sectors} 
             selectedSector={selectedSector} 
@@ -153,29 +153,29 @@ export const Reports: React.FC<ReportsProps> = ({
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Filtros Avançados</h3>
         <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 items-center gap-3">
+          <div className="flex bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 items-center gap-3 w-full sm:w-auto">
             <span className="text-slate-700 text-xs font-bold whitespace-nowrap">Início</span>
             <input
               type="date"
-              className="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 p-0"
+              className="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 p-0 flex-1 sm:flex-initial"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
-          <div className="flex bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 items-center gap-3">
+          <div className="flex bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 items-center gap-3 w-full sm:w-auto">
             <span className="text-slate-700 text-xs font-bold whitespace-nowrap">Fim</span>
             <input
               type="date"
-              className="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 p-0"
+              className="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 p-0 flex-1 sm:flex-initial"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
           <select
-            className="bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 text-xs font-bold text-slate-700 max-w-[200px]"
+            className="bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 text-xs font-bold text-slate-700 w-full sm:w-auto sm:max-w-[200px]"
             value={selectedSupplier}
             onChange={(e) => {
               if (globalSupplierFilter === 'Todos') {
@@ -187,7 +187,7 @@ export const Reports: React.FC<ReportsProps> = ({
             {suppliers.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <select
-            className="bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 text-xs font-bold text-slate-700 max-w-[150px]"
+            className="bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 text-xs font-bold text-slate-700 w-full sm:w-auto sm:max-w-[150px]"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -196,7 +196,7 @@ export const Reports: React.FC<ReportsProps> = ({
             <option value="Rejeitado">Rejeitados</option>
             <option value="Atenção">Atenção</option>
           </select>
-          <div className="flex-1"></div>
+          <div className="hidden sm:block flex-1"></div>
           <button
             onClick={() => {
               setLocalSearchTerm('');
@@ -258,7 +258,7 @@ export const Reports: React.FC<ReportsProps> = ({
 
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
-              <table className="w-full text-left border-separate border-spacing-0">
+              <table className="w-full text-left border-separate border-spacing-0 min-w-[800px]">
                 <thead className="sticky top-0 z-10 bg-slate-50 group">
                   <tr>
                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Status</th>
