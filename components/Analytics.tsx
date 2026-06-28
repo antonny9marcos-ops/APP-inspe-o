@@ -11,7 +11,42 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+// Lista de modelos para fallback em caso de erro 503 (alta demanda)
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+
+// Função utilitária: retry com backoff exponencial e fallback de modelos
+async function generateWithRetry(prompt: string, maxRetries = 3): Promise<string> {
+    for (const modelName of GEMINI_MODELS) {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                return response.text();
+            } catch (error: any) {
+                const is503 = error?.message?.includes('503') || error?.status === 503;
+                const isRetryable = is503 || error?.message?.includes('429') || error?.message?.includes('overloaded');
+
+                if (isRetryable && attempt < maxRetries) {
+                    const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+                    console.warn(`[Gemini] Modelo "${modelName}" - tentativa ${attempt}/${maxRetries} falhou (${error?.message}). Retentando em ${delay/1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+
+                if (isRetryable) {
+                    console.warn(`[Gemini] Modelo "${modelName}" esgotou tentativas. Tentando próximo modelo...`);
+                    break; // Tenta o próximo modelo
+                }
+
+                // Erro não-retryable (ex: chave inválida, prompt bloqueado), lança imediatamente
+                throw error;
+            }
+        }
+    }
+    throw new Error('Todos os modelos do Gemini estão indisponíveis no momento. Tente novamente em alguns minutos.');
+}
 
 interface AnalyticsProps {
     inspections: Inspection[];
@@ -301,9 +336,8 @@ ${today}
 (Mantenha a resposta curta, impactante e sem "enchimento".)
             `.trim();
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const detailedPlan = response.text();
+            const detailedPlan = await generateWithRetry(prompt);
+
 
             // 2. Get all users with roles ADMIN, CLIENTE, INSPETOR
             const { data: users, error: userError } = await supabase
