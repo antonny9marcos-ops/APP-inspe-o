@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Inspection } from '../types';
 import { supabase } from '../lib/supabase';
+import { BarcodeScanner } from './BarcodeScanner';
 
 interface InspectionFormProps {
   onSave: (inspection: Inspection) => void;
@@ -55,6 +56,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Autocomplete states
@@ -463,13 +465,23 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-slate-700">Código do Material</label>
-                <input
-                  type="text"
-                  value={formData.material}
-                  placeholder="Ex: 123456"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary"
-                  onChange={(e) => handleNumericChange('material', e.target.value)}
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.material}
+                    placeholder="Ex: 123456"
+                    className="flex-1 rounded-xl border-slate-200 h-12 focus:ring-primary"
+                    onChange={(e) => handleNumericChange('material', e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowScanner(true)}
+                    title="Escanear QR Code ou Código de Barras"
+                    className="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all shrink-0"
+                  >
+                    <span className="material-symbols-rounded !text-xl">qr_code_scanner</span>
+                  </button>
+                </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-slate-700">NF</label>
@@ -744,6 +756,16 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
       <footer className="text-center py-10 border-t border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
         © 2026 MC Industrial Systems Inc.
       </footer>
+      {showScanner && (
+        <BarcodeScanner
+          title="Código do Material"
+          onScan={(code) => {
+            setFormData(prev => ({ ...prev, material: code }));
+            setShowScanner(false);
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
     </div>
   );
 };
