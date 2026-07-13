@@ -153,9 +153,9 @@ export const Reports: React.FC<ReportsProps> = ({
         </div>
       </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
+      <div className="bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6 sm:space-y-8">
         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Filtros Avançados</h3>
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap gap-4 items-center">
           <div className="flex bg-slate-50 border border-slate-100 rounded-2xl px-5 h-12 items-center gap-3 w-full sm:w-auto">
             <span className="text-slate-700 text-xs font-bold whitespace-nowrap">Início</span>
             <input
@@ -196,7 +196,7 @@ export const Reports: React.FC<ReportsProps> = ({
             <option value="Rejeitado">Rejeitados</option>
             <option value="Atenção">Atenção</option>
           </select>
-          <div className="hidden sm:block flex-1"></div>
+          <div className="hidden md:block md:flex-1"></div>
           <button
             onClick={() => {
               setLocalSearchTerm('');
@@ -205,34 +205,34 @@ export const Reports: React.FC<ReportsProps> = ({
               setLocalSelectedSupplier('Todos');
               setStatusFilter('Todos');
             }}
-            className="text-primary font-bold text-xs flex items-center gap-2 hover:bg-primary/5 px-4 py-2 rounded-xl transition-all"
+            className="w-full sm:w-auto text-primary font-bold text-xs flex items-center justify-center sm:justify-start gap-2 hover:bg-primary/5 px-4 py-2 rounded-xl transition-all"
           >
             <span className="material-symbols-rounded !text-lg">filter_list_off</span> Limpar Tudo
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div className="lg:col-span-1 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-8 pb-4">
-            <h2 className="text-xl font-black text-slate-900">Ranking de Fornecedores</h2>
+          <div className="p-5 sm:p-8 pb-4">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900">Ranking de Fornecedores</h2>
             <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Baseado no volume de inspeções</p>
           </div>
-          <div className="flex-1 divide-y divide-slate-50 overflow-y-auto custom-scrollbar max-h-[450px]">
+          <div className="flex-1 divide-y divide-slate-50 overflow-y-auto custom-scrollbar max-h-[300px] sm:max-h-[450px]">
             {ranking.length > 0 ? ranking.map((item) => (
-              <div key={item.pos} className="p-6 flex items-center justify-between group hover:bg-slate-50 transition-all">
-                <div className="flex items-center gap-5">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm ${item.pos === 1 ? 'bg-success/10 text-success' : 'bg-slate-50 text-slate-600'}`}>
+              <div key={item.pos} className="p-4 sm:p-6 flex items-center justify-between group hover:bg-slate-50 transition-all">
+                <div className="flex items-center gap-4 sm:gap-5">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm ${item.pos === 1 ? 'bg-success/10 text-success' : 'bg-slate-50 text-slate-600'}`}>
                     {item.pos}
                   </div>
                   <div>
-                    <p className="text-sm font-black text-slate-900">{item.name}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.cat}</p>
+                    <p className="text-xs sm:text-sm font-black text-slate-900">{item.name}</p>
+                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.cat}</p>
                   </div>
                 </div>
-                <div className="text-right space-y-2">
-                  <span className="text-sm font-black text-slate-900">{item.val}</span>
-                  <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div className="text-right space-y-1 sm:space-y-2">
+                  <span className="text-xs sm:text-sm font-black text-slate-900">{item.val}</span>
+                  <div className="w-16 sm:w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div className={`${item.color} h-full`} style={{ width: item.val }}></div>
                   </div>
                 </div>
@@ -241,23 +241,62 @@ export const Reports: React.FC<ReportsProps> = ({
               <div className="p-10 text-center text-slate-400 text-xs font-bold">Nenhum dado disponível</div>
             )}
           </div>
-          <button className="w-full py-6 text-primary text-[10px] font-black uppercase tracking-[0.2em] bg-slate-50/50 hover:bg-slate-100 border-t border-slate-50">
+          <button className="w-full py-5 sm:py-6 text-primary text-[10px] font-black uppercase tracking-[0.2em] bg-slate-50/50 hover:bg-slate-100 border-t border-slate-50">
             Relatório de Conformidade Geral
           </button>
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black text-slate-900">Histórico de Inspeções</h2>
-            <div className="flex gap-3">
-              <button onClick={handleExportCSV} className="flex items-center gap-2 px-4 h-10 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 shadow-sm hover:bg-slate-50">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900">Histórico de Inspeções</h2>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <button onClick={handleExportCSV} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 shadow-sm hover:bg-slate-50">
                 <span className="material-symbols-rounded !text-lg text-success">table_chart</span> EXCEL
               </button>
             </div>
           </div>
 
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+            {/* Mobile List View */}
+            <div className="md:hidden divide-y divide-slate-50 max-h-[500px] overflow-y-auto custom-scrollbar">
+              {filteredInspections
+                .sort((a, b) => new Date(b.data + 'T00:00:00').getTime() - new Date(a.data + 'T00:00:00').getTime())
+                .length > 0 ? filteredInspections.map((row) => (
+                  <div
+                    key={row.id}
+                    onClick={() => setViewingInspection(row)}
+                    className="p-5 hover:bg-slate-50/50 active:bg-slate-100 transition-all cursor-pointer flex flex-col gap-3"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className={`inline-flex px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-[0.1em] shadow-md ${
+                          row.status === 'Aprovado' ? 'bg-emerald-600 text-white shadow-emerald-100/50' : 'bg-rose-600 text-white shadow-rose-100/50'
+                        }`}>
+                          {row.status}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400">
+                        {new Date(row.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-slate-800 leading-snug">{row.descricao || 'N/A'}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Cód: {row.material}</p>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] font-medium text-slate-500 pt-1.5 border-t border-slate-50">
+                      <span>{row.fornecedor}</span>
+                      {row.dataChegada && (
+                        <span>Cheg: {new Date(row.dataChegada + 'T00:00:00').toLocaleDateString('pt-BR', {day: 'numeric', month: 'short'})}</span>
+                      )}
+                    </div>
+                  </div>
+                )) : (
+                  <div className="px-5 py-12 text-center text-slate-400 font-bold">Nenhuma inspeção encontrada.</div>
+                )}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
               <table className="w-full text-left border-separate border-spacing-0 min-w-[800px]">
                 <thead className="sticky top-0 z-10 bg-slate-50 group">
                   <tr>
@@ -308,7 +347,7 @@ export const Reports: React.FC<ReportsProps> = ({
                 </tbody>
               </table>
             </div>
-            <div className="px-8 py-6 bg-slate-50/30 flex justify-between items-center border-t border-slate-100">
+            <div className="px-5 sm:px-8 py-4 sm:py-6 bg-slate-50/30 flex justify-between items-center border-t border-slate-100">
               <span className="text-xs font-bold text-slate-400">Mostrando {filteredInspections.length} de {inspections.length} entradas</span>
             </div>
           </div>
@@ -368,12 +407,12 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
 
             {/* Modal Content */}
-            <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-10 space-y-6 sm:space-y-10 custom-scrollbar">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
                 {/* Main Info Column */}
-                <div className="lg:col-span-2 space-y-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-center">
-                    <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/50">
+                <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 text-center">
+                    <div className="bg-slate-50/50 p-5 sm:p-6 rounded-3xl border border-slate-100/50">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Material e Código</span>
                       <p className="text-lg font-black text-slate-800">{viewingInspection.descricao || 'N/A'}</p>
                       <p className="text-sm font-bold text-slate-500 mt-1 uppercase">Cód: {viewingInspection.material}</p>

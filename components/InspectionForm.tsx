@@ -367,7 +367,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8">
+    <div className="max-w-6xl mx-auto p-3 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-5">
@@ -385,7 +385,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         </div>
         <button
           onClick={onViewHistory}
-          className="flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all"
         >
           <span className="material-symbols-rounded !text-xl">history</span> Ver Histórico
         </button>
@@ -401,7 +401,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           {/* Seção 1 */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
             <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-8 pb-4 border-b border-slate-50">
               <span className="material-symbols-rounded text-primary !text-2xl fill-1">info</span> Informações Gerais
             </h2>
@@ -553,7 +553,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
           </div>
 
           {/* Seção 2 */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
             <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-8 pb-4 border-b border-slate-50">
               <span className="material-symbols-rounded text-primary !text-2xl fill-1">fact_check</span> Resultados da Inspeção
             </h2>
@@ -658,7 +658,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         </div>
 
         <div className="space-y-8">
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
             <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-6">
               <span className="material-symbols-rounded text-primary !text-2xl fill-1">camera_alt</span> Evidências
             </h2>
@@ -712,7 +712,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Ações</h3>
             <div className="flex flex-col gap-4">
               <button

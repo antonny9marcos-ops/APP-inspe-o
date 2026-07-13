@@ -400,19 +400,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const { metrics, pieData, approvalPercentage, rejectionReasons, trendData, supplierPerformance, barData, materialRejectionRanking } = metricsAndData;
 
   return (
-    <div className="p-4 md:p-8 space-y-8 bg-slate-50/50 min-h-full">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-5">
-          <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
-            <span className="material-symbols-rounded !text-3xl fill-1">dashboard</span>
+    <div className="p-4 md:p-8 space-y-6 sm:space-y-8 bg-slate-50/50 min-h-full">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <div className="p-2.5 sm:p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
+            <span className="material-symbols-rounded text-2xl sm:!text-3xl fill-1">dashboard</span>
           </div>
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Visão Geral Operacional</h1>
-            <p className="text-slate-500 mt-1 font-medium">Métricas de inspeção e dados de desempenho em tempo real</p>
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Visão Geral Operacional</h1>
+            <p className="text-slate-500 mt-0.5 sm:mt-1 text-xs sm:text-sm font-medium">Métricas de inspeção e dados de desempenho em tempo real</p>
           </div>
         </div>
 
-        <div className="w-full lg:w-auto mt-4 lg:mt-0 flex justify-start lg:justify-end">
+        <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
           <SectorSwitcher 
             sectors={sectors} 
             selectedSector={selectedSector} 
@@ -421,21 +421,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {metrics.map((metric) => (
           <div key={metric.label} className={`bg-gradient-to-t ${metric.gradient || 'from-white to-white'} rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/40 hover:shadow-primary/10 hover:-translate-y-1.5 transition-all duration-500 border border-slate-100`}>
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-4 sm:mb-6">
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{metric.label}</p>
-              <div className={`${metric.bg} p-3 rounded-2xl`}>
-                <span className={`material-symbols-rounded ${metric.color} !text-2xl fill-1`}>{metric.icon}</span>
+              <div className={`${metric.bg} p-2.5 sm:p-3 rounded-2xl`}>
+                <span className={`material-symbols-rounded ${metric.color} text-xl sm:!text-2xl fill-1`}>{metric.icon}</span>
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <p className="text-slate-900 text-3xl sm:text-4xl font-black tracking-tighter">{metric.value}</p>
+              <p className="text-slate-900 text-2xl sm:text-4xl font-black tracking-tighter">{metric.value}</p>
               {metric.unit && <span className="text-slate-400 text-xs font-bold uppercase">{metric.unit}</span>}
             </div>
             {metric.trend && (
-              <div className={`flex items-center gap-1 mt-3 font-bold text-sm ${metric.isPositive ? 'text-success' : 'text-danger'}`}>
+              <div className={`flex items-center gap-1 mt-2 sm:mt-3 font-bold text-sm ${metric.isPositive ? 'text-success' : 'text-danger'}`}>
                 <span className="material-symbols-rounded !text-lg">
                   {metric.isPositive ? 'trending_up' : 'trending_down'}
                 </span>
@@ -446,11 +446,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         <div className="lg:col-span-5 bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm text-slate-900">
-          <div className="flex justify-between items-start mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Aprovados x Rejeitados</h3>
-            <div className="flex flex-wrap gap-4 justify-end">
+            <div className="flex flex-wrap gap-3 sm:gap-4 justify-start sm:justify-end">
               {pieData.map((segment, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <div className={`w-2.5 h-2.5 rounded-full`} style={{ backgroundColor: segment.color, boxShadow: `0 0 8px ${segment.color}66` }}></div>
@@ -460,10 +460,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
               ))}
             </div>
           </div>
-          <div className="h-72 relative flex items-center justify-center">
+          <div className="h-60 sm:h-72 relative flex items-center justify-center">
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-4xl font-black text-slate-900">{approvalPercentage}%</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Taxa de Aprovação</span>
+              <span className="text-3xl sm:text-4xl font-black text-slate-900">{approvalPercentage}%</span>
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 sm:mt-1">Taxa de Aprovação</span>
             </div>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -479,9 +479,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         <div className="lg:col-span-7 bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Inspecionados x Rejeitados</h3>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3 sm:gap-4 justify-start sm:justify-end">
               {barData.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
@@ -491,17 +491,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="h-72 w-full">
+          <div className="h-60 sm:h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={barData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#64748b' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#64748b' }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
                 <Tooltip
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
                 />
-                <Bar name="Valor" dataKey="valor" radius={[10, 10, 0, 0]} barSize={60}>
+                <Bar name="Valor" dataKey="valor" radius={[10, 10, 0, 0]} barSize={isMobile ? 30 : 60}>
                   {barData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -512,29 +512,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        <div className="lg:col-span-5 bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
           <div className="pb-4">
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">Materiais com Maior Rejeição</h2>
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Materiais com Maior Rejeição</h2>
             <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Taxa de rejeição por item</p>
           </div>
           <div className="flex-1 divide-y divide-slate-50 overflow-y-auto max-h-[450px] custom-scrollbar">
             {materialRejectionRanking.length > 0 ? materialRejectionRanking.map((item: any, idx) => (
-              <div key={idx} className="py-6 group hover:bg-slate-50 transition-all">
+              <div key={idx} className="py-4 sm:py-6 group hover:bg-slate-50 transition-all">
                 <div className="flex items-center justify-between mb-3 px-1">
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center font-black text-xs text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center font-black text-xs text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
                       {idx + 1}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-slate-900 leading-tight">{item.name}</p>
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cód: {item.code || '---'}</span>
-                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Fornec: {item.mainSupplier}</span>
+                      <p className="text-xs sm:text-sm font-black text-slate-900 leading-tight">{item.name}</p>
+                      <div className="flex flex-wrap gap-x-2 sm:gap-x-3 gap-y-0.5 mt-1">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cód: {item.code || '---'}</span>
+                        <span className="text-[9px] sm:text-[10px] font-bold text-primary uppercase tracking-widest">Fornec: {item.mainSupplier}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <span className="text-sm font-black text-slate-900">{item.rejectionRate.toFixed(1)}%</span>
                   </div>
                 </div>
@@ -556,20 +556,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-10">
+        <div className="lg:col-span-7 bg-white p-5 sm:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 sm:mb-10">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Rejeições por Motivo</h3>
             <span className="text-[10px] font-black text-primary px-4 py-1.5 bg-blue-50 rounded-full uppercase tracking-tighter shadow-sm border border-blue-100/50">Por Frequência</span>
           </div>
 
-          <div className="grid grid-cols-1 gap-y-8 text-left">
+          <div className="grid grid-cols-1 gap-y-6 sm:gap-y-8 text-left">
             {rejectionReasons.map((item, index) => (
-              <div key={index} className="space-y-3">
+              <div key={index} className="space-y-2.5 sm:space-y-3">
                 <div className="flex justify-between items-center px-1">
-                  <span className="text-sm font-bold text-slate-600">{item.name}</span>
-                  <span className="text-sm font-bold text-slate-500">{item.value} Casos</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-600 truncate max-w-[200px] xs:max-w-none">{item.name}</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-500 shrink-0">{item.value} Casos</span>
                 </div>
-                <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden relative">
+                <div className="h-2 sm:h-2.5 w-full bg-slate-100 rounded-full overflow-hidden relative">
                   <div
                     className="h-full bg-red-400/80 rounded-full transition-all duration-1000 ease-out"
                     style={{ width: `${item.percentage}%` }}
@@ -581,14 +581,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         <div className="lg:col-span-12 bg-white p-5 sm:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col">
-          <div className="flex justify-between items-start mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10">
             <div>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight">Desempenho por Fornecedor</h3>
-              <p className="text-sm font-medium text-slate-400 mt-1">Aprovações x Rejeições</p>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Desempenho por Fornecedor</h3>
+              <p className="text-xs sm:text-sm font-medium text-slate-400 mt-0.5 sm:mt-1">Aprovações x Rejeições</p>
             </div>
-            <div className="flex gap-6 mt-2">
+            <div className="flex gap-4 sm:gap-6 mt-1 sm:mt-0">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-success rounded-sm"></div>
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aprovados</span>

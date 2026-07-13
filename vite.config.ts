@@ -23,6 +23,17 @@ export default defineConfig(({ mode }) => {
         supported: {
           'destructuring': true
         }
+      },
+      optimizeDeps: {
+        esbuildOptions: {
+          target: 'esnext',
+          supported: {
+            'destructuring': true
+          }
+        }
+      },
+      build: {
+        target: 'esnext'
       }
     };
 });

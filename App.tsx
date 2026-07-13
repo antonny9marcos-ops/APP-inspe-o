@@ -414,10 +414,10 @@ export default function App() {
         <main className="flex-1 overflow-y-auto">
           {(currentView === View.DASHBOARD) && (
             <div className="px-4 md:px-8 mt-6">
-              <div className="flex flex-wrap gap-3 items-center bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 items-center bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
                 <button 
                   onClick={resetFilters}
-                  className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-all active:scale-95 group"
+                  className="col-span-2 sm:col-span-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-all active:scale-95 group"
                 >
                   <span className="material-symbols-rounded text-slate-400 group-hover:text-primary !text-lg transition-colors">filter_list_off</span>
                   <span className="text-[10px] font-black text-slate-400 group-hover:text-primary uppercase tracking-widest transition-colors">Limpar</span>
@@ -426,7 +426,7 @@ export default function App() {
                 <select
                   value={periodFilter}
                   onChange={(e) => setPeriodFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative"
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative w-full sm:w-auto"
                   style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
                 >
                   <option value="todos">Geral</option>
@@ -439,7 +439,7 @@ export default function App() {
                 <select
                   value={yearFilter}
                   onChange={(e) => setYearFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative font-bold"
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative font-bold w-full sm:w-auto"
                   style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
                 >
                   <option value="all">Ano: Todos</option>
@@ -449,7 +449,7 @@ export default function App() {
                 <select
                   value={monthFilter}
                   onChange={(e) => setMonthFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative"
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative w-full sm:w-auto"
                   style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
                 >
                   <option value="all">Mês: Todos</option>
@@ -459,7 +459,7 @@ export default function App() {
                 <select
                   value={weekFilter}
                   onChange={(e) => setWeekFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative"
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative w-full sm:w-auto"
                   style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
                 >
                   <option value="all">Sem: Todos</option>
@@ -471,7 +471,7 @@ export default function App() {
                 <select
                   value={supplierFilter}
                   onChange={(e) => setSupplierFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 overflow-hidden text-ellipsis whitespace-nowrap max-w-[150px]"
+                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 overflow-hidden text-ellipsis whitespace-nowrap w-full sm:w-auto sm:max-w-[150px]"
                   style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
                 >
                   {suppliers.map(s => (
@@ -481,7 +481,7 @@ export default function App() {
 
                 <div className="h-6 w-[1px] bg-slate-100 mx-1 hidden sm:block"></div>
 
-                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                <div className="col-span-2 sm:col-span-1 flex bg-slate-50 p-1 rounded-2xl border border-slate-100 w-full sm:w-auto justify-between sm:justify-start">
                   {['ROLO TRANSPORTADOR', 'OUTROS', 'TODOS'].map((cat) => (
                     <button
                       key={cat}
@@ -489,7 +489,7 @@ export default function App() {
                         if (cat === 'TODOS') resetFilters();
                         else setCategoryFilter(cat);
                       }}
-                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                      className={`flex-1 sm:flex-none px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                         categoryFilter === cat 
                         ? 'bg-white text-primary shadow-sm border border-slate-100' 
                         : 'text-slate-400 hover:text-slate-600'
