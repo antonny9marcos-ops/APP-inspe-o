@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Inspection } from '../types';
 import { supabase } from '../lib/supabase';
 import { BarcodeScanner } from './BarcodeScanner';
+import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
 
 interface InspectionFormProps {
   onSave: (inspection: Inspection) => void;
@@ -56,7 +57,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [showScanner, setShowScanner] = useState(false);
+  const { isOpen: isScannerOpen, openScanner, scannerProps } = useBarcodeScanner();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Autocomplete states
@@ -475,7 +476,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                   />
                   <button
                     type="button"
-                    onClick={() => setShowScanner(true)}
+                    onClick={() => openScanner({
+                      title: 'Código do Material',
+                      onScan: (code) => setFormData(prev => ({ ...prev, material: code })),
+                    })}
                     title="Escanear QR Code ou Código de Barras"
                     className="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all shrink-0"
                   >
@@ -756,15 +760,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
       <footer className="text-center py-10 border-t border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
         © 2026 MC Industrial Systems Inc.
       </footer>
-      {showScanner && (
-        <BarcodeScanner
-          title="Código do Material"
-          onScan={(code) => {
-            setFormData(prev => ({ ...prev, material: code }));
-            setShowScanner(false);
-          }}
-          onClose={() => setShowScanner(false)}
-        />
+      {isScannerOpen && scannerProps && (
+        <BarcodeScanner {...scannerProps} />
       )}
     </div>
   );
