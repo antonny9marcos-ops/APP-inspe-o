@@ -204,34 +204,45 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Busca a descrição do material no Supabase pelo código
+  const fetchMaterialDescription = async (code: string) => {
+    if (!code || code.trim().length === 0) {
+      setFormData(prev => ({ ...prev, descricao: '' }));
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('materiais')
+        .select('descricao, categoria, unidade')
+        .eq('codigo', code.trim())
+        .single();
+
+      if (data && !error) {
+        setFormData(prev => ({
+          ...prev,
+          descricao: data.descricao,
+          categoria: data.categoria,
+          unidade: data.unidade || 'UN'
+        }));
+      }
+    } catch (err) {
+      console.error('Erro ao buscar material:', err);
+    }
+  };
+
   const handleNumericChange = async (field: keyof Inspection, value: string) => {
-    const numericValue = value.replace(/\D/g, '');
+    // Para o campo material, preserva o valor original (pode ser alfanumérico)
+    // Para outros campos numéricos (nf, numeroPedido), mantém apenas dígitos
+    const sanitizedValue = field === 'material' ? value : value.replace(/\D/g, '');
 
-    // Update the specific numeric field
-    setFormData(prev => ({ ...prev, [field]: numericValue }));
+    // Atualiza o campo no estado
+    setFormData(prev => ({ ...prev, [field]: sanitizedValue }));
 
-    // If it's the material code, try to find the description (PROCV)
+    // Se for o campo material, busca a descrição automaticamente (PROCV)
     if (field === 'material') {
-      if (numericValue.length >= 2) { // Start searching after 2 digits
-        try {
-          const { data, error } = await supabase
-            .from('materiais')
-            .select('descricao, categoria, unidade')
-            .eq('codigo', numericValue)
-            .single();
-          
-          if (data && !error) {
-            setFormData(prev => ({ 
-              ...prev, 
-              descricao: data.descricao, 
-              categoria: data.categoria,
-              unidade: data.unidade || 'UN'
-            }));
-          }
-        } catch (err) {
-          console.error('Erro ao buscar material:', err);
-        }
-      } else if (numericValue.length === 0) {
+      if (sanitizedValue.length >= 2) {
+        await fetchMaterialDescription(sanitizedValue);
+      } else if (sanitizedValue.length === 0) {
         setFormData(prev => ({ ...prev, descricao: '' }));
       }
     }
@@ -478,7 +489,11 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                     type="button"
                     onClick={() => openScanner({
                       title: 'Código do Material',
-                      onScan: (code) => setFormData(prev => ({ ...prev, material: code })),
+                      onScan: async (code) => {
+                        // Preenche o campo de código e busca a descrição automaticamente
+                        setFormData(prev => ({ ...prev, material: code }));
+                        await fetchMaterialDescription(code);
+                      },
                     })}
                     title="Escanear QR Code ou Código de Barras"
                     className="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all shrink-0"
