@@ -45,10 +45,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
         inspetor: (userProfile?.role === 'Inspetor' && !initialData.inspetor) ? userProfile.name : (initialData.inspetor || prev.inspetor)
       }));
     } else if (userProfile?.role === 'Inspetor') {
-      setFormData(prev => ({ 
-        ...prev, 
+      setFormData(prev => ({
+        ...prev,
         setor: userProfile.setor || prev.setor,
-        inspetor: userProfile.name || prev.inspetor 
+        inspetor: userProfile.name || prev.inspetor
       }));
     }
   }, [initialData, userProfile]);
@@ -440,7 +440,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
               </div>
               <div className="flex flex-col gap-2 relative group">
                 <label className="text-sm font-bold text-slate-700 font-black uppercase tracking-widest text-[10px]">Setor / Área</label>
-                
+
                 {userProfile?.role === 'Inspetor' ? (
                   <div className="bg-slate-100 border border-slate-200 rounded-xl h-12 flex items-center px-4 gap-3 cursor-not-allowed group">
                     <span className="material-symbols-rounded text-slate-400 !text-xl group-hover:text-primary transition-colors">lock</span>
