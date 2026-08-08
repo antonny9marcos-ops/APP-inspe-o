@@ -323,8 +323,8 @@ export default function App() {
             onUpdateProfile={async (newProfile) => {
               setUserProfile(newProfile);
 
-              // Persistir no Supabase Auth metadata
-              const { error } = await supabase.auth.updateUser({
+              // Atualiza metadados do Auth
+              const { error: authError } = await supabase.auth.updateUser({
                 data: {
                   full_name: newProfile.name,
                   role: newProfile.role,
@@ -332,13 +332,27 @@ export default function App() {
                 }
               });
 
-              if (error) {
-                console.error('Erro ao atualizar perfil no Supabase:', error);
-                throw error;
+              if (authError) throw authError;
+
+              // Persiste também na tabela 'perfis' para carregamento futuro
+              if (session?.user?.id) {
+                const { error: profileError } = await supabase
+                  .from('perfis')
+                  .update({
+                    nome: newProfile.name,
+                    avatar_url: newProfile.avatar,
+                  })
+                  .eq('id', session.user.id);
+
+                if (profileError) {
+                  console.error('Erro ao atualizar perfis:', profileError);
+                  throw profileError;
+                }
               }
             }}
             onUpdatePassword={async (newPassword) => {
-              await supabase.auth.updateUser({ password: newPassword });
+              const { error } = await supabase.auth.updateUser({ password: newPassword });
+              if (error) throw error;
             }}
           />
         );

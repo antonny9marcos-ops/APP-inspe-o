@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 interface SettingsProps {
     profile: UserProfile;
     onUpdateProfile: (profile: UserProfile) => Promise<void>;
-    onUpdatePassword: (password: string) => void;
+    onUpdatePassword: (password: string) => Promise<void>;
 }
 
 export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, onUpdatePassword }) => {
@@ -63,21 +63,28 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
         }
     };
 
-    const handleChangePassword = () => {
+    const handleChangePassword = async () => {
         if (newPassword !== confirmPassword) {
             setMessage({ type: 'error', text: 'A nova senha e a confirmação não coincidem.' });
             return;
         }
-        if (newPassword.length < 4) {
-            setMessage({ type: 'error', text: 'A senha deve ter pelo menos 4 caracteres.' });
+        if (newPassword.length < 6) {
+            setMessage({ type: 'error', text: 'A senha deve ter pelo menos 6 caracteres.' });
             return;
         }
 
-        onUpdatePassword(newPassword);
-        setNewPassword('');
-        setConfirmPassword('');
-        setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
-        setTimeout(() => setMessage(null), 3000);
+        setIsSaving(true);
+        try {
+            await onUpdatePassword(newPassword);
+            setNewPassword('');
+            setConfirmPassword('');
+            setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
+            setTimeout(() => setMessage(null), 3000);
+        } catch (err: any) {
+            setMessage({ type: 'error', text: 'Erro ao alterar senha: ' + (err.message || 'Tente novamente.') });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
