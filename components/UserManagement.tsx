@@ -106,7 +106,15 @@ export const UserManagement: React.FC = () => {
             setNewPassword('');
             await fetchUsers();
         } catch (err: any) {
-            showMessage('error', 'Erro ao cadastrar: ' + (err.message || 'Verifique se o e-mail já está em uso.'));
+            let errMsg = err.message || '';
+            if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already exists')) {
+                errMsg = `O e-mail "${newEmail}" já está cadastrado no sistema. Escolha outro e-mail ou edite o usuário existente na lista.`;
+            } else if (errMsg.toLowerCase().includes('password')) {
+                errMsg = 'A senha deve conter pelo menos 6 caracteres.';
+            } else if (errMsg.toLowerCase().includes('rate limit')) {
+                errMsg = 'Muitas tentativas em pouco tempo. Aguarde alguns instantes.';
+            }
+            showMessage('error', errMsg);
         } finally {
             setIsRegistering(false);
         }
