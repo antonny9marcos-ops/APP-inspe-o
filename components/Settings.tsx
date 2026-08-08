@@ -12,6 +12,11 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
     const [name, setName] = useState(profile.name);
     const [avatar, setAvatar] = useState(profile.avatar);
 
+    React.useEffect(() => {
+        setName(profile.name);
+        setAvatar(profile.avatar);
+    }, [profile.name, profile.avatar]);
+
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -24,29 +29,66 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
         const file = event.target.files?.[0];
         if (!file) return;
 
+        // Valida tipo e tamanho
+        if (!file.type.startsWith('image/')) {
+            setMessage({ type: 'error', text: 'Selecione um arquivo de imagem (JPG, PNG, etc).' });
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setMessage({ type: 'error', text: 'A imagem deve ter menos de 5MB.' });
+            return;
+        }
+
         setIsUploading(true);
-        const fileExt = file.name.split('.').pop();
-        const fileName = `avatar-${Math.random()}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
+        setMessage(null);
 
         try {
+            // Usa o user ID para garantir nome único e sobrescrita correta
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Sessão expirada. Faça login novamente.');
+
+            const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+            const filePath = `avatars/avatar-${user.id}.${fileExt}`;
+
+            // Upload com upsert para sobrescrever foto anterior
             const { error: uploadError } = await supabase.storage
                 .from('evidencias')
-                .upload(filePath, file);
+                .upload(filePath, file, { upsert: true, contentType: file.type });
 
             if (uploadError) throw uploadError;
 
+            // Gera URL pública
             const { data: { publicUrl } } = supabase.storage
                 .from('evidencias')
                 .getPublicUrl(filePath);
 
-            setAvatar(publicUrl);
-            setMessage({ type: 'success', text: 'Foto carregada! Clique em Atualizar Perfil para salvar.' });
+            // Adiciona timestamp para forçar reload do cache do browser
+            const avatarUrlWithCache = `${publicUrl}?t=${Date.now()}`;
+
+            // Salva na tabela perfis imediatamente
+            const { error: dbError } = await supabase
+                .from('perfis')
+                .update({ avatar_url: publicUrl })
+                .eq('id', user.id);
+
+            if (dbError) console.warn('Aviso ao salvar avatar no perfil:', dbError.message);
+
+            // Salva nos metadados do Auth
+            await supabase.auth.updateUser({ data: { avatar_url: publicUrl } });
+
+            // Atualiza estado local e avisa o App.tsx para atualizar Header/Sidebar imediatamente
+            setAvatar(avatarUrlWithCache);
+            await onUpdateProfile({ ...profile, name, avatar: avatarUrlWithCache });
+
+            setMessage({ type: 'success', text: '✅ Foto atualizada com sucesso!' });
+            setTimeout(() => setMessage(null), 3000);
         } catch (err: any) {
             console.error('Erro no upload da foto:', err);
-            setMessage({ type: 'error', text: 'Erro ao carregar foto: ' + err.message });
+            setMessage({ type: 'error', text: 'Erro ao enviar foto: ' + (err.message || 'Verifique as permissões do bucket no Supabase.') });
         } finally {
             setIsUploading(false);
+            // Limpa o input para permitir reenviar o mesmo arquivo
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -120,34 +162,38 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                     </div>
 
                     <div className="flex flex-col items-center gap-4 py-4">
-                        <div className="relative group">
+                        <div className="relative group cursor-pointer" onClick={() => !isUploading && fileInputRef.current?.click()}>
                             <img
                                 src={avatar}
                                 alt="Profile"
-                                className="w-24 h-24 rounded-full object-cover border-4 border-slate-50 shadow-sm transition-opacity group-hover:opacity-75"
+                                className="w-28 h-28 rounded-full object-cover border-4 border-slate-50 shadow-md transition-all group-hover:opacity-70 group-hover:scale-105"
                             />
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isUploading}
-                                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-full text-white"
-                            >
-                                <span className="material-symbols-rounded">{isUploading ? 'sync' : 'photo_camera'}</span>
-                            </button>
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center rounded-full text-white transition-opacity ${isUploading ? 'opacity-100 bg-black/40' : 'opacity-0 group-hover:opacity-100 bg-black/30'}`}>
+                                <span className={`material-symbols-rounded !text-2xl ${isUploading ? 'animate-spin' : ''}`}>
+                                    {isUploading ? 'progress_activity' : 'photo_camera'}
+                                </span>
+                                <span className="text-[9px] font-black uppercase tracking-wider mt-1">
+                                    {isUploading ? 'Enviando...' : 'Trocar foto'}
+                                </span>
+                            </div>
                             <input
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleFileUpload}
                                 accept="image/*"
                                 className="hidden"
+                                disabled={isUploading}
                             />
                         </div>
                         <div className="text-center">
                             <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="text-xs font-bold text-primary hover:underline hover:text-primary-dark"
+                                onClick={() => !isUploading && fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                className="text-xs font-bold text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isUploading ? 'Enviando...' : 'Alterar Foto de Perfil'}
+                                {isUploading ? 'Enviando foto...' : 'Alterar Foto de Perfil'}
                             </button>
+                            <p className="text-[10px] text-slate-400 mt-1">JPG, PNG ou WebP • máx. 5MB</p>
                         </div>
                     </div>
 
@@ -190,7 +236,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium"
-                                placeholder="Mínimo 4 caracteres"
+                                placeholder="Mínimo 6 caracteres"
                             />
                         </div>
                         <div className="flex flex-col gap-2">

@@ -60,17 +60,19 @@ export default function App() {
 
         if (error) {
           // Se não encontrar o perfil, usa os metadados como fallback seguro ou padrão baixo
+          const rawAvatar = user.user_metadata.avatar_url;
           setUserProfile({
             name: user.user_metadata.full_name || user.email?.split('@')[0] || 'Usuário',
             role: user.user_metadata.role || 'Cliente', 
-            avatar: user.user_metadata.avatar_url || `https://picsum.photos/seed/${user.id}/100`,
+            avatar: rawAvatar ? `${rawAvatar.split('?')[0]}?t=${Date.now()}` : `https://picsum.photos/seed/${user.id}/100`,
             setor: user.user_metadata.setor
           });
         } else {
+          const rawAvatar = data.avatar_url;
           setUserProfile({
             name: data.nome || 'Usuário',
             role: data.role || 'Inspetor',
-            avatar: data.avatar_url || `https://picsum.photos/seed/${user.id}/100`,
+            avatar: rawAvatar ? `${rawAvatar.split('?')[0]}?t=${Date.now()}` : `https://picsum.photos/seed/${user.id}/100`,
             setor: data.setor
           });
         }
@@ -323,16 +325,18 @@ export default function App() {
             onUpdateProfile={async (newProfile) => {
               setUserProfile(newProfile);
 
+              const cleanAvatarUrl = newProfile.avatar ? newProfile.avatar.split('?')[0] : newProfile.avatar;
+
               // Atualiza metadados do Auth
               const { error: authError } = await supabase.auth.updateUser({
                 data: {
                   full_name: newProfile.name,
                   role: newProfile.role,
-                  avatar_url: newProfile.avatar
+                  avatar_url: cleanAvatarUrl
                 }
               });
 
-              if (authError) throw authError;
+              if (authError) console.warn('Aviso auth:', authError.message);
 
               // Persiste também na tabela 'perfis' para carregamento futuro
               if (session?.user?.id) {
@@ -340,13 +344,12 @@ export default function App() {
                   .from('perfis')
                   .update({
                     nome: newProfile.name,
-                    avatar_url: newProfile.avatar,
+                    avatar_url: cleanAvatarUrl,
                   })
                   .eq('id', session.user.id);
 
                 if (profileError) {
                   console.error('Erro ao atualizar perfis:', profileError);
-                  throw profileError;
                 }
               }
             }}
