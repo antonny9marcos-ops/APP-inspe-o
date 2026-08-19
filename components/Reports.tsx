@@ -6,6 +6,7 @@ import { SectorSwitcher } from './SectorSwitcher';
 interface ReportsProps {
   inspections: Inspection[];
   onEdit: (inspection: Inspection) => void;
+  globalSearchTerm?: string;
   globalSupplierFilter?: string;
   selectedSector: string;
   sectors: string[];
