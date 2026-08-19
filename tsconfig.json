@@ -22,9 +22,32 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@supabase/auth-js/src/*": [
+        "./node_modules/@supabase/auth-js/dist/module/*"
+      ],
+      "@supabase/functions-js/src/*": [
+        "./node_modules/@supabase/functions-js/dist/module/*"
+      ],
+      "@supabase/realtime-js/src/*": [
+        "./node_modules/@supabase/realtime-js/dist/module/*"
       ]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "components/**/*",
+    "hooks/**/*",
+    "lib/**/*",
+    "scripts/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".git"
+  ]
 }
