@@ -341,58 +341,119 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
     ];
 
     return (
-        <div className="p-4 md:p-8 space-y-6 bg-slate-50/50 min-h-full">
-            {/* Header */}
+        <div className="p-4 md:p-8 space-y-6 min-h-full">
+
+            {/* ── Header ── */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="flex items-center gap-5">
-                    <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
-                        <span className="material-symbols-rounded !text-3xl fill-1">inventory_2</span>
+                <div className="flex items-center gap-4">
+                    <div
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        style={{
+                            background: 'rgba(59,130,246,0.12)',
+                            border: '1px solid rgba(59,130,246,0.25)',
+                            boxShadow: '0 0 24px rgba(59,130,246,0.15)',
+                        }}
+                    >
+                        <span className="material-symbols-rounded text-blue-400" style={{ fontSize: '24px', fontVariationSettings: "'FILL' 1" }}>inventory_2</span>
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Gestão de Cadastros</h1>
-                        <p className="text-slate-500 mt-1 font-medium">Gerencie materiais, fornecedores e motivos de rejeição</p>
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 03 // GESTAO_DE_CADASTROS ]</span>
+                        </div>
+                        <h1 className="text-xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Gestão de Cadastros</h1>
+                        <p className="text-[11px] text-slate-500 font-medium mt-0.5">Gerencie materiais, fornecedores e motivos de rejeição</p>
                     </div>
                 </div>
             </div>
 
-            {/* Message */}
+            {/* ── Message ── */}
             {message && (
-                <div className={`p-4 rounded-xl font-bold text-sm animate-in fade-in slide-in-from-top-4 duration-300 ${message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
+                <div
+                    className="p-4 rounded-xl text-sm font-bold"
+                    style={{
+                        background: message.type === 'success' ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                        border: `1px solid ${message.type === 'success' ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                        color: message.type === 'success' ? '#34d399' : '#f87171',
+                    }}
+                >
                     {message.text}
                 </div>
             )}
 
-            {/* Tabs */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="flex border-b border-slate-100">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => { setActiveTab(tab.id as TabType); setSearchTerm(''); }}
-                            className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 text-sm font-bold transition-all ${activeTab === tab.id
-                                ? 'text-primary border-b-2 border-primary bg-primary/5'
-                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                                }`}
-                        >
-                            <span className="material-symbols-rounded !text-xl">{tab.icon}</span>
-                            <span className="hidden sm:inline">{tab.label}</span>
-                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-500'}`}>
-                                {tab.count}
-                            </span>
-                        </button>
-                    ))}
+            {/* ── Tabs Container ── */}
+            <div
+                className="rounded-2xl overflow-hidden"
+                style={{
+                    background: 'rgba(13,20,33,0.6)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    backdropFilter: 'blur(16px)',
+                }}
+            >
+                {/* Tab Buttons */}
+                <div
+                    className="flex"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                >
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => { setActiveTab(tab.id as TabType); setSearchTerm(''); }}
+                                className="flex-1 flex items-center justify-center gap-2.5 py-4 px-4 text-xs font-bold transition-all relative cursor-pointer"
+                                style={{
+                                    color: isActive ? '#60a5fa' : '#64748b',
+                                    background: isActive ? 'rgba(59,130,246,0.07)' : 'transparent',
+                                    borderBottom: isActive ? '2px solid rgba(59,130,246,0.6)' : '2px solid transparent',
+                                }}
+                            >
+                                <span
+                                    className="material-symbols-rounded"
+                                    style={{
+                                        fontSize: '18px',
+                                        fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
+                                        color: isActive ? '#60a5fa' : '#475569',
+                                    }}
+                                >
+                                    {tab.icon}
+                                </span>
+                                <span className="hidden sm:inline tracking-tight">{tab.label}</span>
+                                <span
+                                    className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded"
+                                    style={{
+                                        color: isActive ? '#60a5fa' : '#475569',
+                                        background: isActive ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.05)',
+                                        border: `1px solid ${isActive ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                                    }}
+                                >
+                                    {tab.count}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
 
-                {/* Search and Add */}
-                <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4">
+                {/* ── Search and Add ── */}
+                <div
+                    className="p-4 flex flex-col sm:flex-row gap-3"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                >
                     <div className="relative flex-1">
-                        <span className="material-symbols-rounded absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</span>
+                        <span
+                            className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                            style={{ fontSize: '18px' }}
+                        >search</span>
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={`Buscar ${activeTab}...`}
-                            className="w-full pl-12 pr-4 h-12 rounded-xl border-slate-200 focus:ring-primary font-medium"
+                            className="w-full pl-10 pr-4 h-10 rounded-xl text-xs font-medium"
+                            style={{
+                                background: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                color: '#f1f5f9',
+                            }}
                         />
                     </div>
                     {!isClient && (
@@ -409,9 +470,14 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                     setShowMotivoModal(true);
                                 }
                             }}
-                            className="h-12 px-6 bg-primary text-white rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                            className="h-10 px-5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer"
+                            style={{
+                                background: 'linear-gradient(135deg,#2563eb,#3b82f6)',
+                                boxShadow: '0 4px 20px rgba(59,130,246,0.35)',
+                                color: '#fff',
+                            }}
                         >
-                            <span className="material-symbols-rounded">add</span>
+                            <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>add</span>
                             Adicionar
                         </button>
                     )}
