@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { AppNotification } from '../types';
 
 interface NotificationDropdownProps {
@@ -18,114 +18,166 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     onClose,
     onViewDetails,
 }) => {
+    const unread = notifications.filter(n => !n.lida).length;
+
     const getTimeAgo = (dateStr: string) => {
         const date = new Date(dateStr);
         const now = new Date();
         const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
-
         if (diffInMinutes < 1) return 'Agora mesmo';
-        if (diffInMinutes < 60) return `${diffInMinutes}m atrás`;
+        if (diffInMinutes < 60) return `${diffInMinutes}m atras`;
         const diffInHours = Math.floor(diffInMinutes / 60);
-        if (diffInHours < 24) return `${diffInHours}h atrás`;
+        if (diffInHours < 24) return `${diffInHours}h atras`;
         return date.toLocaleDateString('pt-BR');
     };
 
-    const getIcon = (tipo: string) => {
+    const getTypeConfig = (tipo: string) => {
         switch (tipo) {
-            case 'rejeicao': return { name: 'cancel', color: '#f87171', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.3)' };
-            case 'update': return { name: 'sync', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' };
-            case 'aviso': return { name: 'warning', color: '#fbbf24', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' };
-            default: return { name: 'info', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.15)', border: 'rgba(100, 116, 139, 0.3)' };
+            case 'rejeicao': return { icon: 'cancel', label: 'REJEICAO', color: '#f87171', bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.25)', glow: 'rgba(239,68,68,0.15)' };
+            case 'update':   return { icon: 'sync', label: 'ATUALIZACAO', color: '#60a5fa', bg: 'rgba(59,130,246,0.10)', border: 'rgba(59,130,246,0.25)', glow: 'rgba(59,130,246,0.15)' };
+            case 'aviso':    return { icon: 'warning_amber', label: 'AVISO', color: '#fbbf24', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.25)', glow: 'rgba(245,158,11,0.15)' };
+            default:         return { icon: 'info', label: 'INFO', color: '#94a3b8', bg: 'rgba(100,116,139,0.10)', border: 'rgba(100,116,139,0.25)', glow: 'rgba(100,116,139,0.10)' };
         }
     };
 
     return (
-        <div 
-            className="absolute top-full right-0 mt-3 w-80 md:w-96 rounded-2xl z-50 overflow-hidden backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-300 shadow-2xl"
+        <div
+            className="absolute top-full right-0 mt-3 z-50 overflow-hidden"
             style={{
-                background: 'rgba(13, 20, 33, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.1)'
+                width: '26rem',
+                background: 'rgba(8,12,20,0.97)',
+                backdropFilter: 'blur(32px)',
+                WebkitBackdropFilter: 'blur(32px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '20px',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.8), 0 0 40px rgba(59,130,246,0.08), inset 0 1px 0 rgba(255,255,255,0.05)',
+                animation: 'notifSlideDown 0.2s cubic-bezier(0.16,1,0.3,1)',
             }}
         >
-            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                    Notificações
-                </h3>
+            <style>{`
+                @keyframes notifSlideDown {
+                    from { opacity:0; transform:translateY(-8px) scale(0.97); }
+                    to   { opacity:1; transform:translateY(0)    scale(1);    }
+                }
+                .notif-scroll::-webkit-scrollbar { width:4px; }
+                .notif-scroll::-webkit-scrollbar-track { background:transparent; }
+                .notif-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:10px; }
+                .notif-item:hover { background:rgba(255,255,255,0.03) !important; }
+            `}</style>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={onMarkAllAsRead}
-                        className="text-[10px] font-bold text-blue-400 uppercase tracking-wider hover:text-blue-300 transition-colors"
-                    >
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background:'rgba(59,130,246,0.12)', border:'1px solid rgba(59,130,246,0.25)', boxShadow:'0 0 16px rgba(59,130,246,0.15)' }}>
+                        <span className="material-symbols-rounded text-blue-400" style={{ fontSize:'16px', fontVariationSettings:"'FILL' 1" }}>notifications</span>
+                    </div>
+                    <div>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ CENTRAL_DE_ALERTAS ]</span>
+                        <p className="font-mono text-[9px] text-slate-600 mt-0.5">
+                            {unread > 0 ? `${unread} nao lida${unread > 1 ? 's' : ''}` : 'Tudo em dia'}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-1">
+                    <button onClick={onMarkAllAsRead}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:text-white hover:bg-white/[0.05] transition-all cursor-pointer">
+                        <span className="material-symbols-rounded" style={{ fontSize:'14px' }}>done_all</span>
                         Lidas
                     </button>
-                    <div className="w-[1px] h-3 bg-white/10" />
-                    <button
-                        onClick={onClearAll}
-                        className="text-[10px] font-bold text-red-400 uppercase tracking-wider hover:text-red-300 transition-colors"
-                    >
+                    <div style={{ width:'1px', height:'16px', background:'rgba(255,255,255,0.08)', margin:'0 2px' }} />
+                    <button onClick={onClearAll}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-red-500/[0.06] transition-all cursor-pointer"
+                        style={{ color:'rgba(248,113,113,0.7)' }}>
+                        <span className="material-symbols-rounded" style={{ fontSize:'14px' }}>delete_sweep</span>
                         Limpar
                     </button>
                 </div>
             </div>
 
-            <div className="max-h-[380px] overflow-y-auto custom-scrollbar divide-y divide-white/5">
+            {/* Counter bar */}
+            {notifications.length > 0 && (
+                <div className="px-5 py-2 flex items-center justify-between"
+                    style={{ borderBottom:'1px solid rgba(255,255,255,0.04)', background:'rgba(255,255,255,0.01)' }}>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-slate-600">TOTAL · {notifications.length}</span>
+                    <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        <span className="font-mono text-[9px] text-blue-400/80 uppercase tracking-wider">{unread} PENDENTE{unread !== 1 ? 'S' : ''}</span>
+                    </div>
+                </div>
+            )}
+
+            {/* List */}
+            <div className="notif-scroll overflow-y-auto" style={{ maxHeight:'380px' }}>
                 {notifications.length > 0 ? (
-                    notifications.map((n) => {
-                        const icon = getIcon(n.tipo);
-                        return (
-                            <div
-                                key={n.id}
-                                onClick={() => {
-                                    onViewDetails(n);
-                                    if (!n.lida) onMarkAsRead(n.id);
-                                }}
-                                className={`p-4 flex gap-3.5 hover:bg-white/[0.04] transition-all cursor-pointer relative ${!n.lida ? 'bg-blue-500/[0.06]' : ''}`}
-                            >
-                                {!n.lida && <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_#60a5fa]" />}
-                                <div 
-                                    className="p-2 h-9 w-9 rounded-xl flex-shrink-0 flex items-center justify-center"
+                    <div style={{ padding:'6px' }}>
+                        {notifications.map((n, idx) => {
+                            const cfg = getTypeConfig(n.tipo);
+                            return (
+                                <div key={n.id} className="notif-item cursor-pointer relative"
                                     style={{
-                                        background: icon.bg,
-                                        border: `1px solid ${icon.border}`,
-                                        color: icon.color
+                                        borderRadius:'12px', padding:'12px',
+                                        marginBottom: idx < notifications.length - 1 ? '2px' : 0,
+                                        background: !n.lida ? 'rgba(59,130,246,0.05)' : 'transparent',
+                                        border: !n.lida ? '1px solid rgba(59,130,246,0.12)' : '1px solid transparent',
+                                        transition:'background 0.15s ease',
                                     }}
+                                    onClick={() => { onViewDetails(n); if (!n.lida) onMarkAsRead(n.id); }}
                                 >
-                                    <span className="material-symbols-rounded text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                        {icon.name}
-                                    </span>
+                                    <div className="flex gap-3">
+                                        <div className="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center"
+                                            style={{ background:cfg.bg, border:`1px solid ${cfg.border}`, boxShadow:`0 0 12px ${cfg.glow}` }}>
+                                            <span className="material-symbols-rounded"
+                                                style={{ fontSize:'18px', color:cfg.color, fontVariationSettings:"'FILL' 1" }}>
+                                                {cfg.icon}
+                                            </span>
+                                        </div>
+                                        <div className="flex-1 min-w-0 pr-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-mono text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded"
+                                                    style={{ color:cfg.color, background:cfg.bg, border:`1px solid ${cfg.border}` }}>
+                                                    {cfg.label}
+                                                </span>
+                                                <span className="font-mono text-[9px] text-slate-600">{getTimeAgo(n.created_at)}</span>
+                                            </div>
+                                            <p className="text-xs leading-snug truncate"
+                                                style={{ fontFamily:"'Inter',sans-serif", fontWeight:!n.lida ? 700 : 500, color:!n.lida ? '#f1f5f9' : '#94a3b8' }}>
+                                                {n.titulo}
+                                            </p>
+                                            <p className="text-[11px] text-slate-500 line-clamp-1 leading-relaxed mt-0.5"
+                                                style={{ fontFamily:"'Inter',sans-serif" }}>
+                                                {n.mensagem}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {!n.lida && (
+                                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-400"
+                                            style={{ boxShadow:'0 0 8px #60a5fa' }} />
+                                    )}
                                 </div>
-                                <div className="space-y-1 pr-3 flex-1 min-w-0">
-                                    <p className={`text-xs tracking-tight leading-snug truncate ${!n.lida ? 'font-bold text-white' : 'font-medium text-slate-300'}`}>
-                                        {n.titulo}
-                                    </p>
-                                    <p className="text-[11px] text-slate-400 font-normal line-clamp-2 leading-relaxed">
-                                        {n.mensagem}
-                                    </p>
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pt-0.5">
-                                        {getTimeAgo(n.created_at)}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })
+                            );
+                        })}
+                    </div>
                 ) : (
-                    <div className="p-8 text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/5 flex items-center justify-center mx-auto mb-3 text-slate-500">
-                            <span className="material-symbols-rounded text-2xl">notifications_off</span>
+                    <div className="flex flex-col items-center justify-center py-10 px-6 text-center">
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+                            style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+                            <span className="material-symbols-rounded text-slate-600" style={{ fontSize:'26px' }}>notifications_off</span>
                         </div>
-                        <p className="text-slate-400 font-medium text-xs">Nenhuma notificação recente.</p>
+                        <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-slate-600 mb-1">NENHUM_ALERTA</p>
+                        <p className="text-xs text-slate-500" style={{ fontFamily:"'Inter',sans-serif" }}>Sem notificacoes recentes no sistema.</p>
                     </div>
                 )}
             </div>
 
-            <div className="p-3 bg-white/[0.02] text-center border-t border-white/10">
-                <button
-                    onClick={onClose}
-                    className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-white transition-colors"
-                >
-                    Fechar painel
+            {/* Footer */}
+            <div className="flex items-center justify-between px-5 py-3"
+                style={{ borderTop:'1px solid rgba(255,255,255,0.05)', background:'rgba(255,255,255,0.01)' }}>
+                <span className="font-mono text-[9px] text-slate-700 uppercase tracking-widest">MC_QC · ALERTAS</span>
+                <button onClick={onClose}
+                    className="flex items-center gap-1.5 font-mono text-[9px] font-bold text-slate-500 uppercase tracking-widest hover:text-white transition-colors cursor-pointer">
+                    <span className="material-symbols-rounded" style={{ fontSize:'14px' }}>close</span>
+                    Fechar
                 </button>
             </div>
         </div>
