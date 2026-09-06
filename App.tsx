@@ -153,6 +153,7 @@ export default function App() {
     }
   }, [session]);
 
+  const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchInspections = async () => {
