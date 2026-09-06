@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, UserProfile, AppNotification } from '../types';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationDropdown } from './NotificationDropdown';
@@ -15,70 +14,121 @@ interface HeaderProps {
   children?: React.ReactNode;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profile, searchTerm, onSearchChange, onLogout, onRefresh, children }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  currentView, 
+  onMenuClick, 
+  profile, 
+  searchTerm, 
+  onSearchChange, 
+  onLogout, 
+  onRefresh, 
+  children 
+}) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AppNotification | null>(null);
+  const [currentTime, setCurrentTime] = useState('');
   const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('pt-BR', { hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const getTitle = () => {
     switch (currentView) {
-      case View.DASHBOARD: return 'Painel de Controle de Qualidade';
-      case View.INSPECTION_FORM: return 'Nova Inspeção Técnica';
-      case View.REPORTS: return 'Gestão de Relatórios';
-      case View.ANALYTICS: return 'BI & Central de Inteligência'; // Added case for Analytics
-      default: return 'Qualidade Industrial';
+      case View.DASHBOARD: return { code: '01', title: 'PAINEL DE CONTROLE DE QUALIDADE', desc: 'Métricas analíticas em tempo real' };
+      case View.INSPECTION_FORM: return { code: '02', title: 'REGISTRO DE NOVA INSPEÇÃO', desc: 'Auditoria e conformidade de materiais' };
+      case View.MATERIALS: return { code: '03', title: 'CATÁLOGO DE MATERIAIS & LOTES', desc: 'Base de dados e especificações' };
+      case View.REPORTS: return { code: '04', title: 'RELATÓRIOS & EXPORTAÇÃO', desc: 'Histórico consolidado e emissão de laudos' };
+      case View.ANALYTICS: return { code: '05', title: 'INTELIGÊNCIA & BI OPERACIONAL', desc: 'Análise preditiva de defeitos e fornecedores' };
+      case View.USERS: return { code: '06', title: 'GESTÃO & CONTROLE DE ACESSO', desc: 'Permissões e usuários do sistema' };
+      case View.SETTINGS: return { code: '07', title: 'CONFIGURAÇÕES DO SISTEMA', desc: 'Parâmetros de integração e alertas' };
+      default: return { code: '00', title: 'MC INDUSTRIAL', desc: 'Sistema de Inspeção de Qualidade' };
     }
   };
 
-  const getNotificationIcon = (tipo: string) => {
-    switch (tipo) {
-      case 'rejeicao': return { name: 'cancel', color: 'text-red-500', bg: 'bg-red-50' };
-      case 'update': return { name: 'sync', color: 'text-blue-500', bg: 'bg-blue-50' };
-      case 'aviso': return { name: 'warning', color: 'text-amber-500', bg: 'bg-amber-50' };
-      default: return { name: 'info', color: 'text-slate-500', bg: 'bg-slate-50' };
-    }
-  };
+  const viewInfo = getTitle();
 
   return (
-    <div className="sticky top-0 z-30 bg-white border-b border-slate-200 flex flex-col shrink-0">
-      <header className="flex items-center justify-between px-3 sm:px-6 md:px-8 py-3 sm:py-4">
-        {/* ... existing code ... */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          <button onClick={onMenuClick} className="lg:hidden p-1.5 text-slate-500 hover:bg-slate-100 rounded-lg">
-            <span className="material-symbols-rounded text-xl sm:text-2xl">menu</span>
+    <div className="sticky top-0 z-30 flex flex-col shrink-0 bg-[#05060A]/85 backdrop-blur-2xl border-b border-white/[0.06] select-none font-sans">
+      <header className="flex items-center justify-between px-4 sm:px-8 py-3.5 sm:py-4">
+        
+        {/* Left Side: View Telemetry & Title */}
+        <div className="flex items-center gap-3.5">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:text-white"
+          >
+            <span className="material-symbols-rounded text-xl">menu</span>
           </button>
-          <h2 className="text-slate-900 text-sm sm:text-base md:text-lg font-black tracking-tight truncate max-w-[120px] xs:max-w-[200px] sm:max-w-none">
-            {getTitle()}
-          </h2>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-blue-400 font-bold">
+                [ {viewInfo.code} // {viewInfo.title} ]
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 font-medium hidden sm:block mt-0.5">
+              {viewInfo.desc}
+            </p>
+          </div>
         </div>
 
-        <div className="hidden lg:flex flex-1 justify-center max-w-xl mx-8">
-          {children}
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-4 md:gap-8">
-          <div className="hidden md:flex relative">
-            <div className="flex w-64 items-center rounded-xl h-11 bg-slate-50 border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <div className="text-slate-400 pl-4">
-                <span className="material-symbols-rounded !text-xl">search</span>
-              </div>
+        {/* Center: Search Field */}
+        <div className="hidden md:flex flex-1 justify-center max-w-md mx-6">
+          {children || (
+            <div className="flex w-full items-center rounded-xl h-10 px-3.5 gap-2.5 bg-white/[0.03] border border-white/[0.08] focus-within:border-blue-500/50 focus-within:bg-white/[0.05] transition-all">
+              <span className="material-symbols-rounded text-slate-500 text-base">search</span>
               <input
-                className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-400"
-                placeholder="Buscar dados..."
+                className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none font-medium"
+                placeholder="Buscar inspeções, materiais ou fornecedores..."
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
               />
+              <span className="font-mono text-[9px] text-slate-600 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+                ⌘K
+              </span>
             </div>
+          )}
+        </div>
+
+        {/* Right Side: Telemetry Actions & User Profile */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          
+          {/* Live UTC Clock */}
+          <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.02] border border-white/[0.06] font-mono text-[10px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-slate-500">UTC:</span>
+            <span className="text-slate-300 font-bold">{currentTime}</span>
           </div>
 
+          {/* Sync Button */}
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              title="Sincronizar dados"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all group cursor-pointer"
+            >
+              <span className="material-symbols-rounded text-lg group-hover:rotate-180 transition-transform duration-500">
+                sync
+              </span>
+            </button>
+          )}
+
+          {/* Notification Center */}
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className={`flex items-center justify-center rounded-xl h-9 w-9 sm:h-11 sm:w-11 transition-colors relative ${showNotifications ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'}`}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all relative cursor-pointer"
             >
-              <span className="material-symbols-rounded text-lg sm:!text-2xl">notifications</span>
+              <span className="material-symbols-rounded text-lg">notifications</span>
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] sm:text-[10px] font-black w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full border-2 border-white animate-in zoom-in duration-300">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white font-mono text-[9px] font-black flex items-center justify-center border-2 border-[#05060A]">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -99,38 +149,39 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
             )}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-slate-200">
-            <button
-              onClick={() => onRefresh?.()}
-              className="hidden xs:flex items-center justify-center rounded-xl h-9 w-9 sm:h-10 sm:w-10 bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 transition-all active:rotate-180 duration-500"
-              title="Sincronizar Dados"
-            >
-              <span className="material-symbols-rounded text-lg sm:!text-xl">sync</span>
-            </button>
-            <div className="hidden sm:flex flex-col items-end">
-              <p className="text-sm font-bold text-slate-900">{profile.name}</p>
-              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{profile.role}</p>
+          <div className="w-[1px] h-6 bg-white/[0.08] mx-0.5" />
+
+          {/* User Quick Info */}
+          <div className="flex items-center gap-2.5 pl-1">
+            <div className="hidden lg:flex flex-col items-end">
+              <span className="text-xs font-bold text-white leading-tight">{profile.name}</span>
+              <span className="font-mono text-[9px] uppercase text-blue-400 tracking-wider">{profile.role}</span>
             </div>
-            <img src={profile.avatar} className="h-8 w-8 sm:h-10 sm:w-10 rounded-full border-2 border-white shadow-sm object-cover" alt="User" />
+            
+            <img
+              src={profile.avatar}
+              alt={profile.name}
+              className="w-9 h-9 rounded-xl object-cover border border-white/10"
+            />
+
+            {/* Logout Action */}
             <button
               onClick={onLogout}
-              className="flex items-center justify-center rounded-xl h-8 w-8 sm:h-10 sm:w-10 bg-red-50 text-red-500 border border-red-100 hover:bg-red-100 transition-colors"
-              title="Sair"
+              title="Encerrar sessão"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all cursor-pointer"
             >
-              <span className="material-symbols-rounded text-lg sm:!text-xl">logout</span>
+              <span className="material-symbols-rounded text-lg">logout</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Search Row */}
+      {/* Mobile Search Bar */}
       <div className="md:hidden px-4 pb-3">
-        <div className="flex w-full items-center rounded-xl h-10 bg-slate-50 border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-          <div className="text-slate-400 pl-3">
-            <span className="material-symbols-rounded text-lg">search</span>
-          </div>
+        <div className="flex w-full items-center rounded-xl h-9 px-3 gap-2 bg-white/[0.03] border border-white/[0.08]">
+          <span className="material-symbols-rounded text-slate-500 text-sm">search</span>
           <input
-            className="w-full border-none bg-transparent focus:ring-0 text-xs placeholder:text-slate-400"
+            className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none"
             placeholder="Buscar dados..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -138,57 +189,43 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onMenuClick, profil
         </div>
       </div>
 
-      {/* Detail Modal */}
+      {/* Notification Detail Modal */}
       {selectedNotification && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-            <div className="p-8 pb-0 flex justify-between items-start">
-              <div className={`p-4 rounded-2xl ${getNotificationIcon(selectedNotification.tipo).bg} ${getNotificationIcon(selectedNotification.tipo).color}`}>
-                <span className="material-symbols-rounded !text-3xl fill-1">
-                  {getNotificationIcon(selectedNotification.tipo).name}
-                </span>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-lg rounded-3xl bg-[#090B12] border border-white/10 p-6 sm:p-8 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">
+                [ ALERTA_DO_SISTEMA ]
+              </span>
               <button
                 onClick={() => setSelectedNotification(null)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                className="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center"
               >
-                <span className="material-symbols-rounded">close</span>
+                <span className="material-symbols-rounded text-base">close</span>
               </button>
             </div>
 
-            <div className="p-8 pt-6 space-y-4">
-              <div>
-                <h3 className="text-2xl font-black text-slate-900 leading-tight">
-                  {selectedNotification.titulo}
-                </h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 px-1">
-                  Enviado em {new Date(selectedNotification.created_at).toLocaleString('pt-BR')}
-                </p>
-              </div>
-
-              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 mt-6 overflow-y-auto max-h-[300px] custom-scrollbar">
-                <p className="text-slate-600 font-medium leading-relaxed italic whitespace-pre-wrap">
-                  {selectedNotification.mensagem}
-                </p>
-              </div>
-
-              {selectedNotification.tipo === 'aviso' && (
-                <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 flex gap-4">
-                  <span className="material-symbols-rounded text-indigo-500 mt-1">lightbulb</span>
-                  <div>
-                    <p className="text-sm font-black text-indigo-900 mb-1">Diretriz da IA</p>
-                    <p className="text-xs text-indigo-600 font-medium font-bold">Consulte o painel de Análises Avançadas para ver os dados detalhados e iniciar o protocolo de correção.</p>
-                  </div>
-                </div>
-              )}
-
-              <button
-                onClick={() => setSelectedNotification(null)}
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-900/20 mt-4"
-              >
-                Entendido
-              </button>
+            <div>
+              <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                {selectedNotification.titulo}
+              </h3>
+              <p className="font-mono text-[10px] text-slate-500 mt-1">
+                {new Date(selectedNotification.created_at).toLocaleString('pt-BR')}
+              </p>
             </div>
+
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 max-h-56 overflow-y-auto">
+              <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap font-normal">
+                {selectedNotification.mensagem}
+              </p>
+            </div>
+
+            <button
+              onClick={() => setSelectedNotification(null)}
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+            >
+              Compreendido
+            </button>
           </div>
         </div>
       )}

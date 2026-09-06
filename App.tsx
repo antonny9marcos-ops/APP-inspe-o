@@ -397,14 +397,8 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background-light">
-      {/* Sidebar Overlay para Mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+    <div className="flex h-screen overflow-hidden bg-[#05060A] text-slate-100 font-sans">
+      {/* Sidebar Overlay para Mobile — handled inside Sidebar */}
 
       <Sidebar
         currentView={currentView}
@@ -428,77 +422,72 @@ export default function App() {
             setSession(null);
           }}
         />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto custom-scrollbar">
           {(currentView === View.DASHBOARD) && (
-            <div className="px-4 md:px-8 mt-6">
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 items-center bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-                <button 
+            <div className="px-4 sm:px-8 lg:px-10 mt-5">
+              <div 
+                className="flex flex-wrap gap-2.5 items-center p-3 rounded-2xl"
+                style={{
+                  background: 'rgba(10, 12, 18, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  boxShadow: '0 15px 35px -10px rgba(0, 0, 0, 0.6)'
+                }}
+              >
+                <button
                   onClick={resetFilters}
-                  className="col-span-2 sm:col-span-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-all active:scale-95 group"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all cursor-pointer font-mono text-[10px] text-slate-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08]"
                 >
-                  <span className="material-symbols-rounded text-slate-400 group-hover:text-primary !text-lg transition-colors">filter_list_off</span>
-                  <span className="text-[10px] font-black text-slate-400 group-hover:text-primary uppercase tracking-widest transition-colors">Limpar</span>
+                  <span className="material-symbols-rounded text-sm">filter_list_off</span>
+                  <span>RESET</span>
                 </button>
-                
-                <select
-                  value={periodFilter}
-                  onChange={(e) => setPeriodFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative w-full sm:w-auto"
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
-                >
-                  <option value="todos">Geral</option>
-                  <option value="últimos 30 dias">30 Dias</option>
-                  <option value="últimos 7 dias">7 Dias</option>
-                  <option value="hoje">Hoje</option>
-                  <option value="este mês">Mês</option>
-                </select>
+
+                {[
+                  { value: periodFilter, onChange: setPeriodFilter, options: [
+                    { v: 'todos', l: 'PERÍODO: GERAL' }, { v: 'últimos 30 dias', l: 'ÚLTIMOS 30 DIAS' },
+                    { v: 'últimos 7 dias', l: 'ÚLTIMOS 7 DIAS' }, { v: 'hoje', l: 'HOJE' }, { v: 'este mês', l: 'ESTE MÊS' }
+                  ]},
+                ].map((sel, idx) => (
+                  <select
+                    key={idx}
+                    value={sel.value}
+                    onChange={(e) => sel.onChange(e.target.value)}
+                    className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+                  >
+                    {sel.options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                  </select>
+                ))}
 
                 <select
                   value={yearFilter}
                   onChange={(e) => setYearFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative font-bold w-full sm:w-auto"
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                  className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
                 >
-                  <option value="all">Ano: Todos</option>
-                  {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+                  <option value="all">ANO: TODOS</option>
+                  {filterOptions.years.map(y => <option key={y} value={y}>ANO: {y}</option>)}
                 </select>
 
                 <select
                   value={monthFilter}
                   onChange={(e) => setMonthFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative w-full sm:w-auto"
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                  className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
                 >
-                  <option value="all">Mês: Todos</option>
+                  <option value="all">MÊS: TODOS</option>
                   {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
-                </select>
-
-                <select
-                  value={weekFilter}
-                  onChange={(e) => setWeekFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 relative w-full sm:w-auto"
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
-                >
-                  <option value="all">Sem: Todos</option>
-                  {Array.from({ length: 53 }, (_, i) => (
-                    <option key={i + 1} value={(i + 1).toString()}>S {i + 1}</option>
-                  ))}
                 </select>
 
                 <select
                   value={supplierFilter}
                   onChange={(e) => setSupplierFilter(e.target.value)}
-                  className="bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest h-10 px-4 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer hover:bg-slate-100 transition-all appearance-none pr-8 overflow-hidden text-ellipsis whitespace-nowrap w-full sm:w-auto sm:max-w-[150px]"
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '0.8rem' }}
+                  className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none max-w-[150px] truncate bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
                 >
                   {suppliers.map(s => (
-                    <option key={s} value={s}>{s === 'Todos' ? 'Fornecedor: Todos' : s}</option>
+                    <option key={s} value={s}>{s === 'Todos' ? 'FORNECEDOR: TODOS' : s}</option>
                   ))}
                 </select>
 
-                <div className="h-6 w-[1px] bg-slate-100 mx-1 hidden sm:block"></div>
+                <div className="w-px h-5 mx-1 hidden sm:block bg-white/[0.08]" />
 
-                <div className="col-span-2 sm:col-span-1 flex bg-slate-50 p-1 rounded-2xl border border-slate-100 w-full sm:w-auto justify-between sm:justify-start">
+                <div className="flex p-1 rounded-xl gap-1 bg-white/[0.02] border border-white/[0.06]">
                   {['ROLO TRANSPORTADOR', 'OUTROS', 'TODOS'].map((cat) => (
                     <button
                       key={cat}
@@ -506,10 +495,10 @@ export default function App() {
                         if (cat === 'TODOS') resetFilters();
                         else setCategoryFilter(cat);
                       }}
-                      className={`flex-1 sm:flex-none px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                      className={`px-3 py-1.5 rounded-lg font-mono text-[9px] uppercase tracking-wider transition-all cursor-pointer ${
                         categoryFilter === cat 
-                        ? 'bg-white text-primary shadow-sm border border-slate-100' 
-                        : 'text-slate-400 hover:text-slate-600'
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                          : 'text-slate-500 hover:text-slate-300 border border-transparent'
                       }`}
                     >
                       {cat === 'TODOS' ? 'Todos' : cat}
@@ -521,6 +510,7 @@ export default function App() {
           )}
           {renderContent()}
         </main>
+
       </div>
       
       {showWhatIsNew && (
