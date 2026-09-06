@@ -15,10 +15,16 @@ interface InspectionFormProps {
 }
 
 export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete, onCancel, onViewHistory, initialData, userProfile }) => {
+  const defaultSetor = (userProfile?.role === 'Inspetor' && userProfile?.setor) 
+    ? userProfile.setor 
+    : (initialData?.setor && initialData.setor !== 'TODOS' ? initialData.setor : '1058 Carajás');
+
+  const defaultInspetor = initialData?.inspetor || (userProfile?.name || '');
+
   const [formData, setFormData] = useState<Partial<Inspection>>({
     data: initialData?.data || new Date().toLocaleDateString('sv-SE'),
     dataChegada: initialData?.dataChegada || new Date().toLocaleDateString('sv-SE'),
-    inspetor: initialData?.inspetor || '',
+    inspetor: defaultInspetor,
     material: initialData?.material || '',
     descricao: initialData?.descricao || '',
     fornecedor: initialData?.fornecedor || '',
@@ -31,24 +37,28 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
     observacoes: initialData?.observacoes || '',
     evidencias: initialData?.evidencias || [],
     unidade: initialData?.unidade || 'UN',
-    setor: (userProfile?.role === 'Inspetor' && userProfile?.setor) ? userProfile.setor : (initialData?.setor || '')
+    setor: defaultSetor,
+    realId: initialData?.realId,
+    id: initialData?.id
   });
 
   useEffect(() => {
-    if (initialData) {
+    if (initialData && initialData.id) {
       setFormData(prev => ({
         ...prev,
         ...initialData,
-        // Override setor if inspector is locked
-        setor: (userProfile?.role === 'Inspetor' && userProfile?.setor) ? userProfile.setor : (initialData.setor || prev.setor),
-        // Pre-fill inspetor name if empty
-        inspetor: (userProfile?.role === 'Inspetor' && !initialData.inspetor) ? userProfile.name : (initialData.inspetor || prev.inspetor)
+        setor: (userProfile?.role === 'Inspetor' && userProfile?.setor) 
+          ? userProfile.setor 
+          : (initialData.setor && initialData.setor !== 'TODOS' ? initialData.setor : (prev.setor || '1058 Carajás')),
+        inspetor: (userProfile?.role === 'Inspetor' && !initialData.inspetor) 
+          ? userProfile.name 
+          : (initialData.inspetor || prev.inspetor || '')
       }));
     } else if (userProfile?.role === 'Inspetor') {
       setFormData(prev => ({
         ...prev,
-        setor: userProfile.setor || prev.setor,
-        inspetor: userProfile.name || prev.inspetor
+        setor: userProfile.setor || prev.setor || '1058 Carajás',
+        inspetor: userProfile.name || prev.inspetor || ''
       }));
     }
   }, [initialData, userProfile]);
@@ -135,21 +145,21 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
   }, []);
 
   // Filtrar sugestões de fornecedor
-  const filteredFornecedores = fornecedoresList.filter(f =>
-    f.toLowerCase().includes((formData.fornecedor || '').toLowerCase())
+  const filteredFornecedores = (fornecedoresList || []).filter(f =>
+    typeof f === 'string' && f.toLowerCase().includes((formData.fornecedor || '').toLowerCase())
   );
 
   // Filtrar sugestões de motivo de rejeição
-  const filteredMotivos = motivosRejeicaoList.filter(m =>
-    m.toLowerCase().includes((formData.motivoRejeicao || '').toLowerCase())
+  const filteredMotivos = (motivosRejeicaoList || []).filter(m =>
+    typeof m === 'string' && m.toLowerCase().includes((formData.motivoRejeicao || '').toLowerCase())
   );
 
   // Verificar se o valor digitado já existe na lista
-  const fornecedorExistsInList = fornecedoresList.some(f =>
-    f.toLowerCase() === (formData.fornecedor || '').toLowerCase()
+  const fornecedorExistsInList = (fornecedoresList || []).some(f =>
+    typeof f === 'string' && f.toLowerCase() === (formData.fornecedor || '').toLowerCase()
   );
-  const motivoExistsInList = motivosRejeicaoList.some(m =>
-    m.toLowerCase() === (formData.motivoRejeicao || '').toLowerCase()
+  const motivoExistsInList = (motivosRejeicaoList || []).some(m =>
+    typeof m === 'string' && m.toLowerCase() === (formData.motivoRejeicao || '').toLowerCase()
   );
 
   // Função para cadastrar novo fornecedor (with Supabase)
