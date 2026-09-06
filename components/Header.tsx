@@ -11,6 +11,8 @@ interface HeaderProps {
   onSearchChange: (value: string) => void;
   onLogout: () => void;
   onRefresh?: () => void;
+  theme?: 'light' | 'dark';
+  onToggleTheme?: () => void;
   children?: React.ReactNode;
 }
 
@@ -22,6 +24,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSearchChange, 
   onLogout, 
   onRefresh, 
+  theme = 'light',
+  onToggleTheme,
   children 
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -116,6 +120,26 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <span className="material-symbols-rounded text-lg group-hover:rotate-180 transition-transform duration-500">
                 sync
+              </span>
+            </button>
+          )}
+
+          {/* Theme Switcher Button */}
+          {onToggleTheme && (
+            <button
+              onClick={onToggleTheme}
+              title={theme === 'dark' ? 'Mudar para Modo Claro (Padrão)' : 'Mudar para Modo Escuro'}
+              className={`h-9 px-2.5 sm:px-3 flex items-center gap-1.5 rounded-xl border transition-all cursor-pointer group font-mono text-[10px] uppercase font-bold tracking-wider ${
+                theme === 'light'
+                  ? 'bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20'
+                  : 'bg-amber-400/10 border-amber-400/20 text-amber-400 hover:bg-amber-400/20'
+              }`}
+            >
+              <span className="material-symbols-rounded text-base sm:text-lg group-hover:rotate-45 transition-transform duration-300">
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+              <span className="hidden sm:inline">
+                {theme === 'dark' ? 'CLARO' : 'ESCURO'}
               </span>
             </button>
           )}

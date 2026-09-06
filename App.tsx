@@ -31,8 +31,29 @@ export default function App() {
   const [showWhatIsNew, setShowWhatIsNew] = useState(false);
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
   const [selectedSector, setSelectedSector] = useState<string>('TODOS');
+
+  // Estado do Tema (Default: 'light' conforme solicitado pelo usuário)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('app_theme');
+    return (saved as 'light' | 'dark') || 'light';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('app_theme', theme);
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('theme-light');
+      root.classList.remove('theme-dark');
+    } else {
+      root.classList.add('theme-dark');
+      root.classList.remove('theme-light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   // Estados dos Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -357,6 +378,8 @@ export default function App() {
               const { error } = await supabase.auth.updateUser({ password: newPassword });
               if (error) throw error;
             }}
+            theme={theme}
+            onToggleTheme={toggleTheme}
           />
         );
       case View.MATERIALS:
@@ -417,6 +440,8 @@ export default function App() {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           onRefresh={fetchInspections}
+          theme={theme}
+          onToggleTheme={toggleTheme}
           onLogout={async () => {
             await supabase.auth.signOut();
             setSession(null);
@@ -426,12 +451,7 @@ export default function App() {
           {(currentView === View.DASHBOARD) && (
             <div className="px-4 sm:px-8 lg:px-10 mt-5">
               <div 
-                className="flex flex-wrap gap-2.5 items-center p-3 rounded-2xl"
-                style={{
-                  background: 'rgba(10, 12, 18, 0.85)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  boxShadow: '0 15px 35px -10px rgba(0, 0, 0, 0.6)'
-                }}
+                className="flex flex-wrap gap-2.5 items-center p-3 rounded-2xl bg-white border border-slate-200/80 shadow-sm glass"
               >
                 <button
                   onClick={resetFilters}

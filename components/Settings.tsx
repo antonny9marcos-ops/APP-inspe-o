@@ -6,9 +6,11 @@ interface SettingsProps {
     profile: UserProfile;
     onUpdateProfile: (profile: UserProfile) => Promise<void>;
     onUpdatePassword: (password: string) => Promise<void>;
+    theme?: 'light' | 'dark';
+    onToggleTheme?: () => void;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, onUpdatePassword }) => {
+export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, onUpdatePassword, theme = 'light', onToggleTheme }) => {
     const [name, setName] = useState(profile.name);
     const [avatar, setAvatar] = useState(profile.avatar);
 
@@ -257,6 +259,63 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                     >
                         Alterar Senha
                     </button>
+                </div>
+
+                {/* Aparência & Tema */}
+                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6 lg:col-span-2">
+                    <div className="flex items-center gap-4 mb-2">
+                        <div className="bg-indigo-500/10 p-3 rounded-2xl">
+                            <span className="material-symbols-rounded text-indigo-500 !text-2xl fill-1">palette</span>
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900">Aparência & Tema Visual</h2>
+                            <p className="text-xs text-slate-500 font-medium">Personalize a cor principal do aplicativo com o estilo premium MC Industrial.</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Modo Claro Card */}
+                        <div
+                            onClick={() => theme === 'dark' && onToggleTheme && onToggleTheme()}
+                            className={`p-5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-36 ${
+                                theme === 'light'
+                                    ? 'border-blue-500 bg-blue-50/50 shadow-md ring-2 ring-blue-500/20'
+                                    : 'border-slate-200 hover:border-slate-300 bg-slate-50/50'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                    <span className="material-symbols-rounded text-blue-600 text-2xl">light_mode</span>
+                                    <span className="font-extrabold text-slate-900 text-base">Modo Claro (Padrão)</span>
+                                </div>
+                                {theme === 'light' && (
+                                    <span className="material-symbols-rounded text-blue-600 fill-icon text-xl">check_circle</span>
+                                )}
+                            </div>
+                            <p className="text-xs text-slate-600 font-medium">Visual claro, dinâmico e sofisticado. Excelente visibilidade em escritórios e ambientes iluminados.</p>
+                        </div>
+
+                        {/* Modo Escuro Card */}
+                        <div
+                            onClick={() => theme === 'light' && onToggleTheme && onToggleTheme()}
+                            className={`p-5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between h-36 ${
+                                theme === 'dark'
+                                    ? 'border-blue-500 bg-slate-900 text-white shadow-md ring-2 ring-blue-500/20'
+                                    : 'border-slate-200 hover:border-slate-300 bg-slate-50/50'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                    <span className="material-symbols-rounded text-amber-400 text-2xl">dark_mode</span>
+                                    <span className="font-extrabold text-slate-900 text-base">Modo Escuro</span>
+                                </div>
+                                {theme === 'dark' && (
+                                    <span className="material-symbols-rounded text-blue-400 fill-icon text-xl">check_circle</span>
+                                )}
+                            </div>
+                            <p className="text-xs text-slate-600 font-medium">Estilo dark glassmorphism de alta fidelidade. Reduz o cansaço visual em uso prolongado.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
