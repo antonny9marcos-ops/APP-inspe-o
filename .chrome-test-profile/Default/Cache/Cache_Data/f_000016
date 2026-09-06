@@ -1,0 +1,286 @@
+import { createHotContext as __vite__createHotContext } from "/APP-inspe-o/@vite/client";import.meta.hot = __vite__createHotContext("/components/BarcodeScanner.tsx");import __vite__cjsImport0_react_jsxDevRuntime from "/APP-inspe-o/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=b198c67c"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/APP-inspe-o/node_modules/.vite/deps/react.js?v=b198c67c"; const useState = __vite__cjsImport1_react["useState"];
+import { Scanner } from "/APP-inspe-o/node_modules/.vite/deps/@yudiel_react-qr-scanner.js?v=b198c67c";
+export const BarcodeScanner = ({
+  onScan,
+  onClose,
+  title = "Escanear Codigo"
+}) => {
+  _s();
+  const [scanned, setScanned] = useState(false);
+  const [error, setError] = useState(null);
+  const handleScan = (results) => {
+    if (scanned) return;
+    if (results && results.length > 0 && results[0].rawValue) {
+      setScanned(true);
+      setTimeout(() => {
+        onScan(results[0].rawValue);
+      }, 500);
+    }
+  };
+  const handleError = (err) => {
+    console.error("Scanner error:", err);
+    if (err instanceof Error) {
+      if (err.message.includes("Permission") || err.message.includes("permission") || err.message.includes("NotAllowed")) {
+        setError("Permissao de camera negada. Verifique as configuracoes do navegador.");
+      } else if (err.message.includes("NotFound") || err.message.includes("DevicesNotFound")) {
+        setError("Nenhuma camera encontrada neste dispositivo.");
+      } else {
+        setError("Nao foi possivel iniciar a camera.");
+      }
+    }
+  };
+  return /* @__PURE__ */ jsxDEV("div", { className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm", children: /* @__PURE__ */ jsxDEV("div", { className: "bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden", children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "flex items-center justify-between px-6 py-4 border-b border-slate-100", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center", children: /* @__PURE__ */ jsxDEV("span", { className: "material-symbols-rounded text-blue-600", style: { fontSize: 20 }, children: "qr_code_scanner" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 56,
+          columnNumber: 15
+        }, this) }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 55,
+          columnNumber: 13
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { children: [
+          /* @__PURE__ */ jsxDEV("h3", { className: "text-base font-black text-slate-900", children: title }, void 0, false, {
+            fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+            lineNumber: 59,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV("p", { style: { fontSize: 10 }, className: "text-slate-400 font-medium uppercase tracking-widest", children: "QR Code · Codigo de Barras" }, void 0, false, {
+            fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+            lineNumber: 60,
+            columnNumber: 15
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 58,
+          columnNumber: 13
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 54,
+        columnNumber: 11
+      }, this),
+      /* @__PURE__ */ jsxDEV(
+        "button",
+        {
+          onClick: onClose,
+          className: "w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-500 transition-colors",
+          children: /* @__PURE__ */ jsxDEV("span", { className: "material-symbols-rounded", style: { fontSize: 20 }, children: "close" }, void 0, false, {
+            fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+            lineNumber: 69,
+            columnNumber: 13
+          }, this)
+        },
+        void 0,
+        false,
+        {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 65,
+          columnNumber: 11
+        },
+        this
+      )
+    ] }, void 0, true, {
+      fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+      lineNumber: 53,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "relative mx-4 mt-4 rounded-2xl overflow-hidden bg-slate-950", style: { height: 300 }, children: [
+      !error && !scanned && /* @__PURE__ */ jsxDEV(
+        Scanner,
+        {
+          onScan: handleScan,
+          onError: handleError,
+          constraints: { facingMode: "environment" },
+          styles: {
+            container: { width: "100%", height: "100%", position: "relative" },
+            video: { width: "100%", height: "100%", objectFit: "cover" }
+          },
+          components: {
+            audio: false,
+            torch: false
+          }
+        },
+        void 0,
+        false,
+        {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 76,
+          columnNumber: 11
+        },
+        this
+      ),
+      !error && !scanned && /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute top-5 left-5 w-8 h-8 border-t-4 border-l-4 border-blue-400 rounded-tl-lg" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 94,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute top-5 right-5 w-8 h-8 border-t-4 border-r-4 border-blue-400 rounded-tr-lg" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 95,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-5 left-5 w-8 h-8 border-b-4 border-l-4 border-blue-400 rounded-bl-lg" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 96,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-5 right-5 w-8 h-8 border-b-4 border-r-4 border-blue-400 rounded-br-lg" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 97,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("style", { children: `
+                @keyframes scanLine {
+                  0% { top: 20px; }
+                  50% { top: calc(100% - 28px); }
+                  100% { top: 20px; }
+                }
+                .scan-anim {
+                  position: absolute;
+                  left: 20px;
+                  right: 20px;
+                  height: 2px;
+                  background: linear-gradient(to right, transparent, #3b82f6, transparent);
+                  animation: scanLine 2s ease-in-out infinite;
+                }
+              ` }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 98,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "scan-anim" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 113,
+          columnNumber: 15
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 93,
+        columnNumber: 11
+      }, this),
+      scanned && /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 flex items-center justify-center bg-slate-900/90", children: /* @__PURE__ */ jsxDEV("div", { className: "text-center text-white", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3", children: /* @__PURE__ */ jsxDEV("span", { className: "material-symbols-rounded", style: { fontSize: 36 }, children: "check" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 122,
+          columnNumber: 19
+        }, this) }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 121,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("p", { className: "font-black text-sm", children: "Codigo lido com sucesso!" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 124,
+          columnNumber: 17
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 120,
+        columnNumber: 15
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 119,
+        columnNumber: 11
+      }, this),
+      error && /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 flex items-center justify-center bg-slate-900 p-6", children: /* @__PURE__ */ jsxDEV("div", { className: "text-center text-white", children: [
+        /* @__PURE__ */ jsxDEV("span", { className: "material-symbols-rounded text-red-400 block mb-3", style: { fontSize: 48 }, children: "videocam_off" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 133,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("p", { className: "text-sm font-bold text-red-300 mb-2", children: "Camera indisponivel" }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 134,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("p", { style: { fontSize: 11 }, className: "text-slate-400", children: error }, void 0, false, {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 135,
+          columnNumber: 17
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 132,
+        columnNumber: 15
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 131,
+        columnNumber: 11
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+      lineNumber: 74,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "px-6 py-5", children: [
+      /* @__PURE__ */ jsxDEV("p", { className: "text-center text-slate-400 font-medium mb-4", style: { fontSize: 12 }, children: scanned ? "Preenchendo o campo automaticamente..." : error ? "Verifique as permissoes de camera no navegador." : "Aponte a camera para o QR Code ou Codigo de Barras." }, void 0, false, {
+        fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+        lineNumber: 143,
+        columnNumber: 11
+      }, this),
+      /* @__PURE__ */ jsxDEV(
+        "button",
+        {
+          onClick: onClose,
+          className: "w-full py-3.5 bg-slate-100 text-slate-700 rounded-2xl font-black text-sm hover:bg-slate-200 transition-all active:scale-95",
+          children: "Cancelar"
+        },
+        void 0,
+        false,
+        {
+          fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+          lineNumber: 150,
+          columnNumber: 11
+        },
+        this
+      )
+    ] }, void 0, true, {
+      fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+      lineNumber: 142,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+    lineNumber: 50,
+    columnNumber: 7
+  }, this) }, void 0, false, {
+    fileName: "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx",
+    lineNumber: 49,
+    columnNumber: 5
+  }, this);
+};
+_s(BarcodeScanner, "uvDOil5x38cFOWdmm+Cq1w7Xr3g=");
+_c = BarcodeScanner;
+var _c;
+$RefreshReg$(_c, "BarcodeScanner");
+import * as RefreshRuntime from "/APP-inspe-o/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Usuário/Desktop/APP Inspeção/components/BarcodeScanner.tsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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NkdBO0FBRUo7QUFBRUUsR0F0SldKLGdCQUE2QztBQUFBLEtBQTdDQTtBQUE2QyxJQUFBOEI7QUFBQSxhQUFBQSxJQUFBIiwibmFtZXMiOlsidXNlU3RhdGUiLCJTY2FubmVyIiwiQmFyY29kZVNjYW5uZXIiLCJvblNjYW4iLCJvbkNsb3NlIiwidGl0bGUiLCJfcyIsInNjYW5uZWQiLCJzZXRTY2FubmVkIiwiZXJyb3IiLCJzZXRFcnJvciIsImhhbmRsZVNjYW4iLCJyZXN1bHRzIiwibGVuZ3RoIiwicmF3VmFsdWUiLCJzZXRUaW1lb3V0IiwiaGFuZGxlRXJyb3IiLCJlcnIiLCJjb25zb2xlIiwiRXJyb3IiLCJtZXNzYWdlIiwiaW5jbHVkZXMiLCJmb250U2l6ZSIsImhlaWdodCIsImZhY2luZ01vZGUiLCJjb250YWluZXIiLCJ3aWR0aCIsInBvc2l0aW9uIiwidmlkZW8iLCJvYmplY3RGaXQiLCJhdWRpbyIsInRvcmNoIiwiX2MiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiQmFyY29kZVNjYW5uZXIudHN4Il0sInNvdXJjZXNDb250ZW50IjpbIu+7v2ltcG9ydCBSZWFjdCwgeyB1c2VTdGF0ZSB9IGZyb20gXCJyZWFjdFwiO1xuaW1wb3J0IHsgU2Nhbm5lciB9IGZyb20gXCJAeXVkaWVsL3JlYWN0LXFyLXNjYW5uZXJcIjtcblxuaW50ZXJmYWNlIEJhcmNvZGVTY2FubmVyUHJvcHMge1xuICBvblNjYW46IChjb2RlOiBzdHJpbmcpID0+IHZvaWQ7XG4gIG9uQ2xvc2U6ICgpID0+IHZvaWQ7XG4gIHRpdGxlPzogc3RyaW5nO1xufVxuXG5leHBvcnQgY29uc3QgQmFyY29kZVNjYW5uZXI6IFJlYWN0LkZDPEJhcmNvZGVTY2FubmVyUHJvcHM+ID0gKHtcbiAgb25TY2FuLFxuICBvbkNsb3NlLFxuICB0aXRsZSA9IFwiRXNjYW5lYXIgQ29kaWdvXCIsXG59KSA9PiB7XG4gIGNvbnN0IFtzY2FubmVkLCBzZXRTY2FubmVkXSA9IHVzZVN0YXRlKGZhbHNlKTtcbiAgY29uc3QgW2Vycm9yLCBzZXRFcnJvcl0gPSB1c2VTdGF0ZTxzdHJpbmcgfCBudWxsPihudWxsKTtcblxuICBjb25zdCBoYW5kbGVTY2FuID0gKHJlc3VsdHM6IHsgcmF3VmFsdWU6IHN0cmluZyB9W10pID0+IHtcbiAgICBpZiAoc2Nhbm5lZCkgcmV0dXJuO1xuICAgIGlmIChyZXN1bHRzICYmIHJlc3VsdHMubGVuZ3RoID4gMCAmJiByZXN1bHRzWzBdLnJhd1ZhbHVlKSB7XG4gICAgICBzZXRTY2FubmVkKHRydWUpO1xuICAgICAgc2V0VGltZW91dCgoKSA9PiB7XG4gICAgICAgIG9uU2NhbihyZXN1bHRzWzBdLnJhd1ZhbHVlKTtcbiAgICAgIH0sIDUwMCk7XG4gICAgfVxuICB9O1xuXG4gIGNvbnN0IGhhbmRsZUVycm9yID0gKGVycjogdW5rbm93bikgPT4ge1xuICAgIGNvbnNvbGUuZXJyb3IoXCJTY2FubmVyIGVycm9yOlwiLCBlcnIpO1xuICAgIGlmIChlcnIgaW5zdGFuY2VvZiBFcnJvcikge1xuICAgICAgaWYgKFxuICAgICAgICBlcnIubWVzc2FnZS5pbmNsdWRlcyhcIlBlcm1pc3Npb25cIikgfHxcbiAgICAgICAgZXJyLm1lc3NhZ2UuaW5jbHVkZXMoXCJwZXJtaXNzaW9uXCIpIHx8XG4gICAgICAgIGVyci5tZXNzYWdlLmluY2x1ZGVzKFwiTm90QWxsb3dlZFwiKVxuICAgICAgKSB7XG4gICAgICAgIHNldEVycm9yKFwiUGVybWlzc2FvIGRlIGNhbWVyYSBuZWdhZGEuIFZlcmlmaXF1ZSBhcyBjb25maWd1cmFjb2VzIGRvIG5hdmVnYWRvci5cIik7XG4gICAgICB9IGVsc2UgaWYgKFxuICAgICAgICBlcnIubWVzc2FnZS5pbmNsdWRlcyhcIk5vdEZvdW5kXCIpIHx8XG4gICAgICAgIGVyci5tZXNzYWdlLmluY2x1ZGVzKFwiRGV2aWNlc05vdEZvdW5kXCIpXG4gICAgICApIHtcbiAgICAgICAgc2V0RXJyb3IoXCJOZW5odW1hIGNhbWVyYSBlbmNvbnRyYWRhIG5lc3RlIGRpc3Bvc2l0aXZvLlwiKTtcbiAgICAgIH0gZWxzZSB7XG4gICAgICAgIHNldEVycm9yKFwiTmFvIGZvaSBwb3NzaXZlbCBpbmljaWFyIGEgY2FtZXJhLlwiKTtcbiAgICAgIH1cbiAgICB9XG4gIH07XG5cbiAgcmV0dXJuIChcbiAgICA8ZGl2IGNsYXNzTmFtZT1cImZpeGVkIGluc2V0LTAgei01MCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBwLTQgYmctc2xhdGUtOTAwLzgwIGJhY2tkcm9wLWJsdXItc21cIj5cbiAgICAgIDxkaXYgY2xhc3NOYW1lPVwiYmctd2hpdGUgdy1mdWxsIG1heC13LW1kIHJvdW5kZWQtM3hsIHNoYWRvdy0yeGwgb3ZlcmZsb3ctaGlkZGVuXCI+XG5cbiAgICAgICAgey8qIEhlYWRlciAqL31cbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWJldHdlZW4gcHgtNiBweS00IGJvcmRlci1iIGJvcmRlci1zbGF0ZS0xMDBcIj5cbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0zXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMTAgaC0xMCByb3VuZGVkLTJ4bCBiZy1ibHVlLTUwIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyXCI+XG4gICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cIm1hdGVyaWFsLXN5bWJvbHMtcm91bmRlZCB0ZXh0LWJsdWUtNjAwXCIgc3R5bGU9e3sgZm9udFNpemU6IDIwIH19PnFyX2NvZGVfc2Nhbm5lcjwvc3Bhbj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdj5cbiAgICAgICAgICAgICAgPGgzIGNsYXNzTmFtZT1cInRleHQtYmFzZSBmb250LWJsYWNrIHRleHQtc2xhdGUtOTAwXCI+e3RpdGxlfTwvaDM+XG4gICAgICAgICAgICAgIDxwIHN0eWxlPXt7IGZvbnRTaXplOiAxMCB9fSBjbGFzc05hbWU9XCJ0ZXh0LXNsYXRlLTQwMCBmb250LW1lZGl1bSB1cHBlcmNhc2UgdHJhY2tpbmctd2lkZXN0XCI+XG4gICAgICAgICAgICAgICAgUVIgQ29kZSDCtyBDb2RpZ28gZGUgQmFycmFzXG4gICAgICAgICAgICAgIDwvcD5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgIDxidXR0b25cbiAgICAgICAgICAgIG9uQ2xpY2s9e29uQ2xvc2V9XG4gICAgICAgICAgICBjbGFzc05hbWU9XCJ3LTkgaC05IGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHJvdW5kZWQteGwgaG92ZXI6Ymctc2xhdGUtMTAwIHRleHQtc2xhdGUtNTAwIHRyYW5zaXRpb24tY29sb3JzXCJcbiAgICAgICAgICA+XG4gICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJtYXRlcmlhbC1zeW1ib2xzLXJvdW5kZWRcIiBzdHlsZT17eyBmb250U2l6ZTogMjAgfX0+Y2xvc2U8L3NwYW4+XG4gICAgICAgICAgPC9idXR0b24+XG4gICAgICAgIDwvZGl2PlxuXG4gICAgICAgIHsvKiBDYW1lcmEgdmlld3BvcnQgKi99XG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwicmVsYXRpdmUgbXgtNCBtdC00IHJvdW5kZWQtMnhsIG92ZXJmbG93LWhpZGRlbiBiZy1zbGF0ZS05NTBcIiBzdHlsZT17eyBoZWlnaHQ6IDMwMCB9fT5cbiAgICAgICAgICB7IWVycm9yICYmICFzY2FubmVkICYmIChcbiAgICAgICAgICAgIDxTY2FubmVyXG4gICAgICAgICAgICAgIG9uU2Nhbj17aGFuZGxlU2Nhbn1cbiAgICAgICAgICAgICAgb25FcnJvcj17aGFuZGxlRXJyb3J9XG4gICAgICAgICAgICAgIGNvbnN0cmFpbnRzPXt7IGZhY2luZ01vZGU6IFwiZW52aXJvbm1lbnRcIiB9fVxuICAgICAgICAgICAgICBzdHlsZXM9e3tcbiAgICAgICAgICAgICAgICBjb250YWluZXI6IHsgd2lkdGg6IFwiMTAwJVwiLCBoZWlnaHQ6IFwiMTAwJVwiLCBwb3NpdGlvbjogXCJyZWxhdGl2ZVwiIH0sXG4gICAgICAgICAgICAgICAgdmlkZW86IHsgd2lkdGg6IFwiMTAwJVwiLCBoZWlnaHQ6IFwiMTAwJVwiLCBvYmplY3RGaXQ6IFwiY292ZXJcIiB9LFxuICAgICAgICAgICAgICB9fVxuICAgICAgICAgICAgICBjb21wb25lbnRzPXt7XG4gICAgICAgICAgICAgICAgYXVkaW86IGZhbHNlLFxuICAgICAgICAgICAgICAgIHRvcmNoOiBmYWxzZSxcbiAgICAgICAgICAgICAgfX1cbiAgICAgICAgICAgIC8+XG4gICAgICAgICAgKX1cblxuICAgICAgICAgIHsvKiBTY2FuIG92ZXJsYXkgZ3VpZGVzICovfVxuICAgICAgICAgIHshZXJyb3IgJiYgIXNjYW5uZWQgJiYgKFxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJhYnNvbHV0ZSBpbnNldC0wIHBvaW50ZXItZXZlbnRzLW5vbmVcIj5cbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJhYnNvbHV0ZSB0b3AtNSBsZWZ0LTUgdy04IGgtOCBib3JkZXItdC00IGJvcmRlci1sLTQgYm9yZGVyLWJsdWUtNDAwIHJvdW5kZWQtdGwtbGdcIiAvPlxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFic29sdXRlIHRvcC01IHJpZ2h0LTUgdy04IGgtOCBib3JkZXItdC00IGJvcmRlci1yLTQgYm9yZGVyLWJsdWUtNDAwIHJvdW5kZWQtdHItbGdcIiAvPlxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFic29sdXRlIGJvdHRvbS01IGxlZnQtNSB3LTggaC04IGJvcmRlci1iLTQgYm9yZGVyLWwtNCBib3JkZXItYmx1ZS00MDAgcm91bmRlZC1ibC1sZ1wiIC8+XG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiYWJzb2x1dGUgYm90dG9tLTUgcmlnaHQtNSB3LTggaC04IGJvcmRlci1iLTQgYm9yZGVyLXItNCBib3JkZXItYmx1ZS00MDAgcm91bmRlZC1ici1sZ1wiIC8+XG4gICAgICAgICAgICAgIDxzdHlsZT57YFxuICAgICAgICAgICAgICAgIEBrZXlmcmFtZXMgc2NhbkxpbmUge1xuICAgICAgICAgICAgICAgICAgMCUgeyB0b3A6IDIwcHg7IH1cbiAgICAgICAgICAgICAgICAgIDUwJSB7IHRvcDogY2FsYygxMDAlIC0gMjhweCk7IH1cbiAgICAgICAgICAgICAgICAgIDEwMCUgeyB0b3A6IDIwcHg7IH1cbiAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgLnNjYW4tYW5pbSB7XG4gICAgICAgICAgICAgICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICAgICAgICAgICAgICBsZWZ0OiAyMHB4O1xuICAgICAgICAgICAgICAgICAgcmlnaHQ6IDIwcHg7XG4gICAgICAgICAgICAgICAgICBoZWlnaHQ6IDJweDtcbiAgICAgICAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCh0byByaWdodCwgdHJhbnNwYXJlbnQsICMzYjgyZjYsIHRyYW5zcGFyZW50KTtcbiAgICAgICAgICAgICAgICAgIGFuaW1hdGlvbjogc2NhbkxpbmUgMnMgZWFzZS1pbi1vdXQgaW5maW5pdGU7XG4gICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICBgfTwvc3R5bGU+XG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic2Nhbi1hbmltXCIgLz5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICl9XG5cbiAgICAgICAgICB7LyogU3VjY2VzcyAqL31cbiAgICAgICAgICB7c2Nhbm5lZCAmJiAoXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFic29sdXRlIGluc2V0LTAgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgYmctc2xhdGUtOTAwLzkwXCI+XG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXIgdGV4dC13aGl0ZVwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidy0xNiBoLTE2IGJnLWVtZXJhbGQtNTAwIHJvdW5kZWQtZnVsbCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBteC1hdXRvIG1iLTNcIj5cbiAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cIm1hdGVyaWFsLXN5bWJvbHMtcm91bmRlZFwiIHN0eWxlPXt7IGZvbnRTaXplOiAzNiB9fT5jaGVjazwvc3Bhbj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJmb250LWJsYWNrIHRleHQtc21cIj5Db2RpZ28gbGlkbyBjb20gc3VjZXNzbyE8L3A+XG4gICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgKX1cblxuICAgICAgICAgIHsvKiBFcnJvciAqL31cbiAgICAgICAgICB7ZXJyb3IgJiYgKFxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJhYnNvbHV0ZSBpbnNldC0wIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIGJnLXNsYXRlLTkwMCBwLTZcIj5cbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LWNlbnRlciB0ZXh0LXdoaXRlXCI+XG4gICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwibWF0ZXJpYWwtc3ltYm9scy1yb3VuZGVkIHRleHQtcmVkLTQwMCBibG9jayBtYi0zXCIgc3R5bGU9e3sgZm9udFNpemU6IDQ4IH19PnZpZGVvY2FtX29mZjwvc3Bhbj5cbiAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIGZvbnQtYm9sZCB0ZXh0LXJlZC0zMDAgbWItMlwiPkNhbWVyYSBpbmRpc3Bvbml2ZWw8L3A+XG4gICAgICAgICAgICAgICAgPHAgc3R5bGU9e3sgZm9udFNpemU6IDExIH19IGNsYXNzTmFtZT1cInRleHQtc2xhdGUtNDAwXCI+e2Vycm9yfTwvcD5cbiAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICApfVxuICAgICAgICA8L2Rpdj5cblxuICAgICAgICB7LyogRm9vdGVyICovfVxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInB4LTYgcHktNVwiPlxuICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtY2VudGVyIHRleHQtc2xhdGUtNDAwIGZvbnQtbWVkaXVtIG1iLTRcIiBzdHlsZT17eyBmb250U2l6ZTogMTIgfX0+XG4gICAgICAgICAgICB7c2Nhbm5lZFxuICAgICAgICAgICAgICA/IFwiUHJlZW5jaGVuZG8gbyBjYW1wbyBhdXRvbWF0aWNhbWVudGUuLi5cIlxuICAgICAgICAgICAgICA6IGVycm9yXG4gICAgICAgICAgICAgID8gXCJWZXJpZmlxdWUgYXMgcGVybWlzc29lcyBkZSBjYW1lcmEgbm8gbmF2ZWdhZG9yLlwiXG4gICAgICAgICAgICAgIDogXCJBcG9udGUgYSBjYW1lcmEgcGFyYSBvIFFSIENvZGUgb3UgQ29kaWdvIGRlIEJhcnJhcy5cIn1cbiAgICAgICAgICA8L3A+XG4gICAgICAgICAgPGJ1dHRvblxuICAgICAgICAgICAgb25DbGljaz17b25DbG9zZX1cbiAgICAgICAgICAgIGNsYXNzTmFtZT1cInctZnVsbCBweS0zLjUgYmctc2xhdGUtMTAwIHRleHQtc2xhdGUtNzAwIHJvdW5kZWQtMnhsIGZvbnQtYmxhY2sgdGV4dC1zbSBob3ZlcjpiZy1zbGF0ZS0yMDAgdHJhbnNpdGlvbi1hbGwgYWN0aXZlOnNjYWxlLTk1XCJcbiAgICAgICAgICA+XG4gICAgICAgICAgICBDYW5jZWxhclxuICAgICAgICAgIDwvYnV0dG9uPlxuICAgICAgICA8L2Rpdj5cbiAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuICApO1xufTtcclxuIl0sImZpbGUiOiJDOi9Vc2Vycy9Vc3XDoXJpby9EZXNrdG9wL0FQUCBJbnNwZcOnw6NvL2NvbXBvbmVudHMvQmFyY29kZVNjYW5uZXIudHN4In0=
