@@ -235,6 +235,9 @@ export default function App() {
 
   // Fecha a sidebar ao mudar de view no mobile
   const navigate = (view: View) => {
+    if (view === View.INSPECTION_FORM) {
+      setEditingInspection(null);
+    }
     setCurrentView(view);
     setIsSidebarOpen(false);
   };

@@ -22,8 +22,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
   const defaultInspetor = initialData?.inspetor || (userProfile?.name || '');
 
   const [formData, setFormData] = useState<Partial<Inspection>>({
-    data: initialData?.data || new Date().toLocaleDateString('sv-SE'),
-    dataChegada: initialData?.dataChegada || new Date().toLocaleDateString('sv-SE'),
+    data: initialData?.data || new Date().toISOString().split('T')[0],
+    dataChegada: initialData?.dataChegada || new Date().toISOString().split('T')[0],
     inspetor: defaultInspetor,
     material: initialData?.material || '',
     descricao: initialData?.descricao || '',

@@ -381,50 +381,33 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
             )}
 
             {/* ── Tabs Container ── */}
-            <div
-                className="rounded-2xl overflow-hidden"
-                style={{
-                    background: 'rgba(13,20,33,0.6)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    backdropFilter: 'blur(16px)',
-                }}
-            >
+            <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm glass">
                 {/* Tab Buttons */}
-                <div
-                    className="flex"
-                    style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                >
+                <div className="flex border-b border-slate-100">
                     {tabs.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
                             <button
                                 key={tab.id}
                                 onClick={() => { setActiveTab(tab.id as TabType); setSearchTerm(''); }}
-                                className="flex-1 flex items-center justify-center gap-2.5 py-4 px-4 text-xs font-bold transition-all relative cursor-pointer"
-                                style={{
-                                    color: isActive ? '#60a5fa' : '#64748b',
-                                    background: isActive ? 'rgba(59,130,246,0.07)' : 'transparent',
-                                    borderBottom: isActive ? '2px solid rgba(59,130,246,0.6)' : '2px solid transparent',
-                                }}
+                                className={`flex-1 flex items-center justify-center gap-2.5 py-4 px-4 text-xs font-bold transition-all relative cursor-pointer border-b-2 ${
+                                    isActive
+                                        ? 'bg-blue-500/10 text-blue-600 border-blue-600'
+                                        : 'text-slate-500 hover:text-slate-800 border-transparent hover:bg-slate-50'
+                                }`}
                             >
                                 <span
-                                    className="material-symbols-rounded"
-                                    style={{
-                                        fontSize: '18px',
-                                        fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
-                                        color: isActive ? '#60a5fa' : '#475569',
-                                    }}
+                                    className={`material-symbols-rounded text-lg ${isActive ? 'text-blue-600 fill-icon' : 'text-slate-400'}`}
                                 >
                                     {tab.icon}
                                 </span>
                                 <span className="hidden sm:inline tracking-tight">{tab.label}</span>
                                 <span
-                                    className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded"
-                                    style={{
-                                        color: isActive ? '#60a5fa' : '#475569',
-                                        background: isActive ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.05)',
-                                        border: `1px solid ${isActive ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                                    }}
+                                    className={`font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                                        isActive
+                                            ? 'bg-blue-500/20 text-blue-600 border-blue-500/30'
+                                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                                    }`}
                                 >
                                     {tab.count}
                                 </span>
@@ -434,13 +417,10 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                 </div>
 
                 {/* ── Search and Add ── */}
-                <div
-                    className="p-4 flex flex-col sm:flex-row gap-3"
-                    style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-                >
+                <div className="p-4 flex flex-col sm:flex-row gap-3 border-b border-slate-100">
                     <div className="relative flex-1">
                         <span
-                            className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                            className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                             style={{ fontSize: '18px' }}
                         >search</span>
                         <input
@@ -448,12 +428,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={`Buscar ${activeTab}...`}
-                            className="w-full pl-10 pr-4 h-10 rounded-xl text-xs font-medium"
-                            style={{
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.08)',
-                                color: '#f1f5f9',
-                            }}
+                            className="w-full pl-10 pr-4 h-10 rounded-xl text-xs font-medium bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-blue-500"
                         />
                     </div>
                     {!isClient && (
