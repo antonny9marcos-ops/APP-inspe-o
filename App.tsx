@@ -32,6 +32,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>('TODOS');
+  const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
 
   // Estado do Tema (Default: 'light' conforme solicitado pelo usuário)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
