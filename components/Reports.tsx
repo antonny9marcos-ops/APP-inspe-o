@@ -376,29 +376,29 @@ export const Reports: React.FC<ReportsProps> = ({
         const statusBg = isApproved ? 'rgba(16, 185, 129, 0.12)' : isRejected ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)';
         const statusBorder = isApproved ? 'rgba(16, 185, 129, 0.25)' : isRejected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)';
         const miniStat = (label: string, value: React.ReactNode) => (
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col items-center text-center">
-            <span className="text-slate-500 text-[10px] block uppercase font-mono tracking-widest mb-1">{label}</span>
-            <span className="text-sm font-bold text-white block truncate w-full">{value}</span>
+          <div className="px-3 py-2 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between gap-2 min-w-0">
+            <span className="text-slate-500 text-[9px] uppercase font-mono tracking-widest flex-shrink-0">{label}</span>
+            <span className="text-xs font-bold text-white truncate text-right">{value}</span>
           </div>
         );
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
           <div
-            className="w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl flex flex-col relative"
+            className="w-full max-w-4xl max-h-[88vh] overflow-hidden rounded-3xl flex flex-col relative"
             style={{
-              background: '#090B12',
+              background: 'rgba(10, 12, 18, 0.85)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               boxShadow: '0 30px 80px rgba(0, 0, 0, 0.9)'
             }}
           >
             {/* Modal Header */}
-            <div className="p-6 border-b border-white/[0.08] flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4 min-w-0">
+            <div className="p-4 sm:p-5 border-b border-white/[0.08] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ background: statusBg, border: `1px solid ${statusBorder}` }}
                 >
-                  <span className="material-symbols-rounded !text-2xl" style={{ color: statusColor }}>
+                  <span className="material-symbols-rounded !text-xl" style={{ color: statusColor }}>
                     {isApproved ? 'check_circle' : isRejected ? 'cancel' : 'schedule'}
                   </span>
                 </div>
@@ -408,25 +408,22 @@ export const Reports: React.FC<ReportsProps> = ({
                       [ DETALHES // INSPEÇÃO #{viewingInspection.id} ]
                     </span>
                     <span
-                      className="px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider"
+                      className="px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider"
                       style={{ background: statusBg, border: `1px solid ${statusBorder}`, color: statusColor }}
                     >
                       {viewingInspection.status}
                     </span>
                   </div>
-                  <h2 className="text-xl font-bold text-white mt-1 truncate" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  <h2 className="text-base font-bold text-white mt-0.5 truncate" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     {viewingInspection.descricao || viewingInspection.material}
                   </h2>
-                  {viewingInspection.realId && (
-                    <p className="text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-wider font-mono truncate">ID: {viewingInspection.realId}</p>
-                  )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={() => onEdit(viewingInspection)}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <span className="material-symbols-rounded text-base">edit</span>
                   <span className="hidden sm:inline">EDITAR DADOS</span>
@@ -443,23 +440,23 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar text-xs">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar text-xs">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5">
                 {/* Main Info Column */}
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-center">
-                      <span className="text-slate-500 text-[10px] block uppercase font-mono tracking-widest mb-1">Material e Código</span>
-                      <p className="text-base font-bold text-white">{viewingInspection.descricao || 'N/A'}</p>
-                      <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase font-mono">Cód: {viewingInspection.material}</p>
+                <div className="lg:col-span-2 space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <span className="text-slate-500 text-[9px] block uppercase font-mono tracking-widest">Material e Código</span>
+                      <p className="text-sm font-bold text-white truncate">{viewingInspection.descricao || 'N/A'}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase font-mono">Cód: {viewingInspection.material}</p>
                     </div>
-                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-center">
-                      <span className="text-slate-500 text-[10px] block uppercase font-mono tracking-widest mb-1">Fornecedor</span>
-                      <p className="text-base font-bold text-white">{viewingInspection.fornecedor}</p>
+                    <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <span className="text-slate-500 text-[9px] block uppercase font-mono tracking-widest">Fornecedor</span>
+                      <p className="text-sm font-bold text-white truncate">{viewingInspection.fornecedor}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 font-mono">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 font-mono">
                     {miniStat('Setor', viewingInspection.setor || '---')}
                     {miniStat('DT. Chegada', viewingInspection.dataChegada ? new Date(viewingInspection.dataChegada + 'T00:00:00').toLocaleDateString('pt-BR') : '---')}
                     {miniStat('DT. Insp.', new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString('pt-BR'))}
@@ -468,62 +465,62 @@ export const Reports: React.FC<ReportsProps> = ({
                     {miniStat('Inspetor', viewingInspection.inspetor || '---')}
                   </div>
 
-                  <div className="space-y-3">
-                    <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">[ QUANTIDADES E MÉTRICAS ]</span>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-center">
-                        <p className="text-2xl font-black text-white">{viewingInspection.qtdInspecionada || 0}</p>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase mt-1 font-mono">Inspecionada</p>
+                  <div className="space-y-1.5">
+                    <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest">[ QUANTIDADES E MÉTRICAS ]</span>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-center">
+                        <p className="text-lg font-black text-white leading-tight">{viewingInspection.qtdInspecionada || 0}</p>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase font-mono">Inspecionada</p>
                       </div>
                       <div
-                        className="p-5 rounded-2xl text-center"
+                        className="p-3 rounded-xl text-center"
                         style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
                       >
-                        <p className="text-2xl font-black" style={{ color: '#34d399' }}>{viewingInspection.qtdAprovada || 0}</p>
-                        <p className="text-[10px] font-bold uppercase mt-1 font-mono" style={{ color: '#34d399' }}>Aprovada</p>
+                        <p className="text-lg font-black leading-tight" style={{ color: '#34d399' }}>{viewingInspection.qtdAprovada || 0}</p>
+                        <p className="text-[9px] font-bold uppercase font-mono" style={{ color: '#34d399' }}>Aprovada</p>
                       </div>
                       <div
-                        className="p-5 rounded-2xl text-center"
+                        className="p-3 rounded-xl text-center"
                         style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
                       >
-                        <p className="text-2xl font-black" style={{ color: '#f87171' }}>{viewingInspection.qtdRejeitada || 0}</p>
-                        <p className="text-[10px] font-bold uppercase mt-1 font-mono" style={{ color: '#f87171' }}>Rejeitada</p>
+                        <p className="text-lg font-black leading-tight" style={{ color: '#f87171' }}>{viewingInspection.qtdRejeitada || 0}</p>
+                        <p className="text-[9px] font-bold uppercase font-mono" style={{ color: '#f87171' }}>Rejeitada</p>
                       </div>
                     </div>
                   </div>
 
                   {isRejected && (
                     <div
-                      className="p-5 rounded-2xl text-center"
+                      className="px-3.5 py-2.5 rounded-xl"
                       style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)' }}
                     >
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="material-symbols-rounded !text-lg" style={{ color: '#f87171' }}>warning</span>
-                        <h4 className="font-mono text-[10px] uppercase tracking-widest" style={{ color: '#f87171' }}>Motivo da Rejeição</h4>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="material-symbols-rounded !text-sm" style={{ color: '#f87171' }}>warning</span>
+                        <h4 className="font-mono text-[9px] uppercase tracking-widest" style={{ color: '#f87171' }}>Motivo da Rejeição</h4>
                       </div>
-                      <p className="text-sm font-bold text-white">{viewingInspection.motivoRejeicao || 'Não especificado'}</p>
+                      <p className="text-xs font-bold text-white">{viewingInspection.motivoRejeicao || 'Não especificado'}</p>
                     </div>
                   )}
 
-                  <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-2">
-                    <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">[ OBSERVAÇÕES TÉCNICAS ]</span>
-                    <p className="text-slate-300 text-xs leading-relaxed italic">
+                  <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+                    <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest">[ OBSERVAÇÕES TÉCNICAS ]</span>
+                    <p className="text-slate-300 text-xs leading-snug italic">
                       "{viewingInspection.observacoes || 'Nenhuma observação registrada.'}"
                     </p>
                   </div>
                 </div>
 
                 {/* Gallery Column */}
-                <div className="space-y-3">
-                  <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                <div className="space-y-2">
+                  <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                     <span className="material-symbols-rounded !text-sm">image</span> Evidências Visuais
                   </span>
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 gap-2">
                     {viewingInspection.evidencias && viewingInspection.evidencias.length > 0 ? viewingInspection.evidencias.map((url, i) => (
                       <div
                         key={i}
                         onClick={() => setSelectedImage(url)}
-                        className="group relative aspect-video bg-white/[0.02] rounded-2xl overflow-hidden border border-white/[0.06] hover:border-blue-500/40 transition-all cursor-zoom-in"
+                        className="group relative aspect-video bg-white/[0.02] rounded-xl overflow-hidden border border-white/[0.06] hover:border-blue-500/40 transition-all cursor-zoom-in"
                       >
                         <img src={url} alt={`Evidência ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -531,9 +528,9 @@ export const Reports: React.FC<ReportsProps> = ({
                         </div>
                       </div>
                     )) : (
-                      <div className="aspect-video rounded-2xl flex flex-col items-center justify-center border border-dashed border-white/[0.1] bg-white/[0.01]">
-                        <span className="material-symbols-rounded text-slate-600 !text-4xl mb-2">photo_camera</span>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Sem evidências fotográficas</p>
+                      <div className="aspect-video rounded-xl flex flex-col items-center justify-center border border-dashed border-white/[0.1] bg-white/[0.01]">
+                        <span className="material-symbols-rounded text-slate-600 !text-3xl mb-1.5">photo_camera</span>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono px-2 text-center">Sem evidências fotográficas</p>
                       </div>
                     )}
                   </div>
@@ -542,7 +539,7 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-white/[0.08] flex items-center justify-between font-mono text-[10px] text-slate-500">
+            <div className="p-3 border-t border-white/[0.08] flex items-center justify-between font-mono text-[10px] text-slate-500">
               <span>REGISTRO SINCRONIZADO</span>
               <span>DATA: {new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
             </div>
