@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, Cell } from 'recharts';
+import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart } from 'recharts';
 import { Inspection } from '../types';
 import { SectorSwitcher } from './SectorSwitcher';
 
@@ -286,8 +286,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
     ];
 
     const barData = [
-      { name: 'Inspecionados', valor: totalInspectedQty, color: '#3b82f6' },
-      { name: 'Rejeitados', valor: filtered.reduce((acc, i) => acc + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0), color: '#ef4444' }
+      {
+        name: 'Total',
+        inspecionados: totalInspectedQty,
+        rejeitados: filtered.reduce((acc, i) => acc + (i.unidade === 'M' ? (i.status === 'Rejeitado' ? 1 : 0) : (i.qtdRejeitada || 0)), 0)
+      }
     ];
 
     // Rejection reasons map
@@ -531,22 +534,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 Total Inspecionado vs Total Rejeitado
               </h3>
             </div>
+            <div className="flex items-center gap-3 font-mono text-[10px]">
+              <span className="text-blue-400">■ Inspecionados</span>
+              <span className="text-red-400">■ Rejeitados</span>
+            </div>
           </div>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={metricsAndData.barData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
                 />
                 <Tooltip
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
@@ -559,11 +566,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     fontSize: '11px'
                   }}
                 />
-                <Bar name="Qtd" dataKey="valor" radius={[6, 6, 0, 0]} barSize={isMobile ? 32 : 54}>
-                  {metricsAndData.barData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
+                <Bar dataKey="inspecionados" name="Inspecionados" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={isMobile ? 32 : 54} />
+                <Bar dataKey="rejeitados" name="Rejeitados" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={isMobile ? 32 : 54} />
               </BarChart>
             </ResponsiveContainer>
           </div>
