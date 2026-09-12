@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, PieChart, Pie, Cell } from 'recharts';
 import { Inspection } from '../types';
+import { SpotlightCard } from './SpotlightCard';
 import { SectorSwitcher } from './SectorSwitcher';
 
 interface DonutRingProps {
@@ -456,9 +457,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 4 Phenomenon Studio Luxury KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {metricsAndData.metrics.map((metric, idx) => (
-          <div
+          <SpotlightCard
             key={idx}
-            className="p-6 rounded-3xl relative overflow-hidden transition-all duration-300 group hover:border-white/[0.15]"
+            glowColor={metric.color}
+            className="p-6 rounded-3xl relative overflow-hidden transition-all duration-300 hover:border-white/[0.15]"
             style={{
               background: 'rgba(10, 12, 18, 0.85)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -507,7 +509,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <span className="text-slate-500">{metric.tag}</span>
               <span style={{ color: metric.color }}>STATUS // ATIVO</span>
             </div>
-          </div>
+          </SpotlightCard>
         ))}
       </div>
 
