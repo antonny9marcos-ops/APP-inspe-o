@@ -164,21 +164,37 @@ export const UserManagement: React.FC = () => {
         }
     };
 
+    const cardStyle = {
+        background: 'rgba(10, 12, 18, 0.85)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)'
+    };
+
     return (
         <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center gap-5">
-                <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
-                    <span className="material-symbols-rounded !text-3xl fill-1">group</span>
+                <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', boxShadow: '0 0 24px rgba(59,130,246,0.15)' }}
+                >
+                    <span className="material-symbols-rounded text-blue-400 !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>group</span>
                 </div>
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Gestão de Usuários</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Controle o acesso de inspetores e clientes à plataforma.</p>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 06 // GESTAO_E_CONTROLE_DE_ACESSO ]</span>
+                    <h1 className="text-3xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Gestão de Usuários</h1>
+                    <p className="text-slate-400 mt-1 font-medium text-sm">Controle o acesso de inspetores e clientes à plataforma.</p>
                 </div>
             </div>
 
             {message && (
-                <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in zoom-in duration-300 ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
-                    }`}>
+                <div
+                    className="p-4 rounded-2xl flex items-center gap-3 animate-in zoom-in duration-300"
+                    style={{
+                        background: message.type === 'success' ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                        border: `1px solid ${message.type === 'success' ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                        color: message.type === 'success' ? '#34d399' : '#f87171',
+                    }}
+                >
                     <span className="material-symbols-rounded">
                         {message.type === 'success' ? 'check_circle' : 'error'}
                     </span>
@@ -189,33 +205,38 @@ export const UserManagement: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* User List */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden text-center">
-                        <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                    <div className="rounded-3xl overflow-hidden text-center" style={cardStyle}>
+                        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
                             <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Usuários Cadastrados</h2>
-                            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-black">{users.length} TOTAL</span>
+                            <span className="px-3 py-1 rounded-full text-[10px] font-black" style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa' }}>{users.length} TOTAL</span>
                         </div>
 
-                        <div className="divide-y divide-slate-50 max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <div className="divide-y divide-white/[0.06] max-h-[600px] overflow-y-auto custom-scrollbar">
                             {isLoading ? (
-                                <div className="p-12 text-slate-300">Carregando usuários...</div>
+                                <div className="p-12 text-slate-500">Carregando usuários...</div>
                             ) : users.length > 0 ? users.map(user => {
                                 const isOnline = user.ultimo_acesso ? (new Date().getTime() - new Date(user.ultimo_acesso).getTime()) < (5 * 60 * 1000) : false;
+                                const roleStyle = user.role === 'Admin'
+                                    ? { background: 'rgba(99,102,241,0.15)', color: '#a5b4fc' }
+                                    : user.role === 'Cliente'
+                                        ? { background: 'rgba(245,158,11,0.15)', color: '#fbbf24' }
+                                        : { background: 'rgba(255,255,255,0.06)', color: '#cbd5e1' };
                                 return (
-                                    <div key={user.id} className="p-5 flex items-center gap-4 hover:bg-slate-50 transition-colors relative group">
+                                    <div key={user.id} className="p-5 flex items-center gap-4 hover:bg-white/[0.03] transition-colors relative group">
                                         <div className="relative">
                                             <img
                                                 src={user.avatar_url || `https://picsum.photos/seed/${user.id}/100`}
-                                                className="w-12 h-12 rounded-2xl object-cover shadow-sm bg-slate-100"
+                                                className="w-12 h-12 rounded-2xl object-cover shadow-sm bg-white/10"
                                                 alt={user.nome}
                                             />
                                             {isOnline && (
-                                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
+                                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 rounded-full shadow-sm animate-pulse" style={{ borderColor: '#0D1421' }}></div>
                                             )}
                                         </div>
                                         <div className="flex-1 text-left">
                                             <div className="flex items-center gap-2">
-                                                <p className="text-sm font-black text-slate-800">{user.nome}</p>
-                                                {isOnline && <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">Online</span>}
+                                                <p className="text-sm font-black text-white">{user.nome}</p>
+                                                {isOnline && <span className="text-[9px] font-black text-emerald-400 px-1.5 py-0.5 rounded-md uppercase tracking-tighter" style={{ background: 'rgba(16,185,129,0.12)' }}>Online</span>}
                                             </div>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                                                 {user.cargo || 'Membro'} {user.setor ? `• ${user.setor}` : ''}
@@ -223,24 +244,21 @@ export const UserManagement: React.FC = () => {
                                         </div>
                                         <div className="text-right flex items-center gap-3">
                                             <div>
-                                                <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'Admin' ? 'bg-indigo-100 text-indigo-600' :
-                                                    user.role === 'Cliente' ? 'bg-amber-100 text-amber-600' :
-                                                        'bg-slate-100 text-slate-600'
-                                                    }`}>
+                                                <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest" style={roleStyle}>
                                                     {user.role}
                                                 </span>
-                                                <p className="text-[9px] font-bold text-slate-300 mt-1 uppercase">
-                                                    {user.ultimo_acesso 
+                                                <p className="text-[9px] font-bold text-slate-500 mt-1 uppercase">
+                                                    {user.ultimo_acesso
                                                         ? `Acesso: ${new Date(user.ultimo_acesso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
                                                         : `Entrou em ${new Date(user.created_at).toLocaleDateString()}`
                                                     }
                                                 </p>
                                             </div>
                                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => openEditModal(user)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all" title="Editar">
+                                                <button onClick={() => openEditModal(user)} className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all" title="Editar">
                                                     <span className="material-symbols-rounded !text-base">edit</span>
                                                 </button>
-                                                <button onClick={() => handleDeleteUser(user)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Remover">
+                                                <button onClick={() => handleDeleteUser(user)} className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all" title="Remover">
                                                     <span className="material-symbols-rounded !text-base">person_remove</span>
                                                 </button>
                                             </div>
@@ -249,9 +267,9 @@ export const UserManagement: React.FC = () => {
                                 );
                             }) : (
                                 <div className="p-12">
-                                    <span className="material-symbols-rounded text-slate-200 !text-5xl mb-3">group_off</span>
+                                    <span className="material-symbols-rounded text-slate-600 !text-5xl mb-3">group_off</span>
                                     <p className="text-slate-400 font-bold text-sm">Nenhum usuário encontrado.</p>
-                                    <p className="text-slate-300 text-xs mt-1">Use o formulário ao lado para cadastrar o primeiro usuário.</p>
+                                    <p className="text-slate-500 text-xs mt-1">Use o formulário ao lado para cadastrar o primeiro usuário.</p>
                                 </div>
                             )}
                         </div>
@@ -260,13 +278,13 @@ export const UserManagement: React.FC = () => {
 
                 {/* Registration Form */}
                 <div className="space-y-6">
-                    <form onSubmit={handleRegisterUser} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6 sticky top-8">
+                    <form onSubmit={handleRegisterUser} className="p-8 rounded-[2.5rem] space-y-6 sticky top-8" style={cardStyle}>
                         <div className="flex items-center gap-4 mb-2">
-                            <div className="bg-primary p-3 rounded-2xl text-white shadow-lg shadow-primary/30">
-                                <span className="material-symbols-rounded !text-2xl fill-1">person_add</span>
+                            <div className="p-3 rounded-2xl" style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }}>
+                                <span className="material-symbols-rounded text-blue-400 !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>person_add</span>
                             </div>
                             <div>
-                                <h2 className="text-lg font-black text-slate-900 leading-tight">Novo Usuário</h2>
+                                <h2 className="text-lg font-black text-white leading-tight">Novo Usuário</h2>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Painel Admin</p>
                             </div>
                         </div>
@@ -354,17 +372,17 @@ export const UserManagement: React.FC = () => {
                             {isRegistering ? 'CADASTRANDO...' : 'CADASTRAR USUÁRIO'}
                         </button>
 
-                        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100/50 space-y-4">
-                            <p className="text-[9px] font-bold text-amber-700 leading-relaxed uppercase">
+                        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                            <p className="text-[9px] font-bold leading-relaxed uppercase" style={{ color: '#fbbf24' }}>
                                 <span className="material-symbols-rounded !text-xs align-middle mr-1">info</span>
                                 O cliente terá acesso a dashboards e relatórios, mas não poderá realizar novos registros de inspeção.
                             </p>
-                            <div className="pt-2 border-t border-amber-100/50">
-                                <p className="text-[9px] font-black text-rose-600 uppercase tracking-widest mb-1">
+                            <div className="pt-2 border-t" style={{ borderColor: 'rgba(245,158,11,0.2)' }}>
+                                <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: '#f87171' }}>
                                     <span className="material-symbols-rounded !text-xs align-middle mr-1">warning</span>
                                     Alerta de Segurança
                                 </p>
-                                <p className="text-[9px] font-bold text-slate-500 leading-relaxed uppercase">
+                                <p className="text-[9px] font-bold text-slate-400 leading-relaxed uppercase">
                                     Certifique-se de desativar o "Public Signup" no dashboard do Supabase (Auth {'>'} Settings) para evitar cadastros externos.
                                 </p>
                             </div>
