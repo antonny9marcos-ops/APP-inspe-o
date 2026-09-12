@@ -1,7 +1,71 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart } from 'recharts';
+import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, Cell } from 'recharts';
 import { Inspection } from '../types';
 import { SectorSwitcher } from './SectorSwitcher';
+
+interface DonutRingProps {
+  data: { name: string; value: number; color: string }[];
+  hoveredSegment: string | null;
+  onSegmentHover: (name: string | null) => void;
+}
+
+/*
+ * Hand-rolled SVG ring, not Recharts' <PieChart>.
+ * Recharts' Tooltip stops activating on hover for every chart on this page
+ * (including the Bar/Composed charts below, which are unaffected once this
+ * is the only "polar" chart removed) whenever a Pie/PieChart is mounted
+ * alongside a Cartesian chart (Bar/Composed) - reproduced in isolation with
+ * both recharts v2 and v3. This sidesteps that entirely for the simple
+ * 2-segment donut.
+ */
+const DonutRing: React.FC<DonutRingProps> = ({ data, hoveredSegment, onSegmentHover }) => {
+  const total = data.reduce((sum, d) => sum + (d.value || 0), 0);
+  const r = 40;
+  const circumference = 2 * Math.PI * r;
+  const gapDeg = total > 0 && data.filter(d => d.value > 0).length > 1 ? 6 : 0;
+  const gapLen = (gapDeg / 360) * circumference;
+  const usable = circumference - gapLen * data.length;
+
+  let offset = 0;
+  const segments = data.map(entry => {
+    const len = total > 0 ? Math.max((entry.value / total) * usable, 0) : 0;
+    const seg = { ...entry, len, offset };
+    offset += len + gapLen;
+    return seg;
+  });
+
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
+      {total > 0 ? (
+        segments.map(seg => (
+          <circle
+            key={seg.name}
+            cx="50"
+            cy="50"
+            r={r}
+            fill="none"
+            stroke={seg.color}
+            strokeWidth="13"
+            strokeLinecap="round"
+            strokeDasharray={`${seg.len} ${circumference - seg.len}`}
+            strokeDashoffset={-seg.offset}
+            style={{
+              cursor: 'pointer',
+              opacity: hoveredSegment && hoveredSegment !== seg.name ? 0.45 : 1,
+              transition: 'opacity 0.15s ease'
+            }}
+            onMouseEnter={() => onSegmentHover(seg.name)}
+            onMouseLeave={() => onSegmentHover(null)}
+          >
+            <title>{`${seg.name}: ${seg.value.toLocaleString('pt-BR')}`}</title>
+          </circle>
+        ))
+      ) : (
+        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="13" />
+      )}
+    </svg>
+  );
+};
 
 interface DashboardProps {
   inspections: Inspection[];
@@ -74,6 +138,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [trendYear, setTrendYear] = useState(yearFilter);
   const [trendMonth, setTrendMonth] = useState(monthFilter);
   const [trendWeek, setTrendWeek] = useState(weekFilter);
+  const [hoveredDonutSegment, setHoveredDonutSegment] = useState<'Aprovados' | 'Rejeitados' | null>(null);
 
   useEffect(() => {
     setTrendYear(yearFilter);
@@ -403,42 +468,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           <div className="h-64 relative flex items-center justify-center">
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span 
-                className="text-4xl font-extrabold text-white"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                {metricsAndData.approvalPercentage}%
-              </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400 mt-1">
-                Índice de Aprovação
-              </span>
+              {hoveredDonutSegment ? (
+                <>
+                  <span
+                    className="text-4xl font-extrabold text-white"
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  >
+                    {(metricsAndData.pieData.find(d => d.name === hoveredDonutSegment)?.value ?? 0).toLocaleString('pt-BR')}
+                  </span>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400 mt-1">
+                    {hoveredDonutSegment}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span
+                    className="text-4xl font-extrabold text-white"
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  >
+                    {metricsAndData.approvalPercentage}%
+                  </span>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400 mt-1">
+                    Índice de Aprovação
+                  </span>
+                </>
+              )}
             </div>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie 
-                  data={metricsAndData.pieData} 
-                  innerRadius="68%" 
-                  outerRadius="88%" 
-                  paddingAngle={6} 
-                  dataKey="value" 
-                  stroke="none"
-                >
-                  {metricsAndData.pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} cornerRadius={6} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: '#090B12',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    color: '#f8fafc',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '11px'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <DonutRing
+              data={metricsAndData.pieData}
+              hoveredSegment={hoveredDonutSegment}
+              onSegmentHover={setHoveredDonutSegment}
+            />
           </div>
         </div>
 
