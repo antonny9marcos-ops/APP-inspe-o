@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart } from 'recharts';
+import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, PieChart, Pie, Cell } from 'recharts';
 import { Inspection } from '../types';
 import { SectorSwitcher } from './SectorSwitcher';
 
@@ -9,74 +9,35 @@ interface DonutRingProps {
 }
 
 /*
- * Hand-rolled SVG ring, not Recharts' <PieChart>.
- * Recharts' Tooltip stops activating on hover for every chart on this page
- * (including the Bar/Composed charts below, which are unaffected once this
- * is the only "polar" chart removed) whenever a Pie/PieChart is mounted
- * alongside a Cartesian chart (Bar/Composed) - reproduced in isolation with
- * both recharts v2 and v3. This sidesteps that entirely for the simple
- * 2-segment donut. The floating balloon on hover (DonutTooltip below) is
- * a hand-rolled stand-in for Recharts' <Tooltip>, styled to match it.
+ * Recharts' <Pie> for the visual (exact original look: innerRadius/outerRadius,
+ * paddingAngle, cornerRadius, entrance animation) - but deliberately with no
+ * <Tooltip> attached to it. A <Tooltip> inside a <PieChart> mounted alongside
+ * a Cartesian chart (the Bar/Composed charts below) stops Recharts' Tooltip
+ * from activating for every chart on the page, reproduced in isolation with
+ * both recharts v2 and v3; dropping the Pie's own <Tooltip> avoids that
+ * entirely while keeping the Pie itself. The floating balloon on hover
+ * (DonutTooltip below) is a hand-rolled stand-in for it, styled to match.
  */
 const DonutRing: React.FC<DonutRingProps> = ({ data, onHoverChange }) => {
   const total = data.reduce((sum, d) => sum + (d.value || 0), 0);
-  const r = 40;
-  const circumference = 2 * Math.PI * r;
-  const gapDeg = total > 0 && data.filter(d => d.value > 0).length > 1 ? 6 : 0;
-  const gapLen = (gapDeg / 360) * circumference;
-  const usable = circumference - gapLen * data.length;
 
-  let offset = 0;
-  const segments = data.map(entry => {
-    const len = total > 0 ? Math.max((entry.value / total) * usable, 0) : 0;
-    const seg = { ...entry, len, offset };
-    offset += len + gapLen;
-    return seg;
-  });
-
-  // Grow-in entrance animation on mount / whenever the values change, matching
-  // Recharts' default <Pie> animation (which this hand-rolled ring replaced).
-  const dataKey = data.map(d => `${d.name}:${d.value}`).join('|');
-  const [animated, setAnimated] = useState(false);
-  useEffect(() => {
-    setAnimated(false);
-    const raf = requestAnimationFrame(() => setAnimated(true));
-    return () => cancelAnimationFrame(raf);
-  }, [dataKey]);
-
-  const handleMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    const rect = e.currentTarget.parentElement!.getBoundingClientRect();
+  const handleMove = (e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     onHoverChange({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className="w-full h-full"
-      style={{ transform: 'rotate(-90deg)' }}
-      onMouseMove={total > 0 ? handleMove : undefined}
-      onMouseLeave={() => onHoverChange(null)}
-    >
-      {total > 0 ? (
-        segments.map(seg => (
-          <circle
-            key={seg.name}
-            cx="50"
-            cy="50"
-            r={r}
-            fill="none"
-            stroke={seg.color}
-            strokeWidth="13"
-            strokeLinecap="round"
-            strokeDasharray={`${animated ? seg.len : 0} ${circumference - (animated ? seg.len : 0)}`}
-            strokeDashoffset={-seg.offset}
-            style={{ cursor: 'pointer', transition: 'stroke-dasharray 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
-          />
-        ))
-      ) : (
-        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="13" />
-      )}
-    </svg>
+    <div className="w-full h-full" onMouseMove={total > 0 ? handleMove : undefined} onMouseLeave={() => onHoverChange(null)}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie data={data} innerRadius="68%" outerRadius="88%" paddingAngle={6} dataKey="value" stroke="none">
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} cornerRadius={6} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
