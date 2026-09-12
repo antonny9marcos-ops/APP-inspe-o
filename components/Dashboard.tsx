@@ -34,6 +34,16 @@ const DonutRing: React.FC<DonutRingProps> = ({ data, onHoverChange }) => {
     return seg;
   });
 
+  // Grow-in entrance animation on mount / whenever the values change, matching
+  // Recharts' default <Pie> animation (which this hand-rolled ring replaced).
+  const dataKey = data.map(d => `${d.name}:${d.value}`).join('|');
+  const [animated, setAnimated] = useState(false);
+  useEffect(() => {
+    setAnimated(false);
+    const raf = requestAnimationFrame(() => setAnimated(true));
+    return () => cancelAnimationFrame(raf);
+  }, [dataKey]);
+
   const handleMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.parentElement!.getBoundingClientRect();
     onHoverChange({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -58,9 +68,9 @@ const DonutRing: React.FC<DonutRingProps> = ({ data, onHoverChange }) => {
             stroke={seg.color}
             strokeWidth="13"
             strokeLinecap="round"
-            strokeDasharray={`${seg.len} ${circumference - seg.len}`}
+            strokeDasharray={`${animated ? seg.len : 0} ${circumference - (animated ? seg.len : 0)}`}
             strokeDashoffset={-seg.offset}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', transition: 'stroke-dasharray 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
           />
         ))
       ) : (
