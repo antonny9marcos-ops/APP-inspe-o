@@ -369,10 +369,22 @@ export const Reports: React.FC<ReportsProps> = ({
       </div>
 
       {/* Modern Phenomenon Inspection Detail Modal */}
-      {viewingInspection && (
+      {viewingInspection && (() => {
+        const isApproved = viewingInspection.status === 'Aprovado';
+        const isRejected = viewingInspection.status === 'Rejeitado';
+        const statusColor = isApproved ? '#34d399' : isRejected ? '#f87171' : '#fbbf24';
+        const statusBg = isApproved ? 'rgba(16, 185, 129, 0.12)' : isRejected ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)';
+        const statusBorder = isApproved ? 'rgba(16, 185, 129, 0.25)' : isRejected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)';
+        const miniStat = (label: string, value: React.ReactNode) => (
+          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col items-center text-center">
+            <span className="text-slate-500 text-[10px] block uppercase font-mono tracking-widest mb-1">{label}</span>
+            <span className="text-sm font-bold text-white block truncate w-full">{value}</span>
+          </div>
+        );
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-          <div 
-            className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl flex flex-col relative"
+          <div
+            className="w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl flex flex-col relative"
             style={{
               background: '#090B12',
               border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -380,27 +392,50 @@ export const Reports: React.FC<ReportsProps> = ({
             }}
           >
             {/* Modal Header */}
-            <div className="p-6 border-b border-white/[0.08] flex items-center justify-between">
-              <div>
-                <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">
-                  [ DETALHES // INSPEÇÃO #{viewingInspection.id} ]
-                </span>
-                <h2 className="text-xl font-bold text-white mt-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                  {viewingInspection.descricao || viewingInspection.material}
-                </h2>
+            <div className="p-6 border-b border-white/[0.08] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4 min-w-0">
+                <div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: statusBg, border: `1px solid ${statusBorder}` }}
+                >
+                  <span className="material-symbols-rounded !text-2xl" style={{ color: statusColor }}>
+                    {isApproved ? 'check_circle' : isRejected ? 'cancel' : 'schedule'}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">
+                      [ DETALHES // INSPEÇÃO #{viewingInspection.id} ]
+                    </span>
+                    <span
+                      className="px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider"
+                      style={{ background: statusBg, border: `1px solid ${statusBorder}`, color: statusColor }}
+                    >
+                      {viewingInspection.status}
+                    </span>
+                  </div>
+                  <h2 className="text-xl font-bold text-white mt-1 truncate" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    {viewingInspection.descricao || viewingInspection.material}
+                  </h2>
+                  {viewingInspection.realId && (
+                    <p className="text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-wider font-mono truncate">ID: {viewingInspection.realId}</p>
+                  )}
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <button
                   onClick={() => onEdit(viewingInspection)}
                   className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <span className="material-symbols-rounded text-base">edit</span>
-                  <span>EDITAR</span>
+                  <span className="hidden sm:inline">EDITAR DADOS</span>
+                  <span className="sm:hidden">EDITAR</span>
                 </button>
                 <button
                   onClick={() => setViewingInspection(null)}
                   className="w-8 h-8 rounded-xl bg-white/5 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                  aria-label="Fechar"
                 >
                   <span className="material-symbols-rounded text-lg">close</span>
                 </button>
@@ -408,32 +443,102 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 custom-scrollbar text-xs">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                  <span className="text-slate-500 text-[10px] block uppercase">STATUS</span>
-                  <span className="text-sm font-bold text-white mt-1 block">{viewingInspection.status}</span>
+            <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar text-xs">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                {/* Main Info Column */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-center">
+                      <span className="text-slate-500 text-[10px] block uppercase font-mono tracking-widest mb-1">Material e Código</span>
+                      <p className="text-base font-bold text-white">{viewingInspection.descricao || 'N/A'}</p>
+                      <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase font-mono">Cód: {viewingInspection.material}</p>
+                    </div>
+                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-center">
+                      <span className="text-slate-500 text-[10px] block uppercase font-mono tracking-widest mb-1">Fornecedor</span>
+                      <p className="text-base font-bold text-white">{viewingInspection.fornecedor}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 font-mono">
+                    {miniStat('Setor', viewingInspection.setor || '---')}
+                    {miniStat('DT. Chegada', viewingInspection.dataChegada ? new Date(viewingInspection.dataChegada + 'T00:00:00').toLocaleDateString('pt-BR') : '---')}
+                    {miniStat('DT. Insp.', new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString('pt-BR'))}
+                    {miniStat('NF', viewingInspection.nf || 'N/A')}
+                    {miniStat('Pedido', viewingInspection.numeroPedido || 'N/A')}
+                    {miniStat('Inspetor', viewingInspection.inspetor || '---')}
+                  </div>
+
+                  <div className="space-y-3">
+                    <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">[ QUANTIDADES E MÉTRICAS ]</span>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-center">
+                        <p className="text-2xl font-black text-white">{viewingInspection.qtdInspecionada || 0}</p>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mt-1 font-mono">Inspecionada</p>
+                      </div>
+                      <div
+                        className="p-5 rounded-2xl text-center"
+                        style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+                      >
+                        <p className="text-2xl font-black" style={{ color: '#34d399' }}>{viewingInspection.qtdAprovada || 0}</p>
+                        <p className="text-[10px] font-bold uppercase mt-1 font-mono" style={{ color: '#34d399' }}>Aprovada</p>
+                      </div>
+                      <div
+                        className="p-5 rounded-2xl text-center"
+                        style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                      >
+                        <p className="text-2xl font-black" style={{ color: '#f87171' }}>{viewingInspection.qtdRejeitada || 0}</p>
+                        <p className="text-[10px] font-bold uppercase mt-1 font-mono" style={{ color: '#f87171' }}>Rejeitada</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {isRejected && (
+                    <div
+                      className="p-5 rounded-2xl text-center"
+                      style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)' }}
+                    >
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <span className="material-symbols-rounded !text-lg" style={{ color: '#f87171' }}>warning</span>
+                        <h4 className="font-mono text-[10px] uppercase tracking-widest" style={{ color: '#f87171' }}>Motivo da Rejeição</h4>
+                      </div>
+                      <p className="text-sm font-bold text-white">{viewingInspection.motivoRejeicao || 'Não especificado'}</p>
+                    </div>
+                  )}
+
+                  <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+                    <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">[ OBSERVAÇÕES TÉCNICAS ]</span>
+                    <p className="text-slate-300 text-xs leading-relaxed italic">
+                      "{viewingInspection.observacoes || 'Nenhuma observação registrada.'}"
+                    </p>
+                  </div>
                 </div>
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                  <span className="text-slate-500 text-[10px] block uppercase">FORNECEDOR</span>
-                  <span className="text-sm font-bold text-white mt-1 block truncate">{viewingInspection.fornecedor}</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                  <span className="text-slate-500 text-[10px] block uppercase">INSPECIONADO</span>
-                  <span className="text-sm font-bold text-blue-400 mt-1 block">{viewingInspection.qtdInspecionada || 0} UN</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                  <span className="text-slate-500 text-[10px] block uppercase">INSPETOR</span>
-                  <span className="text-sm font-bold text-white mt-1 block truncate">{viewingInspection.inspetor || 'N/A'}</span>
+
+                {/* Gallery Column */}
+                <div className="space-y-3">
+                  <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="material-symbols-rounded !text-sm">image</span> Evidências Visuais
+                  </span>
+                  <div className="grid grid-cols-1 gap-3">
+                    {viewingInspection.evidencias && viewingInspection.evidencias.length > 0 ? viewingInspection.evidencias.map((url, i) => (
+                      <div
+                        key={i}
+                        onClick={() => setSelectedImage(url)}
+                        className="group relative aspect-video bg-white/[0.02] rounded-2xl overflow-hidden border border-white/[0.06] hover:border-blue-500/40 transition-all cursor-zoom-in"
+                      >
+                        <img src={url} alt={`Evidência ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="material-symbols-rounded text-white !text-2xl">open_in_full</span>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="aspect-video rounded-2xl flex flex-col items-center justify-center border border-dashed border-white/[0.1] bg-white/[0.01]">
+                        <span className="material-symbols-rounded text-slate-600 !text-4xl mb-2">photo_camera</span>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">Sem evidências fotográficas</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {viewingInspection.observacoes && (
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-                  <span className="font-mono text-[10px] text-slate-500 uppercase">[ OBSERVAÇÕES TÉCNICAS ]</span>
-                  <p className="text-slate-300 text-xs leading-relaxed">{viewingInspection.observacoes}</p>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer */}
@@ -442,6 +547,28 @@ export const Reports: React.FC<ReportsProps> = ({
               <span>DATA: {new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
             </div>
           </div>
+        </div>
+        );
+      })()}
+
+      {/* Full-screen Image Lightbox */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-md animate-in fade-in duration-300 p-4 sm:p-12 cursor-zoom-out"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            className="absolute top-8 right-8 w-12 h-12 rounded-2xl bg-white/10 text-white hover:bg-white/20 transition-colors flex items-center justify-center ring-1 ring-white/20 cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+          >
+            <span className="material-symbols-rounded !text-2xl">close</span>
+          </button>
+          <img
+            src={selectedImage}
+            alt="Evidência ampliada"
+            className="max-w-full max-h-full rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 ring-1 ring-white/10"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 
