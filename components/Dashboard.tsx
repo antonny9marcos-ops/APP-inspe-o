@@ -328,26 +328,94 @@ export const Dashboard: React.FC<DashboardProps> = ({
       .sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))
       .slice(0, 7);
 
-    // Trend data
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      const dateStr = d.toLocaleDateString('sv-SE');
-      const dayName = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
-      return { dateStr, label: `${d.getDate()}/${d.getMonth() + 1} (${dayName})` };
-    });
+    // Trend data - scoped by its own Ano/Mês/Semana selects (trendYear/trendMonth/trendWeek),
+    // independent from the global period/year/month/week filters above. Respects sector,
+    // category, search and supplier like the rest of the dashboard.
+    let trendBase = inspections;
+    if (selectedSector !== 'TODOS') {
+      trendBase = trendBase.filter(i => i.setor === selectedSector);
+    }
+    if (categoryFilter !== 'TODOS') {
+      trendBase = trendBase.filter(i => (i.categoria || '').toUpperCase() === categoryFilter.toUpperCase());
+    }
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      trendBase = trendBase.filter(i =>
+        (i.material?.toLowerCase() || '').includes(term) ||
+        (i.fornecedor?.toLowerCase() || '').includes(term)
+      );
+    }
+    if (supplierFilter !== 'Todos') {
+      trendBase = trendBase.filter(i => i.fornecedor === supplierFilter);
+    }
 
-    const trendData = last7Days.map(day => {
-      const dayItems = filtered.filter(i => i.data === day.dateStr);
-      const totalDay = dayItems.length;
-      const approvedDay = dayItems.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
-      const vol = dayItems.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
-      return {
-        name: day.label,
-        volume: vol,
-        rate: totalDay > 0 ? (approvedDay / totalDay) * 100 : 100
-      };
-    });
+    let trendDates: { name: string; date: string }[] = [];
+    let trendData: { name: string; volume: number; rate: number }[] = [];
+    const now = new Date();
+
+    if (trendWeek !== 'all') {
+      // Days of the selected week
+      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
+      const firstDayOfYear = new Date(year, 0, 1);
+      const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7;
+      const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
+      const startOfWeek = new Date(firstMonday.getTime() + (parseInt(trendWeek) - 1) * 7 * 86400000);
+      trendDates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(startOfWeek);
+        d.setDate(d.getDate() + i);
+        return { name: '', date: d.toLocaleDateString('sv-SE') };
+      });
+    } else if (trendMonth !== 'all') {
+      // All days of the selected month
+      const year = trendYear !== 'all' ? parseInt(trendYear) : now.getFullYear();
+      const month = parseInt(trendMonth) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      trendDates = Array.from({ length: daysInMonth }, (_, i) => {
+        const d = new Date(year, month, i + 1);
+        return { name: (i + 1).toString(), date: d.toLocaleDateString('sv-SE') };
+      });
+    } else if (trendYear !== 'all') {
+      // Monthly summary for the selected year
+      const year = parseInt(trendYear);
+      trendData = filterOptions.months.map(m => {
+        const monthFiltered = trendBase.filter(i => {
+          const d = new Date(i.data + 'T00:00:00');
+          return d.getFullYear() === year && (d.getMonth() + 1).toString() === m.val;
+        });
+        const total = monthFiltered.length;
+        const totalQty = monthFiltered.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+        const approvedCount = monthFiltered.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
+        return {
+          name: m.label.substring(0, 3),
+          volume: totalQty,
+          rate: total > 0 ? (approvedCount / total) * 100 : 100
+        };
+      });
+    } else {
+      // Default: last 7 days
+      trendDates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return { name: '', date: d.toLocaleDateString('sv-SE') };
+      });
+    }
+
+    if (trendDates.length > 0) {
+      trendData = trendDates.map(td => {
+        const d = new Date(td.date + 'T00:00:00');
+        const dayName = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+        const name = td.name ? `${td.name} (${dayName})` : `${d.getDate()}/${d.getMonth() + 1} (${dayName})`;
+        const dayItems = trendBase.filter(i => i.data === td.date);
+        const totalDay = dayItems.length;
+        const approvedDay = dayItems.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
+        const vol = dayItems.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+        return {
+          name,
+          volume: vol,
+          rate: totalDay > 0 ? (approvedDay / totalDay) * 100 : 100
+        };
+      });
+    }
 
     return {
       metrics,
@@ -359,7 +427,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       trendData,
       approvalPercentage: approvalRate.toFixed(1)
     };
-  }, [inspections, searchTerm, periodFilter, supplierFilter, yearFilter, monthFilter, weekFilter, categoryFilter, selectedSector]);
+  }, [inspections, searchTerm, periodFilter, supplierFilter, yearFilter, monthFilter, weekFilter, categoryFilter, selectedSector, trendYear, trendMonth, trendWeek, filterOptions.months]);
 
   return (
     <div className="p-4 sm:p-8 lg:p-10 space-y-6 sm:space-y-8 bg-[#05060A] text-slate-100 font-sans min-h-screen">
@@ -671,6 +739,111 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
+      </div>
+
+      {/* Trend Chart */}
+      <div
+        className="p-6 sm:p-8 rounded-3xl relative overflow-hidden"
+        style={{
+          background: 'rgba(10, 12, 18, 0.85)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)'
+        }}
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ 06 // SÉRIE_TEMPORAL ]</span>
+            <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              Tendência de Inspeções
+            </h3>
+            <p className="font-mono text-[9px] uppercase tracking-widest text-slate-400 mt-1">
+              {trendWeek !== 'all' ? `Semana ${trendWeek}` :
+                trendMonth !== 'all' ? 'Detalhamento Diário' :
+                  trendYear !== 'all' ? `Resumo Mensal de ${trendYear}` :
+                    'Últimos 7 Dias'}
+            </p>
+            <div className="flex flex-wrap gap-2 mt-3">
+              <select
+                value={trendYear}
+                onChange={(e) => setTrendYear(e.target.value)}
+                className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+              >
+                <option value="all">Ano: Todos</option>
+                {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+              <select
+                value={trendMonth}
+                onChange={(e) => setTrendMonth(e.target.value)}
+                className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+              >
+                <option value="all">Mês: Todos</option>
+                {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
+              </select>
+              <select
+                value={trendWeek}
+                onChange={(e) => setTrendWeek(e.target.value)}
+                className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+              >
+                <option value="all">Semana: Todos</option>
+                {Array.from({ length: 53 }, (_, i) => (
+                  <option key={i + 1} value={(i + 1).toString()}>Semana {i + 1}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 font-mono text-[10px]">
+            <span className="text-blue-400">■ Volume</span>
+            <span className="text-emerald-400">■ Taxa de Aprovação</span>
+          </div>
+        </div>
+
+        <div className="h-80 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={metricsAndData.trendData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+              />
+              <YAxis
+                yAxisId="left"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+              />
+              <YAxis yAxisId="right" orientation="right" hide />
+              <Tooltip
+                cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                contentStyle={{
+                  background: '#090B12',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  color: '#f8fafc',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '11px'
+                }}
+                formatter={(value: any, name: string) => {
+                  if (name === 'rate') return [`${Number(value).toFixed(1)}%`, 'Taxa de Aprovação'];
+                  if (name === 'volume') return [Number(value).toLocaleString('pt-BR'), 'Qtd Inspecionada'];
+                  return [value, name];
+                }}
+              />
+              <Bar yAxisId="left" dataKey="volume" name="volume" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={isMobile ? 16 : 32} fillOpacity={0.25} />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="rate"
+                name="rate"
+                stroke="#10b981"
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#090B12' }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
     </div>
