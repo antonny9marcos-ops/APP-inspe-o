@@ -581,7 +581,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={metricsAndData.barData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
+              <BarChart data={metricsAndData.barData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }} barGap={isMobile ? 24 : 48}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
                 <XAxis
                   dataKey="name"
