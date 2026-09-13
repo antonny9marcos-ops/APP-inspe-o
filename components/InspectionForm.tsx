@@ -390,77 +390,101 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
     }
   };
 
+  const cardStyle = {
+    background: 'rgba(10, 12, 18, 0.85)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)'
+  };
+
+  const fieldLabelClass = "text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1";
+  const inputClass = "w-full rounded-xl h-12 px-4 text-sm font-medium bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 transition-all";
+
   return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-5">
-          <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
-            <span className="material-symbols-rounded !text-3xl fill-1">assignment</span>
+        <div className="flex items-center gap-4">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', boxShadow: '0 0 24px rgba(59,130,246,0.15)' }}
+          >
+            <span className="material-symbols-rounded text-blue-400" style={{ fontSize: '24px', fontVariationSettings: "'FILL' 1" }}>assignment</span>
           </div>
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">
+              [ 02 // {formData.realId ? 'EDICAO_DE_REGISTRO' : 'CADASTRO_DE_INSPECAO'} ]
+            </span>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {formData.realId ? 'Editar Inspeção' : 'Cadastrar Nova Inspeção'}
             </h1>
-            <p className="text-slate-500 mt-1 font-medium">
+            <p className="text-[11px] text-slate-500 font-medium mt-0.5">
               {formData.realId ? `Editando registro #${formData.id}` : 'Insira os detalhes do material e resultados da inspeção abaixo.'}
             </p>
           </div>
         </div>
         <button
           onClick={onViewHistory}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 h-11 rounded-xl font-bold text-xs uppercase tracking-wider bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all cursor-pointer"
         >
-          <span className="material-symbols-rounded !text-xl">history</span> Ver Histórico
+          <span className="material-symbols-rounded !text-lg">history</span> Ver Histórico
         </button>
       </div>
 
       {message && (
-        <div className={`p-4 rounded-xl font-bold text-sm animate-in fade-in slide-in-from-top-4 duration-300 ${message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
-          }`}>
+        <div
+          className="p-4 rounded-2xl flex items-center gap-3 font-bold text-sm animate-in fade-in slide-in-from-top-4 duration-300"
+          style={{
+            background: message.type === 'success' ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+            border: `1px solid ${message.type === 'success' ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+            color: message.type === 'success' ? '#34d399' : '#f87171',
+          }}
+        >
+          <span className="material-symbols-rounded">{message.type === 'success' ? 'check_circle' : 'error'}</span>
           {message.text}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Seção 1 */}
-          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
-            <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-8 pb-4 border-b border-slate-50">
-              <span className="material-symbols-rounded text-primary !text-2xl fill-1">info</span> Informações Gerais
+          <div className="p-5 sm:p-8 rounded-2xl" style={cardStyle}>
+            <h2 className="flex items-center gap-3 text-base font-bold text-white mb-8 pb-4 border-b border-white/[0.06]">
+              <span className="material-symbols-rounded text-blue-400 !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>info</span> Informações Gerais
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Data da Inspeção</label>
+                <label className={fieldLabelClass}>Data da Inspeção</label>
                 <input
                   type="date"
                   value={formData.data}
                   onChange={(e) => setFormData(prev => ({ ...prev, data: e.target.value }))}
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium"
+                  className={inputClass}
+                  style={{ colorScheme: 'dark' }}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Data de Chegada do Material</label>
+                <label className={fieldLabelClass}>Data de Chegada do Material</label>
                 <input
                   type="date"
                   value={formData.dataChegada}
                   onChange={(e) => setFormData(prev => ({ ...prev, dataChegada: e.target.value }))}
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium"
+                  className={inputClass}
+                  style={{ colorScheme: 'dark' }}
                 />
               </div>
               <div className="flex flex-col gap-2 relative group">
-                <label className="text-sm font-bold text-slate-700 font-black uppercase tracking-widest text-[10px]">Setor / Área</label>
+                <label className={fieldLabelClass}>Setor / Área</label>
 
                 {userProfile?.role === 'Inspetor' ? (
-                  <div className="bg-slate-100 border border-slate-200 rounded-xl h-12 flex items-center px-4 gap-3 cursor-not-allowed group">
-                    <span className="material-symbols-rounded text-slate-400 !text-xl group-hover:text-primary transition-colors">lock</span>
-                    <span className="text-slate-600 font-bold text-sm tracking-tight">{formData.setor}</span>
+                  <div className="rounded-xl h-12 flex items-center px-4 gap-3 cursor-not-allowed bg-white/[0.03] border border-white/[0.08]">
+                    <span className="material-symbols-rounded text-slate-500 !text-xl">lock</span>
+                    <span className="text-slate-300 font-bold text-sm tracking-tight">{formData.setor}</span>
                   </div>
                 ) : (
                   <select
                     value={formData.setor || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, setor: e.target.value }))}
-                    className="rounded-xl border-slate-200 h-12 focus:ring-primary focus:border-primary font-medium bg-slate-50 border-primary/20"
+                    className={`${inputClass} appearance-none cursor-pointer`}
                   >
                     <option value="1058 Carajás">1058 Carajás</option>
                     <option value="4065 São Luis">4065 São Luis</option>
@@ -469,30 +493,30 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                 )}
 
                 {userProfile?.role === 'Inspetor' && (
-                  <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic flex items-center gap-1.5">
-                    <span className="w-1 h-1 bg-primary rounded-full"></span>
+                  <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase italic flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
                     Unidade fixa para seu perfil
                   </p>
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Inspetor</label>
+                <label className={fieldLabelClass}>Inspetor</label>
                 <input
                   type="text"
                   value={formData.inspetor || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, inspetor: e.target.value }))}
                   placeholder="Nome do inspetor"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium bg-slate-50 border-primary/20"
+                  className={inputClass}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Código do Material</label>
+                <label className={fieldLabelClass}>Código do Material</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={formData.material}
                     placeholder="Ex: 123456"
-                    className="flex-1 rounded-xl border-slate-200 h-12 focus:ring-primary"
+                    className={`flex-1 ${inputClass}`}
                     onChange={(e) => handleNumericChange('material', e.target.value)}
                   />
                   <button
@@ -506,44 +530,44 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                       },
                     })}
                     title="Escanear QR Code ou Código de Barras"
-                    className="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all shrink-0"
+                    className="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/25 text-blue-400 hover:bg-blue-500/20 active:scale-95 transition-all shrink-0 cursor-pointer"
                   >
                     <span className="material-symbols-rounded !text-xl">qr_code_scanner</span>
                   </button>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">NF</label>
+                <label className={fieldLabelClass}>NF</label>
                 <input
                   type="text"
                   value={formData.nf}
                   placeholder="Ex: 0001234"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary"
+                  className={inputClass}
                   onChange={(e) => handleNumericChange('nf', e.target.value)}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Número do Pedido</label>
+                <label className={fieldLabelClass}>Número do Pedido</label>
                 <input
                   type="text"
                   value={formData.numeroPedido}
                   placeholder="Ex: 4512000001"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary"
+                  className={inputClass}
                   onChange={(e) => handleNumericChange('numeroPedido', e.target.value)}
                 />
               </div>
               <div className="md:col-span-2 flex flex-col gap-2">
-                <label className="text-sm font-bold text-slate-700">Descrição do Material</label>
+                <label className={fieldLabelClass}>Descrição do Material</label>
                 <input
                   type="text"
                   value={formData.descricao}
                   onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
                   placeholder="Ex: Rolo de carga"
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
               <div className="md:col-span-2 flex flex-col gap-2 relative">
-                <label className="text-sm font-bold text-slate-700">Fornecedor</label>
+                <label className={fieldLabelClass}>Fornecedor</label>
                 <input
                   ref={fornecedorInputRef}
                   type="text"
@@ -554,10 +578,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                   }}
                   onFocus={() => setShowFornecedorSuggestions(true)}
                   placeholder="Digite para buscar fornecedor..."
-                  className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium"
+                  className={inputClass}
                 />
                 {showFornecedorSuggestions && (
-                  <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-lg max-h-60 overflow-y-auto" style={{ background: 'rgba(13, 17, 26, 0.98)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {filteredFornecedores.map((fornecedor, index) => (
                       <button
                         key={index}
@@ -566,7 +590,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                           setFormData(prev => ({ ...prev, fornecedor }));
                           setShowFornecedorSuggestions(false);
                         }}
-                        className="w-full text-left px-4 py-3 hover:bg-primary/5 text-sm font-medium text-slate-700 border-b border-slate-50 last:border-b-0 transition-colors"
+                        className="w-full text-left px-4 py-3 hover:bg-blue-500/10 text-sm font-medium text-slate-300 hover:text-white border-b border-white/[0.06] last:border-b-0 transition-colors cursor-pointer"
                       >
                         {fornecedor}
                       </button>
@@ -576,14 +600,14 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                       <button
                         type="button"
                         onClick={handleAddFornecedor}
-                        className="w-full text-left px-4 py-3 bg-primary/5 hover:bg-primary/10 text-sm font-bold text-primary border-t border-slate-100 transition-colors flex items-center gap-2"
+                        className="w-full text-left px-4 py-3 bg-blue-500/5 hover:bg-blue-500/10 text-sm font-bold text-blue-400 border-t border-white/[0.08] transition-colors flex items-center gap-2 cursor-pointer"
                       >
                         <span className="material-symbols-rounded !text-lg">add_circle</span>
                         Cadastrar "{formData.fornecedor.trim()}"
                       </button>
                     )}
                     {filteredFornecedores.length === 0 && (!formData.fornecedor || formData.fornecedor.trim() === '') && (
-                      <div className="px-4 py-3 text-sm text-slate-400 italic">
+                      <div className="px-4 py-3 text-sm text-slate-500 italic">
                         Digite para buscar ou cadastrar um fornecedor
                       </div>
                     )}
@@ -594,61 +618,57 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
           </div>
 
           {/* Seção 2 */}
-          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
-            <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-8 pb-4 border-b border-slate-50">
-              <span className="material-symbols-rounded text-primary !text-2xl fill-1">fact_check</span> Resultados da Inspeção
+          <div className="p-5 sm:p-8 rounded-2xl" style={cardStyle}>
+            <h2 className="flex items-center gap-3 text-base font-bold text-white mb-8 pb-4 border-b border-white/[0.06]">
+              <span className="material-symbols-rounded text-blue-400 !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>fact_check</span> Resultados da Inspeção
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1 flex justify-between">
-                  Qtd Inspecionada <span className="text-primary">{formData.unidade || 'UN'}</span>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex justify-between">
+                  Qtd Inspecionada <span className="text-slate-400">{formData.unidade || 'UN'}</span>
                 </label>
-                <div className="relative group">
-                  <input
-                    type="number"
-                    step="any"
-                    value={formData.qtdInspecionada || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, qtdInspecionada: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
+                <input
+                  type="number"
+                  step="any"
+                  value={formData.qtdInspecionada || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, qtdInspecionada: parseFloat(e.target.value) || 0 }))}
+                  className="w-full rounded-xl px-5 h-14 text-sm font-bold text-white bg-white/[0.03] border border-white/[0.08] focus:outline-none focus:border-blue-500 transition-all"
+                  placeholder="0.00"
+                />
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 ml-1 flex justify-between">
-                  Qtd Aprovada <span className="text-emerald-500">{formData.unidade || 'UN'}</span>
+                <label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1 flex justify-between">
+                  Qtd Aprovada <span className="text-emerald-400">{formData.unidade || 'UN'}</span>
                 </label>
-                <div className="relative group">
-                  <input
-                    type="number"
-                    step="any"
-                    value={formData.qtdAprovada || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, qtdAprovada: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-emerald-50/50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
+                <input
+                  type="number"
+                  step="any"
+                  value={formData.qtdAprovada || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, qtdAprovada: parseFloat(e.target.value) || 0 }))}
+                  className="w-full rounded-xl px-5 h-14 text-sm font-bold text-white transition-all outline-none focus:border-emerald-500"
+                  style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}
+                  placeholder="0.00"
+                />
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1 ml-1 flex justify-between">
-                  Qtd Rejeitada <span className="text-rose-500">{formData.unidade || 'UN'}</span>
+                <label className="text-[10px] font-black text-rose-400 uppercase tracking-widest ml-1 flex justify-between">
+                  Qtd Rejeitada <span className="text-rose-400">{formData.unidade || 'UN'}</span>
                 </label>
-                <div className="relative group">
-                  <input
-                    type="number"
-                    step="any"
-                    value={formData.qtdRejeitada || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, qtdRejeitada: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-rose-50/50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-rose-500/20 transition-all outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
+                <input
+                  type="number"
+                  step="any"
+                  value={formData.qtdRejeitada || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, qtdRejeitada: parseFloat(e.target.value) || 0 }))}
+                  className="w-full rounded-xl px-5 h-14 text-sm font-bold text-white transition-all outline-none focus:border-rose-500"
+                  style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.2)' }}
+                  placeholder="0.00"
+                />
               </div>
             </div>
             <div className="flex flex-col gap-2 relative">
-              <label className="text-sm font-bold text-slate-700">Motivo da Rejeição</label>
+              <label className={fieldLabelClass}>Motivo da Rejeição</label>
               <input
                 ref={motivoInputRef}
                 type="text"
@@ -659,10 +679,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                 }}
                 onFocus={() => setShowMotivoSuggestions(true)}
                 placeholder="Digite para buscar motivo..."
-                className="rounded-xl border-slate-200 h-12 focus:ring-primary font-medium"
+                className={inputClass}
               />
               {showMotivoSuggestions && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-lg max-h-60 overflow-y-auto" style={{ background: 'rgba(13, 17, 26, 0.98)', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {filteredMotivos.map((motivo, index) => (
                     <button
                       key={index}
@@ -671,7 +691,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                         setFormData(prev => ({ ...prev, motivoRejeicao: motivo }));
                         setShowMotivoSuggestions(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-primary/5 text-sm font-medium text-slate-700 border-b border-slate-50 last:border-b-0 transition-colors"
+                      className="w-full text-left px-4 py-3 hover:bg-blue-500/10 text-sm font-medium text-slate-300 hover:text-white border-b border-white/[0.06] last:border-b-0 transition-colors cursor-pointer"
                     >
                       {motivo}
                     </button>
@@ -681,14 +701,14 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                     <button
                       type="button"
                       onClick={handleAddMotivo}
-                      className="w-full text-left px-4 py-3 bg-primary/5 hover:bg-primary/10 text-sm font-bold text-primary border-t border-slate-100 transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-3 bg-blue-500/5 hover:bg-blue-500/10 text-sm font-bold text-blue-400 border-t border-white/[0.08] transition-colors flex items-center gap-2 cursor-pointer"
                     >
                       <span className="material-symbols-rounded !text-lg">add_circle</span>
                       Cadastrar "{formData.motivoRejeicao.trim()}"
                     </button>
                   )}
                   {filteredMotivos.length === 0 && (!formData.motivoRejeicao || formData.motivoRejeicao.trim() === '') && (
-                    <div className="px-4 py-3 text-sm text-slate-400 italic">
+                    <div className="px-4 py-3 text-sm text-slate-500 italic">
                       Digite para buscar ou cadastrar um motivo
                     </div>
                   )}
@@ -698,10 +718,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
           </div>
         </div>
 
-        <div className="space-y-8">
-          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
-            <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-6">
-              <span className="material-symbols-rounded text-primary !text-2xl fill-1">camera_alt</span> Evidências
+        <div className="space-y-6">
+          <div className="p-5 sm:p-8 rounded-2xl" style={cardStyle}>
+            <h2 className="flex items-center gap-3 text-base font-bold text-white mb-6 pb-4 border-b border-white/[0.06]">
+              <span className="material-symbols-rounded text-blue-400 !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>camera_alt</span> Evidências
             </h2>
 
             <input
@@ -715,26 +735,26 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
 
             <div
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed border-slate-100 rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group h-56 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
+              className={`rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer group h-56 border-2 border-dashed border-white/[0.1] bg-white/[0.02] hover:bg-white/[0.04] hover:border-blue-500/30 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
             >
-              <div className="bg-primary/10 p-4 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
-                <span className="material-symbols-rounded text-primary !text-3xl fill-1">{isUploading ? 'sync' : 'upload_file'}</span>
+              <div className="p-4 rounded-2xl mb-4 group-hover:scale-110 transition-transform" style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }}>
+                <span className="material-symbols-rounded text-blue-400 !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>{isUploading ? 'sync' : 'upload_file'}</span>
               </div>
-              <p className="text-sm font-bold text-slate-700">{isUploading ? 'Enviando...' : 'Clique ou arraste fotos aqui'}</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase mt-2">PNG ou JPG até 10MB</p>
+              <p className="text-sm font-bold text-slate-200">{isUploading ? 'Enviando...' : 'Clique ou arraste fotos aqui'}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase mt-2 tracking-widest">PNG ou JPG até 10MB</p>
             </div>
 
             {formData.evidencias && formData.evidencias.length > 0 && (
               <div className="grid grid-cols-4 gap-2 mt-4">
                 {formData.evidencias.map((url, index) => (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-100 shadow-sm">
+                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-white/[0.08]">
                     <img src={url} alt={`Evidência ${index + 1}`} className="w-full h-full object-cover" />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setFormData(prev => ({ ...prev, evidencias: prev.evidencias?.filter((_, i) => i !== index) }));
                       }}
-                      className="absolute top-1 right-1 bg-white/80 hover:bg-white text-danger p-1 rounded-full shadow-sm"
+                      className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-red-400 p-1 rounded-full cursor-pointer"
                     >
                       <span className="material-symbols-rounded !text-xs">close</span>
                     </button>
@@ -743,25 +763,26 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
               </div>
             )}
             <div className="mt-8">
-              <label className="text-sm font-bold text-slate-700 block mb-2">Observações</label>
+              <label className={`${fieldLabelClass} block mb-2`}>Observações</label>
               <textarea
                 value={formData.observacoes || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, observacoes: e.target.value }))}
                 placeholder="Adicione detalhes específicos aqui..."
-                className="w-full rounded-2xl border-slate-200 h-32 focus:ring-primary p-4 text-sm font-medium resize-none bg-slate-50/30"
+                className={`${inputClass} h-32 py-4 resize-none`}
               ></textarea>
             </div>
           </div>
 
-          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Ações</h3>
+          <div className="p-5 sm:p-8 rounded-2xl" style={cardStyle}>
+            <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold mb-6">[ AÇÕES ]</h3>
             <div className="flex flex-col gap-4">
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`w-full h-14 bg-success text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-success/20 hover:shadow-success/40 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full h-14 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all cursor-pointer ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{ background: 'linear-gradient(135deg, #2563eb, #3b82f6)', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.35)' }}
               >
-                <span className="material-symbols-rounded fill-1">{isSaving ? 'sync' : formData.realId ? 'edit' : 'save'}</span>
+                <span className="material-symbols-rounded" style={{ fontVariationSettings: "'FILL' 1" }}>{isSaving ? 'sync' : formData.realId ? 'edit' : 'save'}</span>
                 {isSaving ? 'Salvando...' : formData.realId ? 'Salvar Alterações' : 'Salvar Registro'}
               </button>
               <div className="grid grid-cols-1 gap-3">
@@ -769,20 +790,20 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({ onSave, onDelete
                   <button
                     onClick={handleDelete}
                     disabled={isDeleting || isSaving}
-                    className="h-12 border border-red-100 text-danger hover:bg-red-50 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                    className="h-12 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer border border-red-500/25 text-red-400 hover:bg-red-500/10"
                   >
                     <span className="material-symbols-rounded !text-lg">{isDeleting ? 'sync' : 'delete'}</span>
                     {isDeleting ? 'Excluindo...' : 'Excluir Registro'}
                   </button>
                 )}
-                <button onClick={onCancel} className="h-12 border border-slate-100 text-slate-500 hover:bg-slate-50 rounded-xl font-bold text-sm transition-colors">Voltar para Dashboard</button>
+                <button onClick={onCancel} className="h-12 rounded-xl font-bold text-sm transition-colors cursor-pointer bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08]">Voltar para Dashboard</button>
               </div>
-              <p className="text-[10px] text-slate-400 font-medium text-center italic mt-2">Todos os campos obrigatórios devem ser preenchidos antes de salvar.</p>
+              <p className="text-[10px] text-slate-500 font-medium text-center italic mt-2">Todos os campos obrigatórios devem ser preenchidos antes de salvar.</p>
             </div>
           </div>
         </div>
       </div>
-      <footer className="text-center py-10 border-t border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+      <footer className="text-center py-10 border-t border-white/[0.06] text-[11px] font-bold text-slate-500 uppercase tracking-widest">
         © 2026 MC Industrial Systems Inc.
       </footer>
       {isScannerOpen && scannerProps && (
