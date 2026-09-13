@@ -381,9 +381,9 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
             )}
 
             {/* ── Tabs Container ── */}
-            <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm glass">
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(10, 12, 18, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)' }}>
                 {/* Tab Buttons */}
-                <div className="flex border-b border-slate-100">
+                <div className="flex border-b border-white/[0.06]">
                     {tabs.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
@@ -392,12 +392,12 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                 onClick={() => { setActiveTab(tab.id as TabType); setSearchTerm(''); }}
                                 className={`flex-1 flex items-center justify-center gap-2.5 py-4 px-4 text-xs font-bold transition-all relative cursor-pointer border-b-2 ${
                                     isActive
-                                        ? 'bg-blue-500/10 text-blue-600 border-blue-600'
-                                        : 'text-slate-500 hover:text-slate-800 border-transparent hover:bg-slate-50'
+                                        ? 'bg-blue-500/10 text-blue-400 border-blue-500'
+                                        : 'text-slate-500 hover:text-slate-300 border-transparent hover:bg-white/[0.02]'
                                 }`}
                             >
                                 <span
-                                    className={`material-symbols-rounded text-lg ${isActive ? 'text-blue-600 fill-icon' : 'text-slate-400'}`}
+                                    className={`material-symbols-rounded text-lg ${isActive ? 'text-blue-400 fill-icon' : 'text-slate-500'}`}
                                 >
                                     {tab.icon}
                                 </span>
@@ -405,8 +405,8 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                 <span
                                     className={`font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border ${
                                         isActive
-                                            ? 'bg-blue-500/20 text-blue-600 border-blue-500/30'
-                                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                                            ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                            : 'bg-white/[0.04] text-slate-400 border-white/[0.08]'
                                     }`}
                                 >
                                     {tab.count}
@@ -417,10 +417,10 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                 </div>
 
                 {/* ── Search and Add ── */}
-                <div className="p-4 flex flex-col sm:flex-row gap-3 border-b border-slate-100">
+                <div className="p-4 flex flex-col sm:flex-row gap-3 border-b border-white/[0.06]">
                     <div className="relative flex-1">
                         <span
-                            className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                            className="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
                             style={{ fontSize: '18px' }}
                         >search</span>
                         <input
@@ -428,7 +428,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={`Buscar ${activeTab}...`}
-                            className="w-full pl-10 pr-4 h-10 rounded-xl text-xs font-medium bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-blue-500"
+                            className="w-full pl-10 pr-4 h-10 rounded-xl text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
                         />
                     </div>
                     {!isClient && (
@@ -465,9 +465,9 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                         <div className="overflow-x-auto">
                             {filteredMaterials.length === 0 ? (
                                 <div className="text-center py-16">
-                                    <span className="material-symbols-rounded text-6xl text-slate-200 mb-4">inventory_2</span>
+                                    <span className="material-symbols-rounded text-6xl text-slate-700 mb-4">inventory_2</span>
                                     <p className="text-slate-400 font-bold">Nenhum material cadastrado</p>
-                                    <p className="text-slate-400 text-sm mt-1">Clique em "Adicionar" para começar</p>
+                                    <p className="text-slate-500 text-sm mt-1">Clique em "Adicionar" para começar</p>
                                 </div>
                             ) : (
                                 <table className="w-full">
@@ -482,16 +482,21 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                             <th className="pb-4 px-4 text-right">Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
+                                    <tbody className="divide-y divide-white/[0.06]">
                                         {filteredMaterials.map((material) => (
-                                            <tr key={material.id} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="py-4 px-4 font-bold text-slate-900">{material.codigo}</td>
-                                                <td className="py-4 px-4 text-slate-600">{material.descricao}</td>
-                                                <td className="py-4 px-4 text-slate-500 hidden md:table-cell">{material.categoria}</td>
-                                                <td className="py-4 px-4 text-slate-500 hidden lg:table-cell text-sm">{material.fornecedor_padrao}</td>
+                                            <tr key={material.id} className="hover:bg-white/[0.02] transition-colors">
+                                                <td className="py-4 px-4 font-bold text-white">{material.codigo}</td>
+                                                <td className="py-4 px-4 text-slate-300">{material.descricao}</td>
+                                                <td className="py-4 px-4 text-slate-400 hidden md:table-cell">{material.categoria}</td>
+                                                <td className="py-4 px-4 text-slate-400 hidden lg:table-cell text-sm">{material.fornecedor_padrao}</td>
                                                 <td className="py-4 px-4 text-center text-xs font-black text-slate-400">{material.unidade || 'UN'}</td>
                                                 <td className="py-4 px-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${material.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <span
+                                                        className="px-3 py-1 rounded-full text-xs font-bold"
+                                                        style={material.status === 'ativo'
+                                                            ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' }
+                                                            : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}
+                                                    >
                                                         {material.status}
                                                     </span>
                                                 </td>
@@ -500,15 +505,15 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                                         <div className="flex gap-2 justify-end">
                                                             <button
                                                                 onClick={() => { setEditingMaterial(material); setShowMaterialModal(true); }}
-                                                                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                                                className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors"
                                                             >
-                                                                <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
+                                                                <span className="material-symbols-rounded text-slate-400 !text-xl">edit</span>
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteMaterial(material.id!, material.codigo)}
-                                                                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                                                className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
                                                             >
-                                                                <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>
+                                                                <span className="material-symbols-rounded text-red-400 !text-xl">delete</span>
                                                             </button>
                                                         </div>
                                                     )}
@@ -526,38 +531,43 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {filteredFornecedores.length === 0 ? (
                                 <div className="col-span-full text-center py-16">
-                                    <span className="material-symbols-rounded text-6xl text-slate-200 mb-4">local_shipping</span>
+                                    <span className="material-symbols-rounded text-6xl text-slate-700 mb-4">local_shipping</span>
                                     <p className="text-slate-400 font-bold">Nenhum fornecedor encontrado</p>
                                 </div>
                             ) : (
                                 filteredFornecedores.map((fornecedor) => (
-                                    <div key={fornecedor.id} className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 hover:shadow-md transition-all">
+                                    <div key={fornecedor.id} className="rounded-xl p-4 bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.1] transition-all">
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-start gap-3">
-                                                <div className="bg-blue-100 p-2 rounded-xl">
-                                                    <span className="material-symbols-rounded text-primary !text-2xl">domain</span>
+                                                <div className="p-2 rounded-xl" style={{ background: 'rgba(59,130,246,0.12)' }}>
+                                                    <span className="material-symbols-rounded text-blue-400 !text-2xl">domain</span>
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-slate-900 text-sm">{fornecedor.nome}</h3>
+                                                    <h3 className="font-bold text-white text-sm">{fornecedor.nome}</h3>
                                                     {fornecedor.cnpj && <p className="text-xs text-slate-400 mt-1">CNPJ: {fornecedor.cnpj}</p>}
                                                     {fornecedor.email && <p className="text-xs text-slate-400">{fornecedor.email}</p>}
                                                 </div>
                                             </div>
-                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${fornecedor.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                            <span
+                                                className="px-2 py-1 rounded-full text-[10px] font-bold"
+                                                style={fornecedor.status === 'ativo'
+                                                    ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' }
+                                                    : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}
+                                            >
                                                 {fornecedor.status}
                                             </span>
                                         </div>
                                         {!isClient && (
-                                            <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                                            <div className="flex gap-2 mt-4 pt-4 border-t border-white/[0.06]">
                                                 <button
                                                     onClick={() => { setEditingFornecedor(fornecedor); setShowFornecedorModal(true); }}
-                                                    className="flex-1 h-9 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1"
+                                                    className="flex-1 h-9 bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm font-bold text-slate-300 hover:bg-white/[0.06] transition-colors flex items-center justify-center gap-1"
                                                 >
                                                     <span className="material-symbols-rounded !text-lg">edit</span> Editar
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteFornecedor(fornecedor.id!)}
-                                                    className="h-9 px-3 bg-white border border-red-200 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                                                    className="h-9 px-3 bg-white/[0.03] border border-red-500/20 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors"
                                                 >
                                                     <span className="material-symbols-rounded !text-lg">delete</span>
                                                 </button>
@@ -574,47 +584,52 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                         <div className="space-y-3">
                             {filteredMotivos.length === 0 ? (
                                 <div className="text-center py-16">
-                                    <span className="material-symbols-rounded text-6xl text-slate-200 mb-4">report_problem</span>
+                                    <span className="material-symbols-rounded text-6xl text-slate-700 mb-4">report_problem</span>
                                     <p className="text-slate-400 font-bold">Nenhum motivo encontrado</p>
                                 </div>
                             ) : (
-                                filteredMotivos.map((motivo) => (
-                                    <div key={motivo.id} className="flex items-center justify-between bg-slate-50/50 rounded-xl p-4 border border-slate-100 hover:shadow-sm transition-all">
+                                filteredMotivos.map((motivo) => {
+                                    const statusStyle = motivo.status === 'ativo'
+                                        ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' }
+                                        : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8' };
+                                    return (
+                                    <div key={motivo.id} className="flex items-center justify-between rounded-xl p-4 bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.1] transition-all">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-amber-100 p-2 rounded-xl">
-                                                <span className="material-symbols-rounded text-amber-600 !text-xl">warning</span>
+                                            <div className="p-2 rounded-xl" style={{ background: 'rgba(245,158,11,0.12)' }}>
+                                                <span className="material-symbols-rounded text-amber-400 !text-xl">warning</span>
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-slate-900">{motivo.descricao}</h3>
+                                                <h3 className="font-bold text-white">{motivo.descricao}</h3>
                                                 {motivo.categoria && <p className="text-xs text-slate-400">{motivo.categoria}</p>}
                                             </div>
                                         </div>
                                         {!isClient && (
                                             <div className="flex items-center gap-3">
-                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${motivo.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                <span className="px-2 py-1 rounded-full text-[10px] font-bold" style={statusStyle}>
                                                     {motivo.status}
                                                 </span>
                                                 <button
                                                     onClick={() => { setEditingMotivo(motivo); setShowMotivoModal(true); }}
-                                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                                    className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors"
                                                 >
-                                                    <span className="material-symbols-rounded text-slate-500 !text-xl">edit</span>
+                                                    <span className="material-symbols-rounded text-slate-400 !text-xl">edit</span>
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteMotivo(motivo.id!)}
-                                                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
                                                 >
-                                                    <span className="material-symbols-rounded text-red-500 !text-xl">delete</span>
+                                                    <span className="material-symbols-rounded text-red-400 !text-xl">delete</span>
                                                 </button>
                                             </div>
                                         )}
                                         {isClient && (
-                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${motivo.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                            <span className="px-2 py-1 rounded-full text-[10px] font-bold" style={statusStyle}>
                                                 {motivo.status}
                                             </span>
                                         )}
                                     </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                     )}

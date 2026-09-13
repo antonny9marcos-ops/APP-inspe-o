@@ -131,21 +131,37 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
         }
     };
 
+    const cardStyle = {
+        background: 'rgba(10, 12, 18, 0.85)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)'
+    };
+
     return (
         <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center gap-5">
-                <div className="p-3 bg-primary rounded-2xl text-white shadow-xl shadow-primary/20">
-                    <span className="material-symbols-rounded !text-3xl fill-1">settings</span>
+                <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', boxShadow: '0 0 24px rgba(59,130,246,0.15)' }}
+                >
+                    <span className="material-symbols-rounded text-blue-400 !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>settings</span>
                 </div>
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Configurações</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Gerencie suas informações pessoais e segurança da conta.</p>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 07 // CONFIGURACOES_DO_SISTEMA ]</span>
+                    <h1 className="text-3xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Configurações</h1>
+                    <p className="text-slate-400 mt-1 font-medium text-sm">Gerencie suas informações pessoais e segurança da conta.</p>
                 </div>
             </div>
 
             {message && (
-                <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in zoom-in duration-300 ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
-                    }`}>
+                <div
+                    className="p-4 rounded-2xl flex items-center gap-3 animate-in zoom-in duration-300"
+                    style={{
+                        background: message.type === 'success' ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                        border: `1px solid ${message.type === 'success' ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                        color: message.type === 'success' ? '#34d399' : '#f87171',
+                    }}
+                >
                     <span className="material-symbols-rounded">
                         {message.type === 'success' ? 'check_circle' : 'error'}
                     </span>
@@ -155,12 +171,12 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Perfil */}
-                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                <div className="p-8 rounded-3xl space-y-6" style={cardStyle}>
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="bg-primary/10 p-3 rounded-2xl">
-                            <span className="material-symbols-rounded text-primary !text-2xl fill-1">person</span>
+                        <div className="p-3 rounded-2xl" style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }}>
+                            <span className="material-symbols-rounded text-blue-400 !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                         </div>
-                        <h2 className="text-xl font-black text-slate-900">Perfil do Usuário</h2>
+                        <h2 className="text-xl font-black text-white">Perfil do Usuário</h2>
                     </div>
 
                     <div className="flex flex-col items-center gap-4 py-4">
@@ -222,12 +238,12 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                 </div>
 
                 {/* Segurança */}
-                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                <div className="p-8 rounded-3xl space-y-6" style={cardStyle}>
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="bg-amber-100 p-3 rounded-2xl">
-                            <span className="material-symbols-rounded text-amber-600 !text-2xl fill-1">lock</span>
+                        <div className="p-3 rounded-2xl" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                            <span className="material-symbols-rounded text-amber-400 !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
                         </div>
-                        <h2 className="text-xl font-black text-slate-900">Segurança</h2>
+                        <h2 className="text-xl font-black text-white">Segurança</h2>
                     </div>
 
                     <div className="space-y-4">
@@ -262,14 +278,14 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                 </div>
 
                 {/* Aparência & Tema */}
-                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6 lg:col-span-2">
+                <div className="p-8 rounded-3xl space-y-6 lg:col-span-2" style={cardStyle}>
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="bg-indigo-500/10 p-3 rounded-2xl">
-                            <span className="material-symbols-rounded text-indigo-500 !text-2xl fill-1">palette</span>
+                        <div className="p-3 rounded-2xl" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)' }}>
+                            <span className="material-symbols-rounded text-indigo-400 !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>palette</span>
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900">Aparência & Tema Visual</h2>
-                            <p className="text-xs text-slate-500 font-medium">Personalize a cor principal do aplicativo com o estilo premium MC Industrial.</p>
+                            <h2 className="text-xl font-black text-white">Aparência & Tema Visual</h2>
+                            <p className="text-xs text-slate-400 font-medium">Personalize a cor principal do aplicativo com o estilo premium MC Industrial.</p>
                         </div>
                     </div>
 

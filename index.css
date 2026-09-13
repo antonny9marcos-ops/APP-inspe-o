@@ -1,0 +1,531 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bg-base: #F1F5F9;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F8FAFC;
+    --border: rgba(15, 23, 42, 0.08);
+    --accent: #2563EB;
+    --accent-glow: rgba(37, 99, 235, 0.15);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-base);
+    color: #0F172A;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+
+/* Glassmorphism utilities */
+.glass {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(15,23,42,0.08);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+}
+
+.glass-strong {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(15,23,42,0.12);
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+}
+
+/* Animated grid background */
+.bg-grid {
+    background-image:
+        linear-gradient(rgba(15,23,42,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+}
+
+/* Premium glow orb */
+.glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.15;
+    transition: opacity 0.3s ease;
+}
+
+/* Material symbols */
+.material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+/* Active nav item */
+.active-nav {
+    background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(37,99,235,0.06));
+    border: 1px solid rgba(37,99,235,0.25);
+    color: #2563EB !important;
+}
+.active-nav .material-symbols-rounded {
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    color: #2563EB;
+}
+
+/* Status badges */
+.badge-approved {
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: #047857;
+}
+.badge-rejected {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #B91C1C;
+}
+.badge-attention {
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: #B45309;
+}
+.badge-pending {
+    background: rgba(100,116,139,0.12);
+    border: 1px solid rgba(100,116,139,0.3);
+    color: #475569;
+}
+
+/* Pulse dot animation */
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+.pulse-dot::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: #10B981;
+    animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Gradient text */
+.text-gradient {
+    background: linear-gradient(135deg, #0F172A 0%, #2563EB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-gradient-gold {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Hover card lift */
+.card-lift {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-lift:hover {
+    transform: translateY(-3px);
+}
+
+/* Button primary glow */
+.btn-primary {
+    background: linear-gradient(135deg, #1D4ED8, #2563EB);
+    box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+    color: #FFFFFF !important;
+    transition: all 0.25s ease;
+}
+.btn-primary:hover {
+    box-shadow: 0 6px 30px rgba(37,99,235,0.45);
+    transform: translateY(-1px);
+}
+.btn-primary:active { transform: scale(0.97); }
+
+/* Input styling */
+.input-dark {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #0F172A;
+    transition: all 0.2s ease;
+}
+.input-dark::placeholder { color: #64748B; }
+.input-dark:focus {
+    outline: none;
+    border-color: #2563EB;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* Animated border gradient on cards */
+.border-glow {
+    position: relative;
+}
+.border-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(37,99,235,0.3), transparent, rgba(37,99,235,0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.18); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.3); }
+
+/* =========================================================
+   PREMIUM DUAL THEME OVERRIDES (LIGHT & DARK MODES)
+   ========================================================= */
+
+/* ── DARK THEME RULES (when .theme-dark is active) ── */
+html.theme-dark body, html.theme-dark #root {
+    background-color: #05060A !important;
+    color: #F1F5F9 !important;
+}
+
+html.theme-dark .glow-orb {
+    opacity: 0.12;
+}
+
+html.theme-dark .active-nav {
+    background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.08)) !important;
+    border: 1px solid rgba(59,130,246,0.25) !important;
+    color: #60A5FA !important;
+}
+html.theme-dark .active-nav .material-symbols-rounded {
+    color: #3B82F6 !important;
+}
+
+html.theme-dark .badge-approved {
+    background: rgba(16,185,129,0.12) !important;
+    border: 1px solid rgba(16,185,129,0.25) !important;
+    color: #34D399 !important;
+}
+html.theme-dark .badge-rejected {
+    background: rgba(239,68,68,0.12) !important;
+    border: 1px solid rgba(239,68,68,0.25) !important;
+    color: #F87171 !important;
+}
+html.theme-dark .badge-attention {
+    background: rgba(245,158,11,0.12) !important;
+    border: 1px solid rgba(245,158,11,0.25) !important;
+    color: #FBD166 !important;
+}
+
+html.theme-dark .glass {
+    background: rgba(255,255,255,0.04) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    box-shadow: none !important;
+}
+
+html.theme-dark .glass-strong {
+    background: rgba(255,255,255,0.06) !important;
+    backdrop-filter: blur(30px) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    box-shadow: none !important;
+}
+
+html.theme-dark input:not([type="checkbox"]):not([type="radio"]),
+html.theme-dark select,
+html.theme-dark textarea,
+html.theme-dark .input-dark {
+    background-color: rgba(15, 23, 42, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f1f5f9 !important;
+}
+html.theme-dark input::placeholder,
+html.theme-dark textarea::placeholder,
+html.theme-dark .input-dark::placeholder {
+    color: #64748b !important;
+}
+html.theme-dark select option {
+    background-color: #0d1421 !important;
+    color: #f1f5f9 !important;
+}
+
+html.theme-dark .bg-white {
+    background-color: rgba(13, 20, 33, 0.82) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f1f5f9 !important;
+    backdrop-filter: blur(16px);
+}
+html.theme-dark .bg-slate-50, html.theme-dark .bg-slate-100 {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+html.theme-dark .border-slate-100, html.theme-dark .border-slate-200, html.theme-dark .border-slate-50 {
+    border-color: rgba(255, 255, 255, 0.07) !important;
+}
+html.theme-dark .text-slate-900, html.theme-dark .text-slate-800 {
+    color: #ffffff !important;
+}
+html.theme-dark .text-slate-700, html.theme-dark .text-slate-600 {
+    color: #cbd5e1 !important;
+}
+html.theme-dark .text-slate-500, html.theme-dark .text-slate-400 {
+    color: #94a3b8 !important;
+}
+html.theme-dark .table-row-dark {
+    border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+html.theme-dark .table-row-dark:hover {
+    background: rgba(255,255,255,0.03) !important;
+}
+html.theme-dark ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08) !important;
+}
+html.theme-dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.15) !important;
+}
+
+
+/* ── LIGHT THEME RULES (when .theme-light is active - DEFAULT) ── */
+html.theme-light body, html.theme-light #root, html.theme-light main {
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+}
+
+/* Outer main containers get soft slate background for strong card contrast */
+html.theme-light .bg-\[\#05060A\],
+html.theme-light .bg-\[\#080C14\],
+html.theme-light .bg-bg-base {
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+}
+
+/* Sidebar & Header in Light Mode */
+html.theme-light aside {
+    background-color: #FFFFFF !important;
+    border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
+    color: #0F172A !important;
+}
+
+html.theme-light header,
+html.theme-light .sticky {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+    color: #0F172A !important;
+}
+
+/* Override any inline dark card backgrounds to pure crisp white cards */
+html.theme-light [style*="rgba(10, 12, 18"],
+html.theme-light [style*="rgba(10,12,18"],
+html.theme-light [style*="rgba(13, 20, 33"],
+html.theme-light [style*="rgba(13,20,33"],
+html.theme-light [style*="background: rgba(10, 12, 18"],
+html.theme-light [style*="background:rgba(10,12,18"],
+html.theme-light [style*="background: rgba(13, 20, 33"],
+html.theme-light [style*="background:rgba(13,20,33"] {
+    background: #FFFFFF !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 2px 8px -2px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.theme-light .bg-\[\#0D1421\],
+html.theme-light .bg-\[\#0F1A2E\],
+html.theme-light .bg-\[\#111927\],
+html.theme-light .bg-slate-900,
+html.theme-light .bg-white {
+    background-color: #FFFFFF !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #0F172A !important;
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* Inputs, Selects & Textareas in Light Mode */
+html.theme-light input:not([type="checkbox"]):not([type="radio"]),
+html.theme-light select,
+html.theme-light textarea,
+html.theme-light .input-dark {
+    background-color: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+}
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder,
+html.theme-light .input-dark::placeholder {
+    color: #64748B !important;
+}
+html.theme-light input:focus,
+html.theme-light select:focus,
+html.theme-light textarea:focus,
+html.theme-light .input-dark:focus {
+    border-color: #2563EB !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    background-color: #FFFFFF !important;
+}
+html.theme-light select option {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+}
+
+html.theme-light .bg-slate-50 {
+    background-color: #F8FAFC !important;
+}
+html.theme-light .bg-slate-100 {
+    background-color: #F1F5F9 !important;
+}
+
+html.theme-light .bg-white\/\[0\.02\],
+html.theme-light .bg-white\/\[0\.03\],
+html.theme-light .bg-white\/\[0\.04\],
+html.theme-light .bg-white\/5,
+html.theme-light .bg-white\/10 {
+    background-color: rgba(15, 23, 42, 0.04) !important;
+}
+html.theme-light .border-white\/\[0\.06\],
+html.theme-light .border-white\/\[0\.07\],
+html.theme-light .border-white\/\[0\.08\],
+html.theme-light .border-white\/10,
+html.theme-light .border-white\/20 {
+    border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+/* Text color overrides for Light Mode */
+html.theme-light .text-white,
+html.theme-light .text-slate-100,
+html.theme-light .text-slate-200 {
+    color: #0F172A !important;
+}
+html.theme-light .text-slate-300,
+html.theme-light .text-slate-400 {
+    color: #334155 !important;
+}
+html.theme-light .text-slate-500 {
+    color: #475569 !important;
+}
+html.theme-light .text-slate-600 {
+    color: #64748B !important;
+}
+
+html.theme-light .table-row-dark {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+    transition: background 0.15s ease;
+}
+html.theme-light .table-row-dark:hover {
+    background: rgba(15, 23, 42, 0.025) !important;
+}
+
+html.theme-light ::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.18) !important;
+}
+html.theme-light ::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.3) !important;
+}
+
+/* =========================================================
+   LOGIN SCREEN — fixed cinematic dark design.
+   Immune to the app-wide light/dark theme toggle: these
+   selectors are scoped under .login-view and re-assert the
+   intended dark values with matching specificity + !important
+   so they win over the generic theme-light overrides above.
+   ========================================================= */
+html.theme-light .login-view,
+html.theme-dark .login-view,
+html.theme-light .login-view main,
+html.theme-dark .login-view main {
+    background-color: #05060A !important;
+    color: #F1F5F9 !important;
+}
+html.theme-light .login-view header,
+html.theme-dark .login-view header {
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    color: inherit !important;
+}
+html.theme-light .login-view .bg-\[\#05060A\],
+html.theme-dark .login-view .bg-\[\#05060A\] {
+    background-color: #05060A !important;
+    color: inherit !important;
+}
+html.theme-light .login-view .text-white,
+html.theme-dark .login-view .text-white {
+    color: #ffffff !important;
+}
+html.theme-light .login-view .text-slate-100,
+html.theme-light .login-view .text-slate-300 {
+    color: #cbd5e1 !important;
+}
+html.theme-light .login-view .text-slate-400 {
+    color: #94a3b8 !important;
+}
+html.theme-light .login-view .text-slate-500 {
+    color: #64748b !important;
+}
+html.theme-light .login-view .text-slate-600,
+html.theme-light .login-view .text-slate-700 {
+    color: #475569 !important;
+}
+html.theme-light .login-view .bg-white\/5,
+html.theme-light .login-view .bg-white\/10,
+html.theme-light .login-view .bg-white\/15,
+html.theme-light .login-view .bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.theme-light .login-view .border-white\/10,
+html.theme-light .login-view .border-white\/20,
+html.theme-light .login-view .border-white\/\[0\.06\],
+html.theme-light .login-view .border-white\/\[0\.15\] {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+html.theme-light .login-view input:not([type="checkbox"]):not([type="radio"]),
+html.theme-dark .login-view input:not([type="checkbox"]):not([type="radio"]) {
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+    box-shadow: none !important;
+}
+html.theme-light .login-view input::placeholder,
+html.theme-dark .login-view input::placeholder {
+    color: #475569 !important;
+}
+html.theme-light .login-view input:focus,
+html.theme-dark .login-view input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+/* Login screen — cinematic entrance & ambient motion */
+@keyframes login-kenburns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+}
+@keyframes login-fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.login-view .kenburns-img {
+    animation: login-kenburns 20s ease-in-out infinite alternate;
+    will-change: transform;
+}
+.login-view .fade-up {
+    opacity: 0;
+    animation: login-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+    .login-view .kenburns-img,
+    .login-view .fade-up {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
