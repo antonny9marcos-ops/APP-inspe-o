@@ -471,11 +471,112 @@
             background: rgba(15, 23, 42, 0.025) !important; 
         }
 
-        html.theme-light ::-webkit-scrollbar-thumb { 
-            background: rgba(15, 23, 42, 0.18) !important; 
+        html.theme-light ::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.18) !important;
         }
-        html.theme-light ::-webkit-scrollbar-thumb:hover { 
-            background: rgba(15, 23, 42, 0.3) !important; 
+        html.theme-light ::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 23, 42, 0.3) !important;
+        }
+
+        /* =========================================================
+           LOGIN SCREEN — fixed cinematic dark design.
+           Immune to the app-wide light/dark theme toggle: these
+           selectors are scoped under .login-view and re-assert the
+           intended dark values with matching specificity + !important
+           so they win over the generic theme-light overrides above.
+           ========================================================= */
+        html.theme-light .login-view,
+        html.theme-dark .login-view,
+        html.theme-light .login-view main,
+        html.theme-dark .login-view main {
+            background-color: #05060A !important;
+            color: #F1F5F9 !important;
+        }
+        html.theme-light .login-view header,
+        html.theme-dark .login-view header {
+            background-color: transparent !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            color: inherit !important;
+        }
+        html.theme-light .login-view .bg-\[\#05060A\],
+        html.theme-dark .login-view .bg-\[\#05060A\] {
+            background-color: #05060A !important;
+            color: inherit !important;
+        }
+        html.theme-light .login-view .text-white,
+        html.theme-dark .login-view .text-white {
+            color: #ffffff !important;
+        }
+        html.theme-light .login-view .text-slate-100,
+        html.theme-light .login-view .text-slate-300 {
+            color: #cbd5e1 !important;
+        }
+        html.theme-light .login-view .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+        html.theme-light .login-view .text-slate-500 {
+            color: #64748b !important;
+        }
+        html.theme-light .login-view .text-slate-600,
+        html.theme-light .login-view .text-slate-700 {
+            color: #475569 !important;
+        }
+        html.theme-light .login-view .bg-white\/5,
+        html.theme-light .login-view .bg-white\/10,
+        html.theme-light .login-view .bg-white\/15,
+        html.theme-light .login-view .bg-white\/20 {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        html.theme-light .login-view .border-white\/10,
+        html.theme-light .login-view .border-white\/20,
+        html.theme-light .login-view .border-white\/\[0\.06\],
+        html.theme-light .login-view .border-white\/\[0\.15\] {
+            border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        html.theme-light .login-view input:not([type="checkbox"]):not([type="radio"]),
+        html.theme-dark .login-view input:not([type="checkbox"]):not([type="radio"]) {
+            background-color: transparent !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+            box-shadow: none !important;
+        }
+        html.theme-light .login-view input::placeholder,
+        html.theme-dark .login-view input::placeholder {
+            color: #475569 !important;
+        }
+        html.theme-light .login-view input:focus,
+        html.theme-dark .login-view input:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+
+        /* Login screen — cinematic entrance & ambient motion */
+        @keyframes login-kenburns {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+        @keyframes login-fade-up {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-view .kenburns-img {
+            animation: login-kenburns 20s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        .login-view .fade-up {
+            opacity: 0;
+            animation: login-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .login-view .kenburns-img,
+            .login-view .fade-up {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
         }
     </style>
     <script type="importmap">
