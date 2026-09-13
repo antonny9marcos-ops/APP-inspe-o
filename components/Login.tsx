@@ -383,13 +383,9 @@ export const Login: React.FC = () => {
 
                     {/* Editorial overlay content */}
                     <div className="relative z-10 flex flex-col justify-end h-full w-full px-10 xl:px-14 pb-12 pt-10">
-                        <div className="inline-flex w-fit items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-blue-300 bg-blue-500/10 border border-blue-400/25 backdrop-blur-sm px-3.5 py-1 rounded-md mb-6 fade-up" style={{ animationDelay: '0.1s' }}>
-                            <span>[ 01 // ENTERPRISE_ACCESS ]</span>
-                        </div>
-
                         <h1
                             className="text-4xl xl:text-5xl 2xl:text-6xl font-extrabold text-white tracking-tight leading-[1.05] max-w-2xl fade-up"
-                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", textShadow: '0 4px 24px rgba(0,0,0,0.35)', animationDelay: '0.22s' }}
+                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", textShadow: '0 4px 24px rgba(0,0,0,0.35)', animationDelay: '0.1s' }}
                         >
                             Inteligência & Precisão em Cada Lote.
                         </h1>
@@ -443,12 +439,9 @@ export const Login: React.FC = () => {
                         background: 'linear-gradient(180deg, rgba(5,6,10,0.2) 0%, rgba(5,6,10,0.96) 100%)'
                     }} />
                     <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-5">
-                        <div className="inline-flex w-fit items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-blue-300 bg-blue-500/10 border border-blue-400/25 px-2.5 py-0.5 rounded mb-2 fade-up" style={{ animationDelay: '0.1s' }}>
-                            <span>[ 01 // ENTERPRISE_ACCESS ]</span>
-                        </div>
                         <h1
                             className="text-xl font-extrabold text-white tracking-tight leading-tight fade-up"
-                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", animationDelay: '0.22s' }}
+                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", animationDelay: '0.1s' }}
                         >
                             Inteligência & Precisão em Cada Lote.
                         </h1>
