@@ -1,6 +1,15 @@
 ﻿import React from 'react';
 import { AppNotification } from '../types';
 
+export const getNotificationTypeConfig = (tipo: string) => {
+    switch (tipo) {
+        case 'rejeicao': return { icon: 'cancel', label: 'REJEICAO', color: '#f87171', bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.25)', glow: 'rgba(239,68,68,0.15)' };
+        case 'update':   return { icon: 'sync', label: 'ATUALIZACAO', color: '#60a5fa', bg: 'rgba(59,130,246,0.10)', border: 'rgba(59,130,246,0.25)', glow: 'rgba(59,130,246,0.15)' };
+        case 'aviso':    return { icon: 'warning_amber', label: 'AVISO', color: '#fbbf24', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.25)', glow: 'rgba(245,158,11,0.15)' };
+        default:         return { icon: 'info', label: 'INFO', color: '#94a3b8', bg: 'rgba(100,116,139,0.10)', border: 'rgba(100,116,139,0.25)', glow: 'rgba(100,116,139,0.10)' };
+    }
+};
+
 interface NotificationDropdownProps {
     notifications: AppNotification[];
     onMarkAsRead: (id: string) => void;
@@ -31,14 +40,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         return date.toLocaleDateString('pt-BR');
     };
 
-    const getTypeConfig = (tipo: string) => {
-        switch (tipo) {
-            case 'rejeicao': return { icon: 'cancel', label: 'REJEICAO', color: '#f87171', bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.25)', glow: 'rgba(239,68,68,0.15)' };
-            case 'update':   return { icon: 'sync', label: 'ATUALIZACAO', color: '#60a5fa', bg: 'rgba(59,130,246,0.10)', border: 'rgba(59,130,246,0.25)', glow: 'rgba(59,130,246,0.15)' };
-            case 'aviso':    return { icon: 'warning_amber', label: 'AVISO', color: '#fbbf24', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.25)', glow: 'rgba(245,158,11,0.15)' };
-            default:         return { icon: 'info', label: 'INFO', color: '#94a3b8', bg: 'rgba(100,116,139,0.10)', border: 'rgba(100,116,139,0.25)', glow: 'rgba(100,116,139,0.10)' };
-        }
-    };
+    const getTypeConfig = getNotificationTypeConfig;
 
     return (
         <div

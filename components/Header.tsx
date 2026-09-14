@@ -1,7 +1,81 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { View, UserProfile, AppNotification } from '../types';
 import { useNotifications } from '../hooks/useNotifications';
-import { NotificationDropdown } from './NotificationDropdown';
+import { NotificationDropdown, getNotificationTypeConfig } from './NotificationDropdown';
+
+// Formatador leve de markdown pro texto de notificações geradas pela IA
+// (negrito, títulos # ## ###, listas com - / * / números). Sem dependência
+// externa — cobre só a sintaxe que os prompts do app realmente produzem.
+const renderInlineMarkdown = (text: string): React.ReactNode => {
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) =>
+        part.startsWith('**') && part.endsWith('**')
+            ? <strong key={i} className="font-bold text-white">{part.slice(2, -2)}</strong>
+            : <React.Fragment key={i}>{part}</React.Fragment>
+    );
+};
+
+const renderMiniMarkdown = (text: string): React.ReactNode[] => {
+    const blocks: React.ReactNode[] = [];
+    let list: { type: 'ul' | 'ol'; items: string[] } | null = null;
+
+    const flushList = (key: string) => {
+        if (!list) return;
+        const items = list.items;
+        blocks.push(
+            list.type === 'ul' ? (
+                <ul key={key} className="list-disc pl-5 space-y-1.5 my-3">
+                    {items.map((item, i) => <li key={i} className="text-[13px] text-slate-300 leading-relaxed">{renderInlineMarkdown(item)}</li>)}
+                </ul>
+            ) : (
+                <ol key={key} className="list-decimal pl-5 space-y-1.5 my-3">
+                    {items.map((item, i) => <li key={i} className="text-[13px] text-slate-300 leading-relaxed">{renderInlineMarkdown(item)}</li>)}
+                </ol>
+            )
+        );
+        list = null;
+    };
+
+    text.split('\n').forEach((raw, idx) => {
+        const line = raw.trim();
+        const key = `l-${idx}`;
+
+        if (line === '') { flushList(key); return; }
+
+        const heading = line.match(/^(#{1,3})\s+(.*)$/);
+        if (heading) {
+            flushList(key);
+            const size = heading[1].length === 1 ? 'text-base' : heading[1].length === 2 ? 'text-sm' : 'text-[13px]';
+            blocks.push(
+                <h4 key={key} className={`${size} font-bold text-white mt-4 mb-1.5 first:mt-0`} style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    {renderInlineMarkdown(heading[2])}
+                </h4>
+            );
+            return;
+        }
+
+        const bullet = line.match(/^[-*•]\s+(.*)$/);
+        if (bullet) {
+            if (!list || list.type !== 'ul') { flushList(key); list = { type: 'ul', items: [] }; }
+            list.items.push(bullet[1]);
+            return;
+        }
+
+        const numbered = line.match(/^\d+[.)]\s+(.*)$/);
+        if (numbered) {
+            if (!list || list.type !== 'ol') { flushList(key); list = { type: 'ol', items: [] }; }
+            list.items.push(numbered[1]);
+            return;
+        }
+
+        flushList(key);
+        blocks.push(<p key={key} className="text-[13px] text-slate-300 leading-relaxed my-2 first:mt-0">{renderInlineMarkdown(line)}</p>);
+    });
+    flushList('final');
+
+    return blocks;
+};
 
 interface HeaderProps {
   currentView: View;
@@ -213,46 +287,78 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Notification Detail Modal */}
-      {selectedNotification && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-3xl bg-[#090B12] border border-white/10 p-6 sm:p-8 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
-              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">
-                [ ALERTA_DO_SISTEMA ]
-              </span>
-              <button
-                onClick={() => setSelectedNotification(null)}
-                className="w-8 h-8 rounded-lg bg-white/5 text-slate-400 hover:text-white flex items-center justify-center"
-              >
-                <span className="material-symbols-rounded text-base">close</span>
-              </button>
-            </div>
+      {/* Notification Detail Modal — via portal: o wrapper .sticky deste
+          Header usa backdrop-blur, o que vira "containing block" de
+          qualquer descendente position:fixed e prendia o modal dentro da
+          barra de topo (uns 80px) em vez da tela inteira. Portal pro
+          document.body escapa desse problema. */}
+      {selectedNotification && createPortal((() => {
+        const cfg = getNotificationTypeConfig(selectedNotification.tipo);
+        return (
+          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-10 overflow-y-auto bg-black/80 backdrop-blur-md">
+            <div
+              className="w-full max-w-xl rounded-3xl p-6 sm:p-8"
+              style={{
+                background: 'rgba(10, 12, 18, 0.85)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 30px 70px -20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-4 pb-5 mb-5 border-b border-white/[0.08]">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, boxShadow: `0 0 20px ${cfg.glow}` }}
+                  >
+                    <span className="material-symbols-rounded" style={{ fontSize: '20px', color: cfg.color, fontVariationSettings: "'FILL' 1" }}>
+                      {cfg.icon}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] font-bold" style={{ color: cfg.color }}>
+                      [ {cfg.label} ]
+                    </span>
+                    <h3
+                      className="text-lg sm:text-xl font-extrabold text-white tracking-tight leading-snug truncate"
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      title={selectedNotification.titulo}
+                    >
+                      {selectedNotification.titulo}
+                    </h3>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedNotification(null)}
+                  className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.08] flex items-center justify-center flex-shrink-0 transition-all cursor-pointer"
+                >
+                  <span className="material-symbols-rounded text-lg">close</span>
+                </button>
+              </div>
 
-            <div>
-              <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                {selectedNotification.titulo}
-              </h3>
-              <p className="font-mono text-[10px] text-slate-500 mt-1">
+              <p className="font-mono text-[10px] text-slate-500 uppercase tracking-wider mb-4">
                 {new Date(selectedNotification.created_at).toLocaleString('pt-BR')}
               </p>
-            </div>
 
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 max-h-56 overflow-y-auto">
-              <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap font-normal">
-                {selectedNotification.mensagem}
-              </p>
-            </div>
+              <div
+                className="notif-detail-scroll rounded-2xl p-5 max-h-[45vh] overflow-y-auto"
+                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                {renderMiniMarkdown(selectedNotification.mensagem)}
+              </div>
 
-            <button
-              onClick={() => setSelectedNotification(null)}
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
-            >
-              Compreendido
-            </button>
+              <button
+                onClick={() => setSelectedNotification(null)}
+                className="w-full mt-5 py-3.5 rounded-xl text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+                style={{ background: 'linear-gradient(135deg, #2563eb, #3b82f6)', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.3)' }}
+              >
+                Compreendido
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })(), document.body)}
     </div>
   );
 };
