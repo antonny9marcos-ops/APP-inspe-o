@@ -15,7 +15,10 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+// gemini-2.0-flash e gemini-1.5-flash foram descontinuados (a chave nova
+// não tem mais acesso a eles — confirmado consultando ListModels). Lista
+// atualizada só com modelos que essa chave realmente tem disponíveis.
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,7 +81,7 @@ Deno.serve(async (req: Request) => {
   // de execução da plataforma (150s) e ser derrubada à força — foi
   // exatamente o que aconteceu com o retry antigo (3 modelos x 3 tentativas,
   // sem timeout nenhum).
-  const REQUEST_TIMEOUT_MS = 20_000;
+  const REQUEST_TIMEOUT_MS = 25_000;
   let lastError = "Falha desconhecida.";
 
   for (const model of GEMINI_MODELS) {
@@ -91,7 +94,13 @@ Deno.serve(async (req: Request) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            // Desliga o modo "thinking" dos modelos 2.5 — pra um texto
+            // simples como esse plano de ação, ele só deixava mais lento
+            // sem melhorar o resultado, e quase estourou o tempo limite.
+            generationConfig: { thinkingConfig: { thinkingBudget: 0 } },
+          }),
           signal: controller.signal,
         },
       );
