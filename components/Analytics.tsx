@@ -7,11 +7,14 @@ import { Inspection } from '../types';
 import { SectorSwitcher } from './SectorSwitcher';
 import { supabase } from '../lib/supabase';
 
-// A chamada ao Gemini roda numa Edge Function do Supabase (supabase/functions/gemini-proxy),
-// não mais direto do navegador — a chave da API do Gemini fica só no servidor,
-// nunca no bundle público. Ver histórico do CLAUDE.md / revisão de segurança.
+// A chamada ao Gemini roda numa Edge Function do Supabase
+// (supabase/functions/clever-processor — nome do slug real publicado,
+// não corresponde ao nome "gemini-proxy" que era a intenção original),
+// não mais direto do navegador — a chave da API do Gemini fica só no
+// servidor, nunca no bundle público. Ver histórico do CLAUDE.md / revisão
+// de segurança.
 async function generateWithRetry(prompt: string): Promise<string> {
-    const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+    const { data, error } = await supabase.functions.invoke('clever-processor', {
         body: { prompt },
     });
 

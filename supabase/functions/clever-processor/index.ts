@@ -1,4 +1,7 @@
-// Edge Function: gemini-proxy
+// Edge Function: clever-processor (nome do slug real no Supabase — ficou
+// com esse nome porque foi o placeholder sugerido no primeiro deploy e o
+// slug não pôde ser renomeado depois; a pasta local se chama igual só
+// pra não confundir qual código corresponde a qual função publicada).
 //
 // Recebe um prompt do app e chama a API do Gemini a partir do servidor,
 // usando a variável de ambiente GEMINI_API_KEY (secret do Supabase, NUNCA
@@ -7,8 +10,10 @@
 // direto do navegador com @google/generative-ai, o que expunha a chave
 // pra qualquer visitante do site (achado de uma revisão de segurança).
 //
-// Deploy: supabase functions deploy gemini-proxy
+// Deploy: supabase functions deploy clever-processor
 // Secret: supabase secrets set GEMINI_API_KEY=xxxxx
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
 
@@ -29,11 +34,25 @@ Deno.serve(async (req: Request) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  // A verificação de JWT do próprio gateway do Supabase (verify_jwt, ligada
-  // por padrão) já bloqueia quem não está autenticado antes de chegar aqui.
-  // Esta checagem é só uma segunda camada.
+  // O "Verify JWT" do painel do Supabase só garante que o token é um JWT
+  // válido do projeto — a própria chave `anon` pública satisfaz isso, então
+  // sozinho ele NÃO garante que quem chamou fez login de verdade. Aqui
+  // validamos o token contra o Supabase Auth: só passa se for uma sessão
+  // de usuário autenticado de fato (SUPABASE_URL/SUPABASE_ANON_KEY são
+  // injetadas automaticamente em toda Edge Function, não precisa configurar).
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
+    return jsonResponse({ error: "Não autenticado." }, 401);
+  }
+
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } },
+  );
+
+  const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+  if (authError || !user) {
     return jsonResponse({ error: "Não autenticado." }, 401);
   }
 
