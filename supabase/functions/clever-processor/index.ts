@@ -81,12 +81,16 @@ Deno.serve(async (req: Request) => {
   // de execução da plataforma (150s) e ser derrubada à força — foi
   // exatamente o que aconteceu com o retry antigo (3 modelos x 3 tentativas,
   // sem timeout nenhum).
-  const REQUEST_TIMEOUT_MS = 25_000;
-  let lastError = "Falha desconhecida.";
+  const REQUEST_TIMEOUT_MS = 15_000;
+  // Guarda o resultado de CADA modelo tentado (não só o último) — é o único
+  // jeito de descobrir, olhando a resposta de um único request, se todos
+  // travaram (sugere bloqueio de rede saindo do Supabase) ou só alguns.
+  const attempts: string[] = [];
 
   for (const model of GEMINI_MODELS) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const startedAt = Date.now();
 
     try {
       const resp = await fetch(
@@ -105,24 +109,29 @@ Deno.serve(async (req: Request) => {
         },
       );
 
+      const elapsed = Date.now() - startedAt;
+
       if (resp.ok) {
         const data = await resp.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
         return jsonResponse({ text });
       }
 
-      lastError = `${model}: ${resp.status} - ${await resp.text()}`;
+      attempts.push(`${model} (${elapsed}ms): ${resp.status} - ${await resp.text()}`);
     } catch (e) {
-      lastError = e instanceof Error && e.name === "AbortError"
-        ? `${model}: tempo limite de ${REQUEST_TIMEOUT_MS / 1000}s excedido`
-        : `${model}: ${String(e)}`;
+      const elapsed = Date.now() - startedAt;
+      attempts.push(
+        e instanceof Error && e.name === "AbortError"
+          ? `${model} (${elapsed}ms): tempo limite de ${REQUEST_TIMEOUT_MS / 1000}s excedido`
+          : `${model} (${elapsed}ms): ${String(e)}`,
+      );
     } finally {
       clearTimeout(timer);
     }
   }
 
   return jsonResponse(
-    { error: "Modelos de IA temporariamente sobrecarregados. Tente novamente em alguns instantes.", detail: lastError },
+    { error: "Modelos de IA temporariamente sobrecarregados. Tente novamente em alguns instantes.", detail: attempts },
     502,
   );
 });
