@@ -185,13 +185,15 @@ CREATE POLICY "materiais_write_admin_inspetor" ON materiais
 -- PASSO 5: corrigir bug em `admins_insert_notifications`
 -- O nome sugere "só admin", mas a política estava com
 -- WITH CHECK (true) — ou seja, qualquer autenticado podia criar
--- notificação em nome de qualquer usuário. Restringindo de fato
--- a administradores:
+-- notificação em nome de qualquer usuário. Regra corrigida:
+-- qualquer usuário pode criar notificação PARA SI MESMO (ex: "seu
+-- plano de ação da IA ficou pronto"), e só Admin pode criar
+-- notificação em nome de outra pessoa.
 -- =============================================================
 DROP POLICY IF EXISTS "admins_insert_notifications" ON notificacoes;
 CREATE POLICY "admins_insert_notifications" ON notificacoes
   FOR INSERT TO authenticated
-  WITH CHECK (public.my_role() = 'Admin');
+  WITH CHECK (auth.uid() = user_id OR public.my_role() = 'Admin');
 
 
 -- =============================================================

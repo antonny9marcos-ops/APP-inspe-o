@@ -218,7 +218,19 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             setIsGenerating(true);
             const prompt = `Gere um plano de ação executivo para o setor ${selectedSector} com base em ${filteredInspections.length} inspeções.`;
             const plan = await generateWithRetry(prompt);
-            alert('Plano de ação gerado com sucesso pela IA.');
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { error: notifError } = await supabase.from('notificacoes').insert({
+                    user_id: user.id,
+                    titulo: `Plano de ação — ${selectedSector}`,
+                    mensagem: plan,
+                    tipo: 'sistema',
+                });
+                if (notifError) console.error('Erro ao salvar notificação do plano de ação:', notifError);
+            }
+
+            alert('Plano de ação gerado com sucesso pela IA. Veja o resultado nas notificações.');
         } catch (error: any) {
             alert('Erro: ' + (error.message || 'Falha na conexão com a IA'));
         } finally {
