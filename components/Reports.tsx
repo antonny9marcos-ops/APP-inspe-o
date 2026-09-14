@@ -135,7 +135,7 @@ export const Reports: React.FC<ReportsProps> = ({
       {/* Phenomenon Section Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/[0.06]">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 font-mono text-[10px] text-blue-400 uppercase tracking-[0.2em]">
+          <div className="flex items-center gap-2 font-mono text-[12px] text-blue-400 uppercase tracking-[0.2em]">
             <span>[ 04 // AUDIT_LOGS_AND_REPORTS ]</span>
             <span className="w-1 h-1 rounded-full bg-emerald-400" />
           </div>
@@ -162,7 +162,7 @@ export const Reports: React.FC<ReportsProps> = ({
         }}
       >
         <div className="flex items-center justify-between mb-4">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
+          <span className="font-mono text-[12px] uppercase tracking-widest text-slate-400">
             [ FILTROS_AVANÇADOS ]
           </span>
           <button
@@ -173,7 +173,7 @@ export const Reports: React.FC<ReportsProps> = ({
               setLocalSelectedSupplier('Todos');
               setStatusFilter('Todos');
             }}
-            className="font-mono text-[10px] text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+            className="font-mono text-[12px] text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-wider flex items-center gap-1 cursor-pointer"
           >
             <span className="material-symbols-rounded text-sm">restart_alt</span>
             Resetar Filtros
@@ -182,27 +182,27 @@ export const Reports: React.FC<ReportsProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-2">
-            <span className="font-mono text-[10px] text-slate-500 uppercase">DE:</span>
+            <span className="font-mono text-[12px] text-slate-500 uppercase">DE:</span>
             <input
               type="date"
-              className="bg-transparent border-none text-xs font-mono text-white focus:outline-none p-0 w-full"
+              className="bg-transparent border-none text-sm font-mono text-white focus:outline-none p-0 w-full"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
 
           <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-2">
-            <span className="font-mono text-[10px] text-slate-500 uppercase">ATÉ:</span>
+            <span className="font-mono text-[12px] text-slate-500 uppercase">ATÉ:</span>
             <input
               type="date"
-              className="bg-transparent border-none text-xs font-mono text-white focus:outline-none p-0 w-full"
+              className="bg-transparent border-none text-sm font-mono text-white focus:outline-none p-0 w-full"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
 
           <select
-            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs font-mono text-white outline-none cursor-pointer"
+            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-sm font-mono text-white outline-none cursor-pointer"
             value={selectedSupplier}
             onChange={(e) => {
               if (globalSupplierFilter === 'Todos') {
@@ -215,7 +215,7 @@ export const Reports: React.FC<ReportsProps> = ({
           </select>
 
           <select
-            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs font-mono text-white outline-none cursor-pointer"
+            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-sm font-mono text-white outline-none cursor-pointer"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -241,7 +241,7 @@ export const Reports: React.FC<ReportsProps> = ({
         >
           <div>
             <div className="mb-6">
-              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ VOLUMETRIA // RANKING ]</span>
+              <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ VOLUMETRIA // RANKING ]</span>
               <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Participação de Fornecedores
               </h3>
@@ -255,22 +255,22 @@ export const Reports: React.FC<ReportsProps> = ({
                     className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs font-bold text-slate-500">0{item.pos}</span>
-                      <p className="text-xs font-bold text-white truncate max-w-[150px]">{item.name}</p>
+                      <span className="font-mono text-sm font-bold text-slate-500">0{item.pos}</span>
+                      <p className="text-sm font-bold text-white truncate max-w-[150px]">{item.name}</p>
                     </div>
-                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-300">
+                    <div className="flex items-center gap-2 font-mono text-sm font-bold text-slate-300">
                       <span>{item.val}</span>
                       <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="p-8 text-center font-mono text-xs text-slate-500">Nenhum registro para exibir.</div>
+                <div className="p-8 text-center font-mono text-sm text-slate-500">Nenhum registro para exibir.</div>
               )}
             </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-white/[0.06] flex items-center justify-between font-mono text-[10px] text-slate-500">
+          <div className="pt-4 mt-4 border-t border-white/[0.06] flex items-center justify-between font-mono text-[12px] text-slate-500">
             <span>AUDIT_CHECK</span>
             <span>TOTAL: {sectorInspections.length} LOTES</span>
           </div>
@@ -287,7 +287,7 @@ export const Reports: React.FC<ReportsProps> = ({
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ HISTÓRICO // LOGS ]</span>
+              <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ HISTÓRICO // LOGS ]</span>
               <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Registros de Inspeções ({filteredInspections.length})
               </h3>
@@ -295,7 +295,7 @@ export const Reports: React.FC<ReportsProps> = ({
 
             <button 
               onClick={handleExportCSV}
-              className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white font-mono text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white font-mono text-sm font-bold flex items-center gap-2 transition-all cursor-pointer"
             >
               <span className="material-symbols-rounded text-sm text-emerald-400">download</span>
               <span>EXPORTAR CSV</span>
@@ -305,7 +305,7 @@ export const Reports: React.FC<ReportsProps> = ({
           {/* Table Container */}
           <div className="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar rounded-2xl border border-white/[0.06]">
             <table className="w-full text-left border-collapse min-w-[700px]">
-              <thead className="sticky top-0 z-10 bg-[#07090F] border-b border-white/[0.08] font-mono text-[10px] uppercase text-slate-400">
+              <thead className="sticky top-0 z-10 bg-[#07090F] border-b border-white/[0.08] font-mono text-[12px] uppercase text-slate-400">
                 <tr>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Material / Código</th>
@@ -314,7 +314,7 @@ export const Reports: React.FC<ReportsProps> = ({
                   <th className="py-3 px-4 text-right">Ação</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04] text-xs">
+              <tbody className="divide-y divide-white/[0.04] text-sm">
                 {filteredInspections.length > 0 ? (
                   filteredInspections.map((row) => {
                     const isApproved = row.status === 'Aprovado';
@@ -327,7 +327,7 @@ export const Reports: React.FC<ReportsProps> = ({
                       >
                         <td className="py-3.5 px-4">
                           <span 
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[12px] font-bold uppercase tracking-wider"
                             style={{
                               background: isApproved ? 'rgba(16, 185, 129, 0.1)' : isRejected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                               border: `1px solid ${isApproved ? 'rgba(16, 185, 129, 0.25)' : isRejected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
@@ -340,7 +340,7 @@ export const Reports: React.FC<ReportsProps> = ({
                         </td>
                         <td className="py-3.5 px-4">
                           <p className="font-bold text-white leading-tight">{row.descricao || 'Item sem descrição'}</p>
-                          <p className="font-mono text-[10px] text-slate-500 mt-0.5">CÓD: {row.material}</p>
+                          <p className="font-mono text-[12px] text-slate-500 mt-0.5">CÓD: {row.material}</p>
                         </td>
                         <td className="py-3.5 px-4 font-medium text-slate-300">{row.fornecedor}</td>
                         <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
@@ -356,7 +356,7 @@ export const Reports: React.FC<ReportsProps> = ({
                   })
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center font-mono text-xs text-slate-500">
+                    <td colSpan={5} className="py-12 text-center font-mono text-sm text-slate-500">
                       Nenhum registro encontrado para os critérios selecionados.
                     </td>
                   </tr>
@@ -377,8 +377,8 @@ export const Reports: React.FC<ReportsProps> = ({
         const statusBorder = isApproved ? 'rgba(16, 185, 129, 0.25)' : isRejected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)';
         const miniStat = (label: string, value: React.ReactNode) => (
           <div className="px-3 py-2 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between gap-2 min-w-0">
-            <span className="text-slate-500 text-[9px] uppercase font-mono tracking-widest flex-shrink-0">{label}</span>
-            <span className="text-xs font-bold text-white truncate text-right">{value}</span>
+            <span className="text-slate-500 text-[11px] uppercase font-mono tracking-widest flex-shrink-0">{label}</span>
+            <span className="text-sm font-bold text-white truncate text-right">{value}</span>
           </div>
         );
         return (
@@ -404,11 +404,11 @@ export const Reports: React.FC<ReportsProps> = ({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">
+                    <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">
                       [ DETALHES // INSPEÇÃO #{viewingInspection.id} ]
                     </span>
                     <span
-                      className="px-2 py-0.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider"
+                      className="px-2 py-0.5 rounded-full font-mono text-[11px] font-bold uppercase tracking-wider"
                       style={{ background: statusBg, border: `1px solid ${statusBorder}`, color: statusColor }}
                     >
                       {viewingInspection.status}
@@ -423,7 +423,7 @@ export const Reports: React.FC<ReportsProps> = ({
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={() => onEdit(viewingInspection)}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <span className="material-symbols-rounded text-base">edit</span>
                   <span className="hidden sm:inline">EDITAR DADOS</span>
@@ -440,18 +440,18 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar text-xs">
+            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar text-sm">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5">
                 {/* Main Info Column */}
                 <div className="lg:col-span-2 space-y-3.5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                      <span className="text-slate-500 text-[9px] block uppercase font-mono tracking-widest">Material e Código</span>
+                      <span className="text-slate-500 text-[11px] block uppercase font-mono tracking-widest">Material e Código</span>
                       <p className="text-sm font-bold text-white truncate">{viewingInspection.descricao || 'N/A'}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase font-mono">Cód: {viewingInspection.material}</p>
+                      <p className="text-[12px] font-bold text-slate-400 uppercase font-mono">Cód: {viewingInspection.material}</p>
                     </div>
                     <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                      <span className="text-slate-500 text-[9px] block uppercase font-mono tracking-widest">Fornecedor</span>
+                      <span className="text-slate-500 text-[11px] block uppercase font-mono tracking-widest">Fornecedor</span>
                       <p className="text-sm font-bold text-white truncate">{viewingInspection.fornecedor}</p>
                     </div>
                   </div>
@@ -466,25 +466,25 @@ export const Reports: React.FC<ReportsProps> = ({
                   </div>
 
                   <div className="space-y-1.5">
-                    <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest">[ QUANTIDADES E MÉTRICAS ]</span>
+                    <span className="font-mono text-[11px] text-slate-500 uppercase tracking-widest">[ QUANTIDADES E MÉTRICAS ]</span>
                     <div className="grid grid-cols-3 gap-2.5">
                       <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-center">
                         <p className="text-lg font-black text-white leading-tight">{viewingInspection.qtdInspecionada || 0}</p>
-                        <p className="text-[9px] font-bold text-slate-500 uppercase font-mono">Inspecionada</p>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase font-mono">Inspecionada</p>
                       </div>
                       <div
                         className="p-3 rounded-xl text-center"
                         style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
                       >
                         <p className="text-lg font-black leading-tight" style={{ color: '#34d399' }}>{viewingInspection.qtdAprovada || 0}</p>
-                        <p className="text-[9px] font-bold uppercase font-mono" style={{ color: '#34d399' }}>Aprovada</p>
+                        <p className="text-[11px] font-bold uppercase font-mono" style={{ color: '#34d399' }}>Aprovada</p>
                       </div>
                       <div
                         className="p-3 rounded-xl text-center"
                         style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
                       >
                         <p className="text-lg font-black leading-tight" style={{ color: '#f87171' }}>{viewingInspection.qtdRejeitada || 0}</p>
-                        <p className="text-[9px] font-bold uppercase font-mono" style={{ color: '#f87171' }}>Rejeitada</p>
+                        <p className="text-[11px] font-bold uppercase font-mono" style={{ color: '#f87171' }}>Rejeitada</p>
                       </div>
                     </div>
                   </div>
@@ -496,15 +496,15 @@ export const Reports: React.FC<ReportsProps> = ({
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="material-symbols-rounded !text-sm" style={{ color: '#f87171' }}>warning</span>
-                        <h4 className="font-mono text-[9px] uppercase tracking-widest" style={{ color: '#f87171' }}>Motivo da Rejeição</h4>
+                        <h4 className="font-mono text-[11px] uppercase tracking-widest" style={{ color: '#f87171' }}>Motivo da Rejeição</h4>
                       </div>
-                      <p className="text-xs font-bold text-white">{viewingInspection.motivoRejeicao || 'Não especificado'}</p>
+                      <p className="text-sm font-bold text-white">{viewingInspection.motivoRejeicao || 'Não especificado'}</p>
                     </div>
                   )}
 
                   <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-                    <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest">[ OBSERVAÇÕES TÉCNICAS ]</span>
-                    <p className="text-slate-300 text-xs leading-snug italic">
+                    <span className="font-mono text-[11px] text-slate-500 uppercase tracking-widest">[ OBSERVAÇÕES TÉCNICAS ]</span>
+                    <p className="text-slate-300 text-sm leading-snug italic">
                       "{viewingInspection.observacoes || 'Nenhuma observação registrada.'}"
                     </p>
                   </div>
@@ -512,7 +512,7 @@ export const Reports: React.FC<ReportsProps> = ({
 
                 {/* Gallery Column */}
                 <div className="space-y-2">
-                  <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="font-mono text-[11px] text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                     <span className="material-symbols-rounded !text-sm">image</span> Evidências Visuais
                   </span>
                   <div className="grid grid-cols-1 gap-2">
@@ -530,7 +530,7 @@ export const Reports: React.FC<ReportsProps> = ({
                     )) : (
                       <div className="aspect-video rounded-xl flex flex-col items-center justify-center border border-dashed border-white/[0.1] bg-white/[0.01]">
                         <span className="material-symbols-rounded text-slate-600 !text-3xl mb-1.5">photo_camera</span>
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono px-2 text-center">Sem evidências fotográficas</p>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono px-2 text-center">Sem evidências fotográficas</p>
                       </div>
                     )}
                   </div>
@@ -539,7 +539,7 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-3 border-t border-white/[0.08] flex items-center justify-between font-mono text-[10px] text-slate-500">
+            <div className="p-3 border-t border-white/[0.08] flex items-center justify-between font-mono text-[12px] text-slate-500">
               <span>REGISTRO SINCRONIZADO</span>
               <span>DATA: {new Date(viewingInspection.data + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
             </div>

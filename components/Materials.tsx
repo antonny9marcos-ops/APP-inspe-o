@@ -358,7 +358,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 03 // GESTAO_DE_CADASTROS ]</span>
+                            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 03 // GESTAO_DE_CADASTROS ]</span>
                         </div>
                         <h1 className="text-xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Gestão de Cadastros</h1>
                         <p className="text-[11px] text-slate-500 font-medium mt-0.5">Gerencie materiais, fornecedores e motivos de rejeição</p>
@@ -390,7 +390,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                             <button
                                 key={tab.id}
                                 onClick={() => { setActiveTab(tab.id as TabType); setSearchTerm(''); }}
-                                className={`flex-1 flex items-center justify-center gap-2.5 py-4 px-4 text-xs font-bold transition-all relative cursor-pointer border-b-2 ${
+                                className={`flex-1 flex items-center justify-center gap-2.5 py-4 px-4 text-sm font-bold transition-all relative cursor-pointer border-b-2 ${
                                     isActive
                                         ? 'bg-blue-500/10 text-blue-400 border-blue-500'
                                         : 'text-slate-500 hover:text-slate-300 border-transparent hover:bg-white/[0.02]'
@@ -403,7 +403,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                 </span>
                                 <span className="hidden sm:inline tracking-tight">{tab.label}</span>
                                 <span
-                                    className={`font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                                    className={`font-mono text-[11px] font-bold px-1.5 py-0.5 rounded border ${
                                         isActive
                                             ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
                                             : 'bg-white/[0.04] text-slate-400 border-white/[0.08]'
@@ -428,7 +428,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={`Buscar ${activeTab}...`}
-                            className="w-full pl-10 pr-4 h-10 rounded-xl text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+                            className="w-full pl-10 pr-4 h-10 rounded-xl text-sm font-medium bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
                         />
                     </div>
                     {!isClient && (
@@ -445,7 +445,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                     setShowMotivoModal(true);
                                 }
                             }}
-                            className="h-10 px-5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer"
+                            className="h-10 px-5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all cursor-pointer"
                             style={{
                                 background: 'linear-gradient(135deg,#2563eb,#3b82f6)',
                                 boxShadow: '0 4px 20px rgba(59,130,246,0.35)',
@@ -472,7 +472,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                             ) : (
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                        <tr className="text-left text-sm font-bold text-slate-400 uppercase tracking-wider">
                                             <th className="pb-4 px-4">Código</th>
                                             <th className="pb-4 px-4">Descrição</th>
                                             <th className="pb-4 px-4 hidden md:table-cell">Categoria</th>
@@ -489,10 +489,10 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                                 <td className="py-4 px-4 text-slate-300">{material.descricao}</td>
                                                 <td className="py-4 px-4 text-slate-400 hidden md:table-cell">{material.categoria}</td>
                                                 <td className="py-4 px-4 text-slate-400 hidden lg:table-cell text-sm">{material.fornecedor_padrao}</td>
-                                                <td className="py-4 px-4 text-center text-xs font-black text-slate-400">{material.unidade || 'UN'}</td>
+                                                <td className="py-4 px-4 text-center text-sm font-black text-slate-400">{material.unidade || 'UN'}</td>
                                                 <td className="py-4 px-4">
                                                     <span
-                                                        className="px-3 py-1 rounded-full text-xs font-bold"
+                                                        className="px-3 py-1 rounded-full text-sm font-bold"
                                                         style={material.status === 'ativo'
                                                             ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' }
                                                             : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}
@@ -544,12 +544,12 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                                 </div>
                                                 <div>
                                                     <h3 className="font-bold text-white text-sm">{fornecedor.nome}</h3>
-                                                    {fornecedor.cnpj && <p className="text-xs text-slate-400 mt-1">CNPJ: {fornecedor.cnpj}</p>}
-                                                    {fornecedor.email && <p className="text-xs text-slate-400">{fornecedor.email}</p>}
+                                                    {fornecedor.cnpj && <p className="text-sm text-slate-400 mt-1">CNPJ: {fornecedor.cnpj}</p>}
+                                                    {fornecedor.email && <p className="text-sm text-slate-400">{fornecedor.email}</p>}
                                                 </div>
                                             </div>
                                             <span
-                                                className="px-2 py-1 rounded-full text-[10px] font-bold"
+                                                className="px-2 py-1 rounded-full text-[12px] font-bold"
                                                 style={fornecedor.status === 'ativo'
                                                     ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' }
                                                     : { background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}
@@ -600,12 +600,12 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                             </div>
                                             <div>
                                                 <h3 className="font-bold text-white">{motivo.descricao}</h3>
-                                                {motivo.categoria && <p className="text-xs text-slate-400">{motivo.categoria}</p>}
+                                                {motivo.categoria && <p className="text-sm text-slate-400">{motivo.categoria}</p>}
                                             </div>
                                         </div>
                                         {!isClient && (
                                             <div className="flex items-center gap-3">
-                                                <span className="px-2 py-1 rounded-full text-[10px] font-bold" style={statusStyle}>
+                                                <span className="px-2 py-1 rounded-full text-[12px] font-bold" style={statusStyle}>
                                                     {motivo.status}
                                                 </span>
                                                 <button
@@ -623,7 +623,7 @@ export const Materials: React.FC<{ role?: string }> = ({ role }) => {
                                             </div>
                                         )}
                                         {isClient && (
-                                            <span className="px-2 py-1 rounded-full text-[10px] font-bold" style={statusStyle}>
+                                            <span className="px-2 py-1 rounded-full text-[12px] font-bold" style={statusStyle}>
                                                 {motivo.status}
                                             </span>
                                         )}

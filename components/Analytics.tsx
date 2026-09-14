@@ -244,7 +244,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/[0.06]">
                 <div className="space-y-1">
-                    <div className="flex items-center gap-2 font-mono text-[10px] text-blue-400 uppercase tracking-[0.2em]">
+                    <div className="flex items-center gap-2 font-mono text-[12px] text-blue-400 uppercase tracking-[0.2em]">
                         <span>[ 05 // BUSINESS_INTELLIGENCE ]</span>
                         <span className="w-1 h-1 rounded-full bg-emerald-400" />
                     </div>
@@ -274,7 +274,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                     }}
                 >
                     <div className="mb-6">
-                        <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ PARETO // 80_20_RULE ]</span>
+                        <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ PARETO // 80_20_RULE ]</span>
                         <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                             Análise de Pareto (Motivos de Rejeição)
                         </h3>
@@ -321,7 +321,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                     }}
                 >
                     <div className="mb-6">
-                        <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ CORRELATION // HEATMAP ]</span>
+                        <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ CORRELATION // HEATMAP ]</span>
                         <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                             Matriz de Falhas por Material
                         </h3>
@@ -329,7 +329,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
 
                     <div className="overflow-x-auto max-h-72 overflow-y-auto custom-scrollbar rounded-2xl border border-white/[0.06]">
                         <table className="w-full text-left border-collapse min-w-[500px]">
-                            <thead className="sticky top-0 bg-[#07090F] border-b border-white/[0.08] font-mono text-[9px] uppercase text-slate-400">
+                            <thead className="sticky top-0 bg-[#07090F] border-b border-white/[0.08] font-mono text-[11px] uppercase text-slate-400">
                                 <tr>
                                     <th className="py-2.5 px-3">Material</th>
                                     {heatmapData[0] && Object.keys(heatmapData[0]).filter(k => k !== 'name').map(mot => (
@@ -337,7 +337,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/[0.04] text-xs">
+                            <tbody className="divide-y divide-white/[0.04] text-sm">
                                 {heatmapData.map((row: any, idx) => (
                                     <tr key={idx} className="hover:bg-white/[0.02]">
                                         <td className="py-3 px-3 font-bold text-white max-w-[150px] truncate">{row.name}</td>
@@ -346,7 +346,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                                             return (
                                                 <td key={mot} className="py-3 px-3 text-center">
                                                     <span 
-                                                        className="inline-block px-2.5 py-1 rounded-lg font-mono text-[10px] font-bold"
+                                                        className="inline-block px-2.5 py-1 rounded-lg font-mono text-[12px] font-bold"
                                                         style={{
                                                             background: val > 0 ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
                                                             color: val > 0 ? '#f87171' : '#475569',
@@ -380,7 +380,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                     }}
                 >
                     <div className="mb-6">
-                        <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ SCORECARD // RELIABILITY ]</span>
+                        <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ SCORECARD // RELIABILITY ]</span>
                         <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                             Confiabilidade dos Fornecedores
                         </h3>
@@ -394,9 +394,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                             return (
                                 <div key={s.name} className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-3">
                                     <div className="flex justify-between items-start">
-                                        <p className="text-xs font-bold text-white truncate max-w-[150px]">{s.name}</p>
+                                        <p className="text-sm font-bold text-white truncate max-w-[150px]">{s.name}</p>
                                         <span 
-                                            className="font-mono text-[10px] font-bold px-2 py-0.5 rounded"
+                                            className="font-mono text-[12px] font-bold px-2 py-0.5 rounded"
                                             style={{
                                                 background: `${badgeColor}15`,
                                                 border: `1px solid ${badgeColor}30`,
@@ -414,7 +414,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                                         />
                                     </div>
 
-                                    <div className="flex justify-between font-mono text-[10px] text-slate-500 pt-1">
+                                    <div className="flex justify-between font-mono text-[12px] text-slate-500 pt-1">
                                         <span>APROV: {s.approvedQty}</span>
                                         <span>REJEIT: {s.rejectedQty}</span>
                                     </div>
@@ -435,7 +435,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                 >
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ PREDICTIVE_ENGINE ]</span>
+                            <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ PREDICTIVE_ENGINE ]</span>
                             <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
                         </div>
 
@@ -443,14 +443,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                             <span className="text-4xl font-extrabold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                                 ~{predictionData.predictedRate.toFixed(1)}%
                             </span>
-                            <span className="font-mono text-[10px] text-blue-300 block uppercase mt-1 tracking-wider">
+                            <span className="font-mono text-[12px] text-blue-300 block uppercase mt-1 tracking-wider">
                                 Taxa Projetada para Próximo Ciclo
                             </span>
                         </div>
 
                         <div className="space-y-2.5 pt-2">
                             {predictionData.insights.map((ins, i) => (
-                                <div key={i} className="flex items-start gap-2.5 text-xs text-slate-300">
+                                <div key={i} className="flex items-start gap-2.5 text-sm text-slate-300">
                                     <span className={`material-symbols-rounded text-sm ${ins.color} flex-shrink-0 mt-0.5`}>
                                         {ins.icon}
                                     </span>
@@ -463,7 +463,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                     <button
                         onClick={handleGenerateActionPlan}
                         disabled={isGenerating}
-                        className="w-full mt-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg disabled:opacity-50"
+                        className="w-full mt-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-sm font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg disabled:opacity-50"
                     >
                         {isGenerating ? 'PROCESSANDO IA...' : 'GERAR PLANO DE AÇÃO (IA)'}
                     </button>

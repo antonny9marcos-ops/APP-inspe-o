@@ -147,7 +147,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                     <span className="material-symbols-rounded text-blue-400 !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>settings</span>
                 </div>
                 <div>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 07 // CONFIGURACOES_DO_SISTEMA ]</span>
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 07 // CONFIGURACOES_DO_SISTEMA ]</span>
                     <h1 className="text-3xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Configurações</h1>
                     <p className="text-slate-400 mt-1 font-medium text-sm">Gerencie suas informações pessoais e segurança da conta.</p>
                 </div>
@@ -190,7 +190,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                                 <span className={`material-symbols-rounded !text-2xl ${isUploading ? 'animate-spin' : ''}`}>
                                     {isUploading ? 'progress_activity' : 'photo_camera'}
                                 </span>
-                                <span className="text-[9px] font-black uppercase tracking-wider mt-1">
+                                <span className="text-[11px] font-black uppercase tracking-wider mt-1">
                                     {isUploading ? 'Enviando...' : 'Trocar foto'}
                                 </span>
                             </div>
@@ -207,11 +207,11 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                             <button
                                 onClick={() => !isUploading && fileInputRef.current?.click()}
                                 disabled={isUploading}
-                                className="text-xs font-bold text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="text-sm font-bold text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isUploading ? 'Enviando foto...' : 'Alterar Foto de Perfil'}
                             </button>
-                            <p className="text-[10px] text-slate-400 mt-1">JPG, PNG ou WebP • máx. 5MB</p>
+                            <p className="text-[12px] text-slate-400 mt-1">JPG, PNG ou WebP • máx. 5MB</p>
                         </div>
                     </div>
 
@@ -285,7 +285,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-white">Aparência & Tema Visual</h2>
-                            <p className="text-xs text-slate-400 font-medium">Personalize a cor principal do aplicativo com o estilo premium MC Industrial.</p>
+                            <p className="text-sm text-slate-400 font-medium">Personalize a cor principal do aplicativo com o estilo premium MC Industrial.</p>
                         </div>
                     </div>
 
@@ -308,7 +308,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                                     <span className="material-symbols-rounded text-blue-600 fill-icon text-xl">check_circle</span>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-600 font-medium">Visual claro, dinâmico e sofisticado. Excelente visibilidade em escritórios e ambientes iluminados.</p>
+                            <p className="text-sm text-slate-600 font-medium">Visual claro, dinâmico e sofisticado. Excelente visibilidade em escritórios e ambientes iluminados.</p>
                         </div>
 
                         {/* Modo Escuro Card */}
@@ -329,7 +329,7 @@ export const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, on
                                     <span className="material-symbols-rounded text-blue-400 fill-icon text-xl">check_circle</span>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-600 font-medium">Estilo dark glassmorphism de alta fidelidade. Reduz o cansaço visual em uso prolongado.</p>
+                            <p className="text-sm text-slate-600 font-medium">Estilo dark glassmorphism de alta fidelidade. Reduz o cansaço visual em uso prolongado.</p>
                         </div>
                     </div>
                 </div>

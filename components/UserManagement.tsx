@@ -180,7 +180,7 @@ export const UserManagement: React.FC = () => {
                     <span className="material-symbols-rounded text-blue-400 !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>group</span>
                 </div>
                 <div>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 06 // GESTAO_E_CONTROLE_DE_ACESSO ]</span>
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-400 font-bold">[ 06 // GESTAO_E_CONTROLE_DE_ACESSO ]</span>
                     <h1 className="text-3xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Gestão de Usuários</h1>
                     <p className="text-slate-400 mt-1 font-medium text-sm">Controle o acesso de inspetores e clientes à plataforma.</p>
                 </div>
@@ -208,7 +208,7 @@ export const UserManagement: React.FC = () => {
                     <div className="rounded-3xl overflow-hidden text-center" style={cardStyle}>
                         <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
                             <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Usuários Cadastrados</h2>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-black" style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa' }}>{users.length} TOTAL</span>
+                            <span className="px-3 py-1 rounded-full text-[12px] font-black" style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa' }}>{users.length} TOTAL</span>
                         </div>
 
                         <div className="divide-y divide-white/[0.06] max-h-[600px] overflow-y-auto custom-scrollbar">
@@ -236,18 +236,18 @@ export const UserManagement: React.FC = () => {
                                         <div className="flex-1 text-left">
                                             <div className="flex items-center gap-2">
                                                 <p className="text-sm font-black text-white">{user.nome}</p>
-                                                {isOnline && <span className="text-[9px] font-black text-emerald-400 px-1.5 py-0.5 rounded-md uppercase tracking-tighter" style={{ background: 'rgba(16,185,129,0.12)' }}>Online</span>}
+                                                {isOnline && <span className="text-[11px] font-black text-emerald-400 px-1.5 py-0.5 rounded-md uppercase tracking-tighter" style={{ background: 'rgba(16,185,129,0.12)' }}>Online</span>}
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                            <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wider">
                                                 {user.cargo || 'Membro'} {user.setor ? `• ${user.setor}` : ''}
                                             </p>
                                         </div>
                                         <div className="text-right flex items-center gap-3">
                                             <div>
-                                                <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest" style={roleStyle}>
+                                                <span className="px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest" style={roleStyle}>
                                                     {user.role}
                                                 </span>
-                                                <p className="text-[9px] font-bold text-slate-500 mt-1 uppercase">
+                                                <p className="text-[11px] font-bold text-slate-500 mt-1 uppercase">
                                                     {user.ultimo_acesso
                                                         ? `Acesso: ${new Date(user.ultimo_acesso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
                                                         : `Entrou em ${new Date(user.created_at).toLocaleDateString()}`
@@ -269,7 +269,7 @@ export const UserManagement: React.FC = () => {
                                 <div className="p-12">
                                     <span className="material-symbols-rounded text-slate-600 !text-5xl mb-3">group_off</span>
                                     <p className="text-slate-400 font-bold text-sm">Nenhum usuário encontrado.</p>
-                                    <p className="text-slate-500 text-xs mt-1">Use o formulário ao lado para cadastrar o primeiro usuário.</p>
+                                    <p className="text-slate-500 text-sm mt-1">Use o formulário ao lado para cadastrar o primeiro usuário.</p>
                                 </div>
                             )}
                         </div>
@@ -285,13 +285,13 @@ export const UserManagement: React.FC = () => {
                             </div>
                             <div>
                                 <h2 className="text-lg font-black text-white leading-tight">Novo Usuário</h2>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Painel Admin</p>
+                                <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Painel Admin</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex flex-col gap-2 font-center">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome do Usuário</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome do Usuário</label>
                                 <input
                                     type="text"
                                     required
@@ -303,7 +303,7 @@ export const UserManagement: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail</label>
                                 <input
                                     type="email"
                                     required
@@ -315,7 +315,7 @@ export const UserManagement: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Senha Inicial</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Senha Inicial</label>
                                 <input
                                     type="password"
                                     required
@@ -326,14 +326,14 @@ export const UserManagement: React.FC = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nível de Acesso</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Nível de Acesso</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {(['Admin', 'Inspetor', 'Cliente'] as const).map(role => (
                                         <button
                                             key={role}
                                             type="button"
                                             onClick={() => setNewRole(role)}
-                                            className={`h-11 rounded-xl text-[10px] font-black uppercase transition-all px-1 border-2 ${newRole === role
+                                            className={`h-11 rounded-xl text-[12px] font-black uppercase transition-all px-1 border-2 ${newRole === role
                                                 ? 'bg-primary border-primary text-white shadow-md shadow-primary/20'
                                                 : 'bg-white border-slate-50 text-slate-400 hover:border-slate-100'
                                                 }`}
@@ -346,7 +346,7 @@ export const UserManagement: React.FC = () => {
 
                             {newRole === 'Inspetor' && (
                                 <div className="flex flex-col gap-2 font-center animate-in slide-in-from-top-2 duration-300">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Setor Designado</label>
+                                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Setor Designado</label>
                                     <div className="relative group">
                                         <select
                                             value={newSector}
@@ -366,23 +366,23 @@ export const UserManagement: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isRegistering}
-                            className={`w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-900/10 ${isRegistering ? 'opacity-50 cursor-not-allowed' : ''
+                            className={`w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-900/10 ${isRegistering ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                         >
                             {isRegistering ? 'CADASTRANDO...' : 'CADASTRAR USUÁRIO'}
                         </button>
 
                         <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                            <p className="text-[9px] font-bold leading-relaxed uppercase" style={{ color: '#fbbf24' }}>
-                                <span className="material-symbols-rounded !text-xs align-middle mr-1">info</span>
+                            <p className="text-[11px] font-bold leading-relaxed uppercase" style={{ color: '#fbbf24' }}>
+                                <span className="material-symbols-rounded !text-sm align-middle mr-1">info</span>
                                 O cliente terá acesso a dashboards e relatórios, mas não poderá realizar novos registros de inspeção.
                             </p>
                             <div className="pt-2 border-t" style={{ borderColor: 'rgba(245,158,11,0.2)' }}>
-                                <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: '#f87171' }}>
-                                    <span className="material-symbols-rounded !text-xs align-middle mr-1">warning</span>
+                                <p className="text-[11px] font-black uppercase tracking-widest mb-1" style={{ color: '#f87171' }}>
+                                    <span className="material-symbols-rounded !text-sm align-middle mr-1">warning</span>
                                     Alerta de Segurança
                                 </p>
-                                <p className="text-[9px] font-bold text-slate-400 leading-relaxed uppercase">
+                                <p className="text-[11px] font-bold text-slate-400 leading-relaxed uppercase">
                                     Certifique-se de desativar o "Public Signup" no dashboard do Supabase (Auth {'>'} Settings) para evitar cadastros externos.
                                 </p>
                             </div>
@@ -403,7 +403,7 @@ export const UserManagement: React.FC = () => {
                             />
                             <div>
                                 <h2 className="text-xl font-black text-slate-900">Editar Usuário</h2>
-                                <p className="text-xs text-slate-400 font-medium">{editingUser.id.substring(0, 8).toUpperCase()}</p>
+                                <p className="text-sm text-slate-400 font-medium">{editingUser.id.substring(0, 8).toUpperCase()}</p>
                             </div>
                             <button
                                 onClick={() => setEditingUser(null)}
@@ -415,7 +415,7 @@ export const UserManagement: React.FC = () => {
 
                         <div className="space-y-4">
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nome</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Nome</label>
                                 <input
                                     type="text"
                                     value={editName}
@@ -425,7 +425,7 @@ export const UserManagement: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cargo / Função</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Cargo / Função</label>
                                 <input
                                     type="text"
                                     value={editCargo}
@@ -436,14 +436,14 @@ export const UserManagement: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nível de Acesso</label>
+                                <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Nível de Acesso</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {(['Admin', 'Inspetor', 'Cliente'] as const).map(role => (
                                         <button
                                             key={role}
                                             type="button"
                                             onClick={() => setEditRole(role)}
-                                            className={`h-11 rounded-xl text-[10px] font-black uppercase transition-all px-1 border-2 ${editRole === role
+                                            className={`h-11 rounded-xl text-[12px] font-black uppercase transition-all px-1 border-2 ${editRole === role
                                                 ? 'bg-primary border-primary text-white shadow-md shadow-primary/20'
                                                 : 'bg-white border-slate-50 text-slate-400 hover:border-slate-100'
                                                 }`}
@@ -456,7 +456,7 @@ export const UserManagement: React.FC = () => {
 
                             {editRole === 'Inspetor' && (
                                 <div className="flex flex-col gap-2 animate-in slide-in-from-top-2 duration-300">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Setor</label>
+                                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Setor</label>
                                     <div className="relative">
                                         <select
                                             value={editSetor}
