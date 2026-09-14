@@ -73,39 +73,42 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Servidor mal configurado: GEMINI_API_KEY ausente." }, 500);
   }
 
+  // Uma tentativa por modelo, com teto de tempo por chamada. Sem isso, uma
+  // única chamada travada podia deixar a função inteira presa até o limite
+  // de execução da plataforma (150s) e ser derrubada à força — foi
+  // exatamente o que aconteceu com o retry antigo (3 modelos x 3 tentativas,
+  // sem timeout nenhum).
+  const REQUEST_TIMEOUT_MS = 20_000;
   let lastError = "Falha desconhecida.";
 
   for (const model of GEMINI_MODELS) {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const resp = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-          },
-        );
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-        if (resp.ok) {
-          const data = await resp.json();
-          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-          return jsonResponse({ text });
-        }
+    try {
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          signal: controller.signal,
+        },
+      );
 
-        const errText = await resp.text();
-        lastError = `${resp.status} - ${errText}`;
-
-        const retryable = resp.status === 429 || resp.status === 503 || errText.includes("overloaded");
-        if (retryable && attempt < 3) {
-          await new Promise((r) => setTimeout(r, 2 ** attempt * 1000));
-          continue;
-        }
-        break; // tenta o próximo modelo da lista
-      } catch (e) {
-        lastError = String(e);
-        break;
+      if (resp.ok) {
+        const data = await resp.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+        return jsonResponse({ text });
       }
+
+      lastError = `${model}: ${resp.status} - ${await resp.text()}`;
+    } catch (e) {
+      lastError = e instanceof Error && e.name === "AbortError"
+        ? `${model}: tempo limite de ${REQUEST_TIMEOUT_MS / 1000}s excedido`
+        : `${model}: ${String(e)}`;
+    } finally {
+      clearTimeout(timer);
     }
   }
 
