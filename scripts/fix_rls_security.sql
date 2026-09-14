@@ -136,9 +136,86 @@ CREATE POLICY "delete_motivos" ON motivos_rejeicao
 -- "select_motivos" continua liberado pra todo autenticado (sem alteração).
 
 
--- ── PASSO 4 (recomendado): confira as tabelas `materiais` e `inspecoes` ──
--- Essas duas tabelas não têm migração neste repositório (foram criadas
--- direto pelo painel do Supabase), então não deu pra revisar as
--- políticas delas por aqui. Rode a consulta do PASSO 0 e confira se
--- INSERT/UPDATE/DELETE nelas também respeitam os papéis (Admin/Inspetor
--- podem cadastrar inspeção; Cliente deveria só ler).
+-- =============================================================
+-- PASSO 4: REMOVER ACESSO ANÔNIMO (o achado mais grave)
+-- Rodando o diagnóstico do Passo 0 depois da primeira aplicação
+-- deste script, apareceram políticas antigas — provavelmente
+-- criadas pelo assistente de setup do Supabase ou por testes
+-- anteriores — liberando o papel `public` (que inclui `anon`,
+-- ou seja, QUALQUER pessoa sem login) para SELECT/INSERT/UPDATE/
+-- DELETE em `fornecedores`, `motivos_rejeicao`, `materiais` e,
+-- mais grave ainda, em `inspecoes` (os registros reais de
+-- inspeção). Como políticas RLS se somam, isso ignorava
+-- completamente todas as regras acima. Removendo agora:
+-- =============================================================
+
+DROP POLICY IF EXISTS "Allow anon all" ON fornecedores;
+DROP POLICY IF EXISTS "Allow anon all" ON motivos_rejeicao;
+
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON inspecoes;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON inspecoes;
+DROP POLICY IF EXISTS "Allow anonymous select access" ON inspecoes;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON inspecoes;
+
+DROP POLICY IF EXISTS "Allow anon delete" ON materiais;
+DROP POLICY IF EXISTS "Allow anon insert" ON materiais;
+DROP POLICY IF EXISTS "Allow anonymous read access" ON materiais;
+DROP POLICY IF EXISTS "Allow anon update" ON materiais;
+
+-- Garante que `inspecoes` e `materiais` também só liberam
+-- Admin/Inspetor para escrever (Cliente só lê), igual ao padrão
+-- já aplicado em fornecedores/motivos_rejeicao. As políticas
+-- "Admin e Inspetor gerenciam inspeções" e "Admin gerencia
+-- materiais" que já existiam continuam valendo — isto só
+-- garante que não faltou nenhum comando coberto.
+DROP POLICY IF EXISTS "inspecoes_write_admin_inspetor" ON inspecoes;
+CREATE POLICY "inspecoes_write_admin_inspetor" ON inspecoes
+  FOR ALL TO authenticated
+  USING (public.my_role() IN ('Admin', 'Inspetor'))
+  WITH CHECK (public.my_role() IN ('Admin', 'Inspetor'));
+
+DROP POLICY IF EXISTS "materiais_write_admin_inspetor" ON materiais;
+CREATE POLICY "materiais_write_admin_inspetor" ON materiais
+  FOR ALL TO authenticated
+  USING (public.my_role() IN ('Admin', 'Inspetor'))
+  WITH CHECK (public.my_role() IN ('Admin', 'Inspetor'));
+
+
+-- =============================================================
+-- PASSO 5: corrigir bug em `admins_insert_notifications`
+-- O nome sugere "só admin", mas a política estava com
+-- WITH CHECK (true) — ou seja, qualquer autenticado podia criar
+-- notificação em nome de qualquer usuário. Restringindo de fato
+-- a administradores:
+-- =============================================================
+DROP POLICY IF EXISTS "admins_insert_notifications" ON notificacoes;
+CREATE POLICY "admins_insert_notifications" ON notificacoes
+  FOR INSERT TO authenticated
+  WITH CHECK (public.my_role() = 'Admin');
+
+
+-- =============================================================
+-- PASSO 6 (opcional — só organização, sem risco de segurança):
+-- limpar políticas antigas duplicadas em `perfis`. A proteção
+-- contra auto-promoção já está garantida pelo gatilho criado no
+-- Passo 2 (ele roda em qualquer UPDATE, não importa qual política
+-- liberou); isto só remove duplicatas confusas.
+-- =============================================================
+DROP POLICY IF EXISTS "Admins possuem controle total" ON perfis;
+DROP POLICY IF EXISTS "Admin controle total" ON perfis;
+DROP POLICY IF EXISTS "Perfis visíveis para todos" ON perfis;
+DROP POLICY IF EXISTS "Leitura pública para autenticados" ON perfis;
+DROP POLICY IF EXISTS "Edição do próprio perfil" ON perfis;
+DROP POLICY IF EXISTS "Usuários podem atualizar seus próprios perfis" ON perfis;
+
+
+-- ── PASSO 7: confira o resultado final ──
+-- Rode a consulta do Passo 0 de novo. Depois deste script, cada
+-- tabela deve mostrar só políticas com roles = {authenticated} e
+-- nenhuma com qual/with_check = true sem checar my_role() (exceto
+-- as de SELECT, que continuam abertas a todo autenticado de
+-- propósito) — e nenhuma linha com roles = {public} deveria
+-- sobrar, exceto "Users can delete their own notifications" em
+-- notificacoes (essa é segura mesmo com {public}, porque exige
+-- auth.uid() = user_id, que nunca é verdadeiro pra quem não fez
+-- login).
