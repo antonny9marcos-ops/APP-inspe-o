@@ -436,7 +436,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Phenomenon Studio Section Hero Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/[0.06]">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 font-mono text-[10px] text-blue-400 uppercase tracking-[0.2em]">
+          <div className="flex items-center gap-2 font-mono text-[12px] text-blue-400 uppercase tracking-[0.2em]">
             <span>[ 01 // OVERVIEW_METRICS ]</span>
             <span className="w-1 h-1 rounded-full bg-emerald-400" />
             <span className="text-slate-500">TELEMETRIA EM TEMPO REAL</span>
@@ -476,7 +476,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
 
             <div className="flex justify-between items-start mb-4">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
+              <span className="font-mono text-[12px] uppercase tracking-widest text-slate-400">
                 {metric.label}
               </span>
               <div 
@@ -501,11 +501,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {metric.value}
               </span>
               {metric.unit && (
-                <span className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">{metric.unit}</span>
+                <span className="font-mono text-[12px] text-slate-500 uppercase tracking-widest">{metric.unit}</span>
               )}
             </div>
 
-            <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center justify-between font-mono text-[10px]">
+            <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center justify-between font-mono text-[12px]">
               <span className="text-slate-500">{metric.tag}</span>
               <span style={{ color: metric.color }}>STATUS // ATIVO</span>
             </div>
@@ -527,12 +527,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         >
           <div className="flex justify-between items-center mb-6">
             <div>
-              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ 02 // ÍNDICE_CONFORMIDADE ]</span>
+              <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ 02 // ÍNDICE_CONFORMIDADE ]</span>
               <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Aprovados vs Rejeitados
               </h3>
             </div>
-            <div className="flex items-center gap-3 font-mono text-[10px]">
+            <div className="flex items-center gap-3 font-mono text-[12px]">
               <span className="flex items-center gap-1.5 text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" /> Aprov
               </span>
@@ -550,7 +550,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               >
                 {metricsAndData.approvalPercentage}%
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400 mt-1">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mt-1">
                 Índice de Aprovação
               </span>
             </div>
@@ -570,12 +570,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         >
           <div className="flex justify-between items-center mb-6">
             <div>
-              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ 03 // BALANÇO_VOLUMÉTRICO ]</span>
+              <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ 03 // BALANÇO_VOLUMÉTRICO ]</span>
               <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Total Inspecionado vs Total Rejeitado
               </h3>
             </div>
-            <div className="flex items-center gap-3 font-mono text-[10px]">
+            <div className="flex items-center gap-3 font-mono text-[12px]">
               <span className="text-blue-400">■ Inspecionados</span>
               <span className="text-red-400">■ Rejeitados</span>
             </div>
@@ -629,7 +629,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           }}
         >
           <div className="mb-6">
-            <span className="font-mono text-[10px] text-red-400 uppercase tracking-widest">[ 04 // CRITICAL_MATERIALS ]</span>
+            <span className="font-mono text-[12px] text-red-400 uppercase tracking-widest">[ 04 // CRITICAL_MATERIALS ]</span>
             <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Materiais com Maior Rejeição
             </h3>
@@ -644,17 +644,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs font-bold text-slate-500">0{idx + 1}</span>
+                      <span className="font-mono text-sm font-bold text-slate-500">0{idx + 1}</span>
                       <div>
-                        <h4 className="text-xs font-bold text-white">{item.name}</h4>
-                        <div className="flex items-center gap-2 font-mono text-[9px] text-slate-500 mt-0.5">
+                        <h4 className="text-sm font-bold text-white">{item.name}</h4>
+                        <div className="flex items-center gap-2 font-mono text-[11px] text-slate-500 mt-0.5">
                           <span>COD: {item.code}</span>
                           <span>·</span>
                           <span className="text-blue-400">FORN: {item.mainSupplier}</span>
                         </div>
                       </div>
                     </div>
-                    <span className="font-mono text-xs font-bold text-red-400">
+                    <span className="font-mono text-sm font-bold text-red-400">
                       {item.rejectionRate.toFixed(1)}%
                     </span>
                   </div>
@@ -665,13 +665,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       style={{ width: `${Math.min(100, item.rejectionRate)}%` }}
                     />
                   </div>
-                  <p className="font-mono text-[9px] text-slate-400 mt-2 uppercase">
+                  <p className="font-mono text-[11px] text-slate-400 mt-2 uppercase">
                     MOTIVO: <span className="text-slate-300">{item.mainDefect}</span>
                   </p>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center font-mono text-xs text-slate-500">
+              <div className="p-8 text-center font-mono text-sm text-slate-500">
                 Nenhum lote com não-conformidade registrado.
               </div>
             )}
@@ -689,12 +689,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         >
           <div className="flex justify-between items-center mb-6">
             <div>
-              <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ 05 // SUPPLIER_INDEX ]</span>
+              <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ 05 // SUPPLIER_INDEX ]</span>
               <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Desempenho por Fornecedor
               </h3>
             </div>
-            <div className="flex items-center gap-3 font-mono text-[10px]">
+            <div className="flex items-center gap-3 font-mono text-[12px]">
               <span className="text-emerald-400">■ Aprovados</span>
               <span className="text-red-400">■ Rejeitados</span>
             </div>
@@ -754,11 +754,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest">[ 06 // SÉRIE_TEMPORAL ]</span>
+            <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ 06 // SÉRIE_TEMPORAL ]</span>
             <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Tendência de Inspeções
             </h3>
-            <p className="font-mono text-[9px] uppercase tracking-widest text-slate-400 mt-1">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mt-1">
               {trendWeek !== 'all' ? `Semana ${trendWeek}` :
                 trendMonth !== 'all' ? 'Detalhamento Diário' :
                   trendYear !== 'all' ? `Resumo Mensal de ${trendYear}` :
@@ -768,7 +768,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <select
                 value={trendYear}
                 onChange={(e) => setTrendYear(e.target.value)}
-                className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+                className="rounded-xl font-mono text-[12px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
               >
                 <option value="all">Ano: Todos</option>
                 {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -776,7 +776,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <select
                 value={trendMonth}
                 onChange={(e) => setTrendMonth(e.target.value)}
-                className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+                className="rounded-xl font-mono text-[12px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
               >
                 <option value="all">Mês: Todos</option>
                 {filterOptions.months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
@@ -784,7 +784,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <select
                 value={trendWeek}
                 onChange={(e) => setTrendWeek(e.target.value)}
-                className="rounded-xl font-mono text-[10px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
+                className="rounded-xl font-mono text-[12px] uppercase h-9 px-3 outline-none cursor-pointer transition-all appearance-none bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white"
               >
                 <option value="all">Semana: Todos</option>
                 {Array.from({ length: 53 }, (_, i) => (
@@ -793,7 +793,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </select>
             </div>
           </div>
-          <div className="flex items-center gap-3 font-mono text-[10px]">
+          <div className="flex items-center gap-3 font-mono text-[12px]">
             <span className="text-blue-400">■ Volume</span>
             <span className="text-emerald-400">■ Taxa de Aprovação</span>
           </div>
