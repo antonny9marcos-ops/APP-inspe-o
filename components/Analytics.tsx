@@ -6,36 +6,22 @@ import {
 import { Inspection } from '../types';
 import { SectorSwitcher } from './SectorSwitcher';
 import { supabase } from '../lib/supabase';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
-const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+// A chamada ao Gemini roda numa Edge Function do Supabase (supabase/functions/gemini-proxy),
+// não mais direto do navegador — a chave da API do Gemini fica só no servidor,
+// nunca no bundle público. Ver histórico do CLAUDE.md / revisão de segurança.
+async function generateWithRetry(prompt: string): Promise<string> {
+    const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+        body: { prompt },
+    });
 
-async function generateWithRetry(prompt: string, maxRetries = 3): Promise<string> {
-    for (const modelName of GEMINI_MODELS) {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                return response.text();
-            } catch (error: any) {
-                const is503 = error?.message?.includes('503') || error?.status === 503;
-                const isRetryable = is503 || error?.message?.includes('429') || error?.message?.includes('overloaded');
-
-                if (isRetryable && attempt < maxRetries) {
-                    const delay = Math.pow(2, attempt) * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    continue;
-                }
-
-                if (isRetryable) break;
-                throw error;
-            }
-        }
+    if (error) {
+        throw new Error(error.message || 'Falha na conexão com a IA.');
     }
-    throw new Error('Modelos de IA temporariamente sobrecarregados. Tente novamente em alguns instantes.');
+    if (data?.error) {
+        throw new Error(data.error);
+    }
+    return data?.text || '';
 }
 
 const CustomizedAxisTick = (props: any) => {
