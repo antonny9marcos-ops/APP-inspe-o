@@ -210,6 +210,15 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Só busca (e assina o realtime) depois que a sessão estiver pronta.
+    // Antes disso rodava incondicionalmente no mount (dependência []),
+    // então a primeira busca sempre acontecia ANTES do login terminar —
+    // sem token de usuário, a política de RLS de "inspecoes" (que exige
+    // authenticated) devolvia uma lista vazia, e como o efeito nunca
+    // rodava de novo, a tela ficava em branco até recarregar a página
+    // manualmente (aí sim com a sessão já salva).
+    if (!session) return;
+
     fetchInspections();
 
     // Subscribe to real-time changes
@@ -232,7 +241,7 @@ export default function App() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [session]);
 
   // Fecha a sidebar ao mudar de view no mobile
   const navigate = (view: View) => {
