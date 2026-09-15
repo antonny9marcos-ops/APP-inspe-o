@@ -784,7 +784,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       {/* Bottom Grids: Materials with Rejection & Supplier Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Rejection Ranking */}
         <div 
@@ -802,7 +802,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </h3>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[420px] overflow-y-auto pr-2 -mr-2">
             {metricsAndData.materialRejectionRanking.length > 0 ? (
               metricsAndData.materialRejectionRanking.map((item: any, idx: number) => (
                 <div 
@@ -875,8 +875,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             const supplierMaxValue = Math.ceil(supplierRawMax / 2500) * 2500;
             return (
               <>
-                <div className="h-64 w-full overflow-y-auto pr-2 -mr-2">
-                  <div style={{ height: Math.max(256, metricsAndData.supplierPerformance.length * 42) }}>
+                <div className="h-[388px] w-full overflow-y-auto pr-2 -mr-2">
+                  <div style={{ height: Math.max(388, metricsAndData.supplierPerformance.length * 42) }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         layout="vertical"
