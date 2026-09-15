@@ -143,6 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [trendMonth, setTrendMonth] = useState(monthFilter);
   const [trendWeek, setTrendWeek] = useState(weekFilter);
   const [donutTooltipPos, setDonutTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [volumeTooltipPos, setVolumeTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setTrendYear(yearFilter);
@@ -581,7 +582,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="h-64 w-full">
+          <div
+            className="h-64 w-full relative"
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setVolumeTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+            }}
+            onMouseLeave={() => setVolumeTooltipPos(null)}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={metricsAndData.barData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }} barGap={isMobile ? 24 : 48}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
@@ -596,21 +604,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
                 />
-                <Tooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                  contentStyle={{
-                    background: '#090B12',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    color: '#f8fafc',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '13px'
-                  }}
-                />
+                <Tooltip content={() => null} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                 <Bar dataKey="inspecionados" name="Inspecionados" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={isMobile ? 32 : 54} />
                 <Bar dataKey="rejeitados" name="Rejeitados" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={isMobile ? 32 : 54} />
               </BarChart>
             </ResponsiveContainer>
+            {volumeTooltipPos && (
+              <DonutTooltip
+                pos={volumeTooltipPos}
+                data={[
+                  { name: 'Inspecionados', value: metricsAndData.barData[0]?.inspecionados || 0, color: '#3b82f6' },
+                  { name: 'Rejeitados', value: metricsAndData.barData[0]?.rejeitados || 0, color: '#ef4444' },
+                ]}
+              />
+            )}
           </div>
         </div>
 
