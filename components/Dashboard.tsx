@@ -784,7 +784,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       {/* Bottom Grids: Materials with Rejection & Supplier Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Rejection Ranking */}
         <div 
@@ -846,7 +846,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Supplier Performance Chart */}
-        <div 
+        <div
           className="lg:col-span-6 p-6 sm:p-8 rounded-3xl relative overflow-hidden"
           style={{
             background: 'rgba(10, 12, 18, 0.85)',
@@ -867,47 +867,73 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="h-72 w-full overflow-y-auto pr-2 -mr-2">
-            <div style={{ height: Math.max(288, metricsAndData.supplierPerformance.length * 42) }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={metricsAndData.supplierPerformance}
-                  margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
-                  barGap={2}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="rgba(255,255,255,0.04)" />
-                  <XAxis
-                    type="number"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
-                  />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={<CustomYAxisTick />}
-                    width={130}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                    contentStyle={{
-                      background: '#090B12',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '12px',
-                      color: '#f8fafc',
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: '13px'
-                    }}
-                  />
-                  <Bar dataKey="aprovados" name="Aprovados" fill="#10b981" radius={[0, 4, 4, 0]} barSize={8} />
-                  <Bar dataKey="rejeitados" name="Rejeitados" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={8} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          {(() => {
+            const supplierRawMax = Math.max(
+              1,
+              ...metricsAndData.supplierPerformance.flatMap((s: any) => [s.aprovados, s.rejeitados])
+            );
+            const supplierMaxValue = Math.ceil(supplierRawMax / 2500) * 2500;
+            return (
+              <>
+                <div className="h-64 w-full overflow-y-auto pr-2 -mr-2">
+                  <div style={{ height: Math.max(256, metricsAndData.supplierPerformance.length * 42) }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        layout="vertical"
+                        data={metricsAndData.supplierPerformance}
+                        margin={{ top: 5, right: 20, left: 20, bottom: 0 }}
+                        barGap={2}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="rgba(255,255,255,0.04)" />
+                        <XAxis type="number" domain={[0, supplierMaxValue]} hide />
+                        <YAxis
+                          dataKey="name"
+                          type="category"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={<CustomYAxisTick />}
+                          width={130}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                          contentStyle={{
+                            background: '#090B12',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '12px',
+                            color: '#f8fafc',
+                            fontFamily: 'JetBrains Mono, monospace',
+                            fontSize: '13px'
+                          }}
+                        />
+                        <Bar dataKey="aprovados" name="Aprovados" fill="#10b981" radius={[0, 4, 4, 0]} barSize={8} />
+                        <Bar dataKey="rejeitados" name="Rejeitados" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={8} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="h-8 w-full flex-shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={metricsAndData.supplierPerformance}
+                      margin={{ top: 0, right: 20, left: 20, bottom: 5 }}
+                    >
+                      <XAxis
+                        type="number"
+                        domain={[0, supplierMaxValue]}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+                      />
+                      <YAxis dataKey="name" type="category" width={130} hide />
+                      <Bar dataKey="aprovados" fill="transparent" isAnimationActive={false} />
+                      <Bar dataKey="rejeitados" fill="transparent" isAnimationActive={false} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </>
+            );
+          })()}
         </div>
 
       </div>
