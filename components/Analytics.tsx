@@ -40,7 +40,7 @@ const CustomizedAxisTick = (props: any) => {
                 textAnchor="end" 
                 fill="#64748b" 
                 transform="rotate(-35)"
-                style={{ fontSize: '9px', fontWeight: 600, fontFamily: 'JetBrains Mono, monospace' }}
+                style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'JetBrains Mono, monospace' }}
             >
                 {truncatedValue}
             </text>
@@ -292,8 +292,8 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                                     interval={0}
                                     height={50}
                                 />
-                                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} />
-                                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} unit="%" domain={[0, 100]} tick={{ fontSize: 9, fill: '#60a5fa', fontFamily: 'JetBrains Mono, monospace' }} />
+                                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} />
+                                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} unit="%" domain={[0, 100]} tick={{ fontSize: 11, fill: '#60a5fa', fontFamily: 'JetBrains Mono, monospace' }} />
                                 <Tooltip
                                     contentStyle={{
                                         background: '#090B12',
@@ -301,7 +301,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                                         borderRadius: '12px',
                                         color: '#f8fafc',
                                         fontFamily: 'JetBrains Mono, monospace',
-                                        fontSize: '11px'
+                                        fontSize: '13px'
                                     }}
                                 />
                                 <Bar name="Ocorrências" yAxisId="left" dataKey="count" fill="#2563eb" radius={[6, 6, 0, 0]} barSize={24} />
