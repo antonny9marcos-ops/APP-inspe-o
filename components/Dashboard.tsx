@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer, Tooltip, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Bar, BarChart, PieChart, Pie, Cell, LabelList } from 'recharts';
 import { Inspection } from '../types';
 import { SpotlightCard } from './SpotlightCard';
 import { SectorSwitcher } from './SectorSwitcher';
@@ -153,66 +153,85 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [yearFilter, monthFilter, weekFilter]);
 
   const metricsAndData = useMemo(() => {
-    let filtered = inspections;
-    
-    if (selectedSector !== 'TODOS') {
-      filtered = filtered.filter(i => i.setor === selectedSector);
-    }
+    // Filtros que não dizem respeito a setor/categoria (busca, período,
+    // fornecedor) — aplicados uma vez e reaproveitados pra derivar tanto o
+    // dataset final (filtered) quanto as bases dos comparativos por
+    // unidade/categoria, que precisam ignorar exatamente esses dois filtros
+    // pra poder comparar todas as unidades (ou categorias) lado a lado.
+    const applyCommonFilters = (data: Inspection[]) => {
+      let result = data;
 
-    if (categoryFilter !== 'TODOS') {
-      filtered = filtered.filter(i => (i.categoria || '').toUpperCase() === categoryFilter.toUpperCase());
-    }
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        result = result.filter(i =>
+          (i.material?.toLowerCase() || '').includes(term) ||
+          (i.fornecedor?.toLowerCase() || '').includes(term) ||
+          (i.inspetor?.toLowerCase() || '').includes(term) ||
+          (i.codigo?.toLowerCase() || '').includes(term)
+        );
+      }
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(i =>
-        (i.material?.toLowerCase() || '').includes(term) ||
-        (i.fornecedor?.toLowerCase() || '').includes(term) ||
-        (i.inspetor?.toLowerCase() || '').includes(term) ||
-        (i.codigo?.toLowerCase() || '').includes(term)
-      );
-    }
+      const todayStr = new Date().toLocaleDateString('sv-SE');
+      if (periodFilter === 'hoje') {
+        result = result.filter(i => i.data === todayStr);
+      } else if (periodFilter === 'últimos 7 dias') {
+        const d = new Date();
+        d.setDate(d.getDate() - 7);
+        const sevenDaysAgoStr = d.toLocaleDateString('sv-SE');
+        result = result.filter(i => i.data >= sevenDaysAgoStr);
+      } else if (periodFilter === 'últimos 30 dias') {
+        const d = new Date();
+        d.setDate(d.getDate() - 30);
+        const thirtyDaysAgoStr = d.toLocaleDateString('sv-SE');
+        result = result.filter(i => i.data >= thirtyDaysAgoStr);
+      } else if (periodFilter === 'este mês') {
+        const [curYear, curMonth] = todayStr.split('-');
+        result = result.filter(i => i.data.startsWith(`${curYear}-${curMonth}`));
+      }
 
-    const todayStr = new Date().toLocaleDateString('sv-SE');
-    if (periodFilter === 'hoje') {
-      filtered = filtered.filter(i => i.data === todayStr);
-    } else if (periodFilter === 'últimos 7 dias') {
-      const d = new Date();
-      d.setDate(d.getDate() - 7);
-      const sevenDaysAgoStr = d.toLocaleDateString('sv-SE');
-      filtered = filtered.filter(i => i.data >= sevenDaysAgoStr);
-    } else if (periodFilter === 'últimos 30 dias') {
-      const d = new Date();
-      d.setDate(d.getDate() - 30);
-      const thirtyDaysAgoStr = d.toLocaleDateString('sv-SE');
-      filtered = filtered.filter(i => i.data >= thirtyDaysAgoStr);
-    } else if (periodFilter === 'este mês') {
-      const [curYear, curMonth] = todayStr.split('-');
-      filtered = filtered.filter(i => i.data.startsWith(`${curYear}-${curMonth}`));
-    }
+      if (yearFilter !== 'all') {
+        result = result.filter(i => i.data.startsWith(yearFilter));
+      }
+      if (monthFilter !== 'all') {
+        result = result.filter(i => {
+          const parts = i.data.split('-');
+          return parts[1] === monthFilter;
+        });
+      }
+      if (weekFilter !== 'all') {
+        result = result.filter(i => {
+          const d = new Date(i.data + 'T00:00:00');
+          const startOfYear = new Date(d.getFullYear(), 0, 1);
+          const pastDays = Math.floor((d.getTime() - startOfYear.getTime()) / 86400000);
+          const w = Math.ceil((pastDays + startOfYear.getDay() + 1) / 7);
+          return w.toString() === weekFilter;
+        });
+      }
 
-    if (yearFilter !== 'all') {
-      filtered = filtered.filter(i => i.data.startsWith(yearFilter));
-    }
-    if (monthFilter !== 'all') {
-      filtered = filtered.filter(i => {
-        const parts = i.data.split('-');
-        return parts[1] === monthFilter;
-      });
-    }
-    if (weekFilter !== 'all') {
-      filtered = filtered.filter(i => {
-        const d = new Date(i.data + 'T00:00:00');
-        const startOfYear = new Date(d.getFullYear(), 0, 1);
-        const pastDays = Math.floor((d.getTime() - startOfYear.getTime()) / 86400000);
-        const w = Math.ceil((pastDays + startOfYear.getDay() + 1) / 7);
-        return w.toString() === weekFilter;
-      });
-    }
+      if (supplierFilter !== 'Todos') {
+        result = result.filter(i => i.fornecedor === supplierFilter);
+      }
 
-    if (supplierFilter !== 'Todos') {
-      filtered = filtered.filter(i => i.fornecedor === supplierFilter);
-    }
+      return result;
+    };
+
+    const commonFiltered = applyCommonFilters(inspections);
+
+    // Base pro comparativo por unidade: todas as unidades, respeitando a
+    // categoria selecionada (mas ignorando o filtro de unidade em si).
+    const sectorComparisonBase = categoryFilter !== 'TODOS'
+      ? commonFiltered.filter(i => (i.categoria || '').toUpperCase() === categoryFilter.toUpperCase())
+      : commonFiltered;
+
+    // Base pro comparativo por categoria: todas as categorias, respeitando
+    // a unidade selecionada (mas ignorando o filtro de categoria em si).
+    const categoryComparisonBase = selectedSector !== 'TODOS'
+      ? commonFiltered.filter(i => i.setor === selectedSector)
+      : commonFiltered;
+
+    let filtered = selectedSector !== 'TODOS'
+      ? sectorComparisonBase.filter(i => i.setor === selectedSector)
+      : sectorComparisonBase;
 
     const totalInspections = filtered.length;
     const totalApproved = filtered.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
@@ -222,27 +241,96 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const approvalRate = totalInspections > 0 ? (totalApproved / totalInspections) * 100 : 100;
     const rejectionRate = totalInspections > 0 ? (totalRejected / totalInspections) * 100 : 0;
 
+    // ── Tendência (últimos 30 dias vs 30 dias anteriores) ──
+    // Usa a mesma "identidade" de filtros (unidade/categoria/fornecedor/
+    // busca) do restante da tela, mas ignora o filtro de período/ano/mês/
+    // semana — a tendência já É sobre tempo, então um filtro de data por
+    // cima não faria sentido (compararia dois recortes arbitrários).
+    let identityFiltered = inspections;
+    if (selectedSector !== 'TODOS') identityFiltered = identityFiltered.filter(i => i.setor === selectedSector);
+    if (categoryFilter !== 'TODOS') identityFiltered = identityFiltered.filter(i => (i.categoria || '').toUpperCase() === categoryFilter.toUpperCase());
+    if (supplierFilter !== 'Todos') identityFiltered = identityFiltered.filter(i => i.fornecedor === supplierFilter);
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      identityFiltered = identityFiltered.filter(i =>
+        (i.material?.toLowerCase() || '').includes(term) ||
+        (i.fornecedor?.toLowerCase() || '').includes(term) ||
+        (i.inspetor?.toLowerCase() || '').includes(term) ||
+        (i.codigo?.toLowerCase() || '').includes(term)
+      );
+    }
+
+    const trendWindowNow = new Date();
+    const last30Str = new Date(trendWindowNow.getTime() - 30 * 86400000).toLocaleDateString('sv-SE');
+    const prev60Str = new Date(trendWindowNow.getTime() - 60 * 86400000).toLocaleDateString('sv-SE');
+    const last30Items = identityFiltered.filter(i => i.data >= last30Str);
+    const prev30Items = identityFiltered.filter(i => i.data >= prev60Str && i.data < last30Str);
+
+    const calcPeriodStats = (data: Inspection[]) => {
+      const total = data.length;
+      const approved = data.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
+      const rejected = data.filter(i => i.status === 'Rejeitado').length;
+      const qty = data.reduce((acc, i) => acc + (i.unidade === 'M' ? 1 : (i.qtdInspecionada || 0)), 0);
+      return {
+        total,
+        approvalRate: total > 0 ? (approved / total) * 100 : 0,
+        rejectionRate: total > 0 ? (rejected / total) * 100 : 0,
+        qty
+      };
+    };
+
+    const last30Stats = calcPeriodStats(last30Items);
+    const prev30Stats = calcPeriodStats(prev30Items);
+
+    const calcDelta = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return ((current - previous) / previous) * 100;
+    };
+
+    const hasTrendData = prev30Items.length > 0 || last30Items.length > 0;
+    // Métricas de contagem/volume (Total de Registros, Volume Inspecionado)
+    // usam variação percentual normal. Métricas que já SÃO uma taxa (Índice
+    // de Aprovação, Taxa de Rejeição) mostram a diferença em PONTOS
+    // percentuais em vez de "percentual do percentual" — sem isso, uma taxa
+    // que sobe de 0,6% pra 3,6% (uma mudança pequena) aparecia como "+458%",
+    // o que é matematicamente correto mas enganoso/alarmante de se ler.
+    const makeTrend = (current: number, previous: number, higherIsBetter: boolean, mode: 'percent' | 'points' = 'percent') => {
+      if (!hasTrendData) return undefined;
+      const delta = mode === 'points' ? current - previous : calcDelta(current, previous);
+      return { delta, positive: higherIsBetter ? delta >= 0 : delta <= 0, mode };
+    };
+
+    // ── Tempo de fila (média entre chegada do material e data da inspeção) ──
+    const leadTimes = filtered
+      .filter(i => i.data && i.dataChegada)
+      .map(i => (new Date(i.data + 'T00:00:00').getTime() - new Date(i.dataChegada + 'T00:00:00').getTime()) / 86400000)
+      .filter(d => d >= 0 && d < 365);
+    const avgLeadTime = leadTimes.length > 0 ? leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length : null;
+
     const metrics = [
       {
         label: 'Total de Registros',
         value: totalInspections.toLocaleString('pt-BR'),
         icon: 'dataset',
         color: '#60a5fa',
-        tag: 'CADASTROS'
+        tag: 'CADASTROS',
+        trend: makeTrend(last30Stats.total, prev30Stats.total, true)
       },
       {
         label: 'Índice de Aprovação',
         value: `${approvalRate.toFixed(1)}%`,
         icon: 'verified',
         color: '#34d399',
-        tag: 'CONFORME'
+        tag: 'CONFORME',
+        trend: makeTrend(last30Stats.approvalRate, prev30Stats.approvalRate, true, 'points')
       },
       {
         label: 'Taxa de Rejeição',
         value: `${rejectionRate.toFixed(1)}%`,
         icon: 'warning',
         color: '#f87171',
-        tag: 'NÃO-CONFORME'
+        tag: 'NÃO-CONFORME',
+        trend: makeTrend(last30Stats.rejectionRate, prev30Stats.rejectionRate, false, 'points')
       },
       {
         label: 'Volume Inspecionado',
@@ -250,9 +338,43 @@ export const Dashboard: React.FC<DashboardProps> = ({
         unit: 'UNID.',
         icon: 'inventory_2',
         color: '#fbbf24',
-        tag: 'TOTAL QTD'
+        tag: 'TOTAL QTD',
+        trend: makeTrend(last30Stats.qty, prev30Stats.qty, true)
+      },
+      {
+        label: 'Tempo de Fila',
+        value: avgLeadTime !== null ? avgLeadTime.toFixed(1) : '--',
+        unit: avgLeadTime !== null ? 'DIAS' : undefined,
+        icon: 'schedule',
+        color: '#a78bfa',
+        tag: 'CHEGADA → INSPEÇÃO'
       }
     ];
+
+    // ── Comparativo por Unidade (todas as unidades, ignora o filtro de unidade) ──
+    const sectorNames = ['1058 Carajás', '4065 São Luis', '4050 S11D'];
+    const sectorComparison = sectorNames.map(setor => {
+      const items = sectorComparisonBase.filter(i => i.setor === setor);
+      const total = items.length;
+      const approved = items.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
+      return {
+        name: setor.replace(/^\d+\s*/, ''),
+        total,
+        approvalRate: total > 0 ? Math.round((approved / total) * 100) : 0
+      };
+    });
+
+    // ── Comparativo por Categoria (todas as categorias, ignora o filtro de categoria) ──
+    const categoryComparison = ['ROLO TRANSPORTADOR', 'OUTROS'].map(cat => {
+      const items = categoryComparisonBase.filter(i => (i.categoria || '').toUpperCase() === cat);
+      const total = items.length;
+      const approved = items.filter(i => i.status === 'Aprovado' || i.status === 'Atenção').length;
+      return {
+        name: cat === 'ROLO TRANSPORTADOR' ? 'Rolo Transportador' : 'Outros',
+        total,
+        approvalRate: total > 0 ? Math.round((approved / total) * 100) : 0
+      };
+    });
 
     const pieData = [
       { name: 'Aprovados', value: totalApproved, color: '#10b981' },
@@ -428,6 +550,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       materialRejectionRanking,
       supplierPerformance,
       trendData,
+      sectorComparison,
+      categoryComparison,
       approvalPercentage: approvalRate.toFixed(1)
     };
   }, [inspections, searchTerm, periodFilter, supplierFilter, yearFilter, monthFilter, weekFilter, categoryFilter, selectedSector, trendYear, trendMonth, trendWeek, filterOptions.months]);
@@ -457,7 +581,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       {/* 4 Phenomenon Studio Luxury KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {metricsAndData.metrics.map((metric, idx) => (
           <SpotlightCard
             key={idx}
@@ -509,7 +633,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center justify-between font-mono text-[12px]">
               <span className="text-slate-500">{metric.tag}</span>
-              <span style={{ color: metric.color }}>STATUS // ATIVO</span>
+              {metric.trend ? (
+                <span
+                  className="flex items-center gap-1"
+                  style={{ color: metric.trend.positive ? '#34d399' : '#f87171' }}
+                  title="Comparado aos 30 dias anteriores"
+                >
+                  {metric.trend.delta >= 0 ? '▲' : '▼'} {Math.abs(metric.trend.delta).toFixed(1)}{metric.trend.mode === 'points' ? ' p.p.' : '%'} / 30D
+                </span>
+              ) : (
+                <span style={{ color: metric.color }}>STATUS // ATIVO</span>
+              )}
             </div>
           </SpotlightCard>
         ))}
@@ -855,6 +989,79 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </ComposedChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Comparativos: Unidade & Categoria */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Sector Comparison */}
+        <div
+          className="p-6 sm:p-8 rounded-3xl relative overflow-hidden"
+          style={{
+            background: 'rgba(10, 12, 18, 0.85)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)'
+          }}
+        >
+          <div className="mb-6">
+            <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ 07 // COMPARATIVO_DE_UNIDADES ]</span>
+            <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              Aprovação por Unidade
+            </h3>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={metricsAndData.sectorComparison} margin={{ top: 24, right: 10, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} />
+                <YAxis axisLine={false} tickLine={false} domain={[0, 100]} tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                  contentStyle={{ background: '#090B12', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#f8fafc', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px' }}
+                  formatter={(value: any, _name: string, item: any) => [`${value}% (${item.payload.total} registros)`, 'Aprovação']}
+                />
+                <Bar dataKey="approvalRate" name="Aprovação" fill="#60a5fa" radius={[6, 6, 0, 0]} barSize={64}>
+                  <LabelList dataKey="approvalRate" position="insideTop" dy={8} formatter={(v: number) => `${v}%`} fill="#ffffff" fontFamily="JetBrains Mono, monospace" fontWeight={700} fontSize={13} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Category Comparison */}
+        <div
+          className="p-6 sm:p-8 rounded-3xl relative overflow-hidden"
+          style={{
+            background: 'rgba(10, 12, 18, 0.85)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7)'
+          }}
+        >
+          <div className="mb-6">
+            <span className="font-mono text-[12px] text-blue-400 uppercase tracking-widest">[ 08 // COMPARATIVO_DE_CATEGORIAS ]</span>
+            <h3 className="text-lg font-bold text-white mt-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              Aprovação por Categoria
+            </h3>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={metricsAndData.categoryComparison} margin={{ top: 24, right: 10, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} />
+                <YAxis axisLine={false} tickLine={false} domain={[0, 100]} tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                  contentStyle={{ background: '#090B12', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#f8fafc', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px' }}
+                  formatter={(value: any, _name: string, item: any) => [`${value}% (${item.payload.total} registros)`, 'Aprovação']}
+                />
+                <Bar dataKey="approvalRate" name="Aprovação" fill="#a78bfa" radius={[6, 6, 0, 0]} barSize={96}>
+                  <LabelList dataKey="approvalRate" position="insideTop" dy={8} formatter={(v: number) => `${v}%`} fill="#ffffff" fontFamily="JetBrains Mono, monospace" fontWeight={700} fontSize={13} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
       </div>
 
     </div>
