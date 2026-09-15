@@ -59,7 +59,7 @@ const DonutTooltip: React.FC<DonutTooltipProps> = ({ pos, data }) => (
       borderRadius: '12px',
       color: '#f8fafc',
       fontFamily: 'JetBrains Mono, monospace',
-      fontSize: '11px',
+      fontSize: '13px',
       padding: '8px 12px'
     }}
   >
@@ -105,7 +105,7 @@ const CustomYAxisTick = (props: any) => {
         y={4}
         textAnchor="end"
         fill="#64748b"
-        style={{ fontSize: '10px', fontWeight: 600, fontFamily: 'JetBrains Mono, monospace' }}
+        style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'JetBrains Mono, monospace' }}
       >
         {truncated}
       </text>
@@ -589,12 +589,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+                  tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+                  tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
                 />
                 <Tooltip
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
@@ -604,7 +604,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     borderRadius: '12px',
                     color: '#f8fafc',
                     fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '11px'
+                    fontSize: '13px'
                   }}
                 />
                 <Bar dataKey="inspecionados" name="Inspecionados" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={isMobile ? 32 : 54} />
@@ -713,15 +713,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   type="number" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 9, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} 
+                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} 
                 />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={<CustomYAxisTick />} 
-                  width={110} 
+                  tick={<CustomYAxisTick />}
+                  width={130}
                 />
                 <Tooltip
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
@@ -731,7 +731,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     borderRadius: '12px',
                     color: '#f8fafc',
                     fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '11px'
+                    fontSize: '13px'
                   }}
                 />
                 <Bar dataKey="aprovados" name="Aprovados" fill="#10b981" radius={[0, 4, 4, 0]} barSize={8} />
@@ -807,13 +807,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+                tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
               />
               <YAxis
                 yAxisId="left"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+                tick={{ fontSize: 12, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
               />
               <YAxis yAxisId="right" orientation="right" hide />
               <Tooltip
@@ -824,7 +824,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   borderRadius: '12px',
                   color: '#f8fafc',
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '11px'
+                  fontSize: '13px'
                 }}
                 formatter={(value: any, name: string) => {
                   if (name === 'rate') return [`${Number(value).toFixed(1)}%`, 'Taxa de Aprovação'];
