@@ -475,8 +475,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     });
 
     const supplierPerformance = Object.values(supplierMap)
-      .sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados))
-      .slice(0, 7);
+      .sort((a, b) => (b.aprovados + b.rejeitados) - (a.aprovados + a.rejeitados));
 
     // Trend data - scoped by its own Ano/Mês/Semana selects (trendYear/trendMonth/trendWeek),
     // independent from the global period/year/month/week filters above. Respects sector,
@@ -868,44 +867,46 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                layout="vertical"
-                data={metricsAndData.supplierPerformance}
-                margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
-                barGap={2}
-              >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="rgba(255,255,255,0.04)" />
-                <XAxis 
-                  type="number" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }} 
-                />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={<CustomYAxisTick />}
-                  width={130}
-                />
-                <Tooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                  contentStyle={{
-                    background: '#090B12',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    color: '#f8fafc',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '13px'
-                  }}
-                />
-                <Bar dataKey="aprovados" name="Aprovados" fill="#10b981" radius={[0, 4, 4, 0]} barSize={8} />
-                <Bar dataKey="rejeitados" name="Rejeitados" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={8} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-72 w-full overflow-y-auto pr-2 -mr-2">
+            <div style={{ height: Math.max(288, metricsAndData.supplierPerformance.length * 42) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  layout="vertical"
+                  data={metricsAndData.supplierPerformance}
+                  margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                  barGap={2}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="rgba(255,255,255,0.04)" />
+                  <XAxis
+                    type="number"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'JetBrains Mono, monospace' }}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={<CustomYAxisTick />}
+                    width={130}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                    contentStyle={{
+                      background: '#090B12',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px',
+                      color: '#f8fafc',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: '13px'
+                    }}
+                  />
+                  <Bar dataKey="aprovados" name="Aprovados" fill="#10b981" radius={[0, 4, 4, 0]} barSize={8} />
+                  <Bar dataKey="rejeitados" name="Rejeitados" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={8} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 

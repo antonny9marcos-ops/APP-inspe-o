@@ -180,12 +180,13 @@ export const Analytics: React.FC<AnalyticsProps> = ({
     // 3. Supplier Reliability Scorecard
     const supplierReliability = useMemo(() => {
         const stats = filteredInspections.reduce((acc: Record<string, any>, ins) => {
-            if (!acc[ins.fornecedor]) {
-                acc[ins.fornecedor] = { name: ins.fornecedor, totalQty: 0, approvedQty: 0, rejectedQty: 0 };
+            const sup = ins.fornecedor || 'Não informado';
+            if (!acc[sup]) {
+                acc[sup] = { name: sup, totalQty: 0, approvedQty: 0, rejectedQty: 0 };
             }
-            acc[ins.fornecedor].totalQty += (ins.unidade === 'M' ? 1 : (ins.qtdInspecionada || 0));
-            acc[ins.fornecedor].approvedQty += (ins.unidade === 'M' ? (ins.status === 'Aprovado' ? 1 : 0) : (ins.qtdAprovada || 0));
-            acc[ins.fornecedor].rejectedQty += (ins.unidade === 'M' ? (ins.status === 'Rejeitado' ? 1 : 0) : (ins.qtdRejeitada || 0));
+            acc[sup].totalQty += (ins.unidade === 'M' ? 1 : (ins.qtdInspecionada || 0));
+            acc[sup].approvedQty += (ins.unidade === 'M' ? (ins.status === 'Aprovado' ? 1 : 0) : (ins.qtdAprovada || 0));
+            acc[sup].rejectedQty += (ins.unidade === 'M' ? (ins.status === 'Rejeitado' ? 1 : 0) : (ins.qtdRejeitada || 0));
             return acc;
         }, {});
 
@@ -194,8 +195,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                 const reliability = s.totalQty > 0 ? (s.approvedQty / s.totalQty) * 100 : 0;
                 return { ...s, reliability: Math.round(reliability) };
             })
-            .sort((a, b) => b.reliability - a.reliability)
-            .slice(0, 6);
+            .sort((a, b) => b.reliability - a.reliability);
     }, [filteredInspections]);
 
     // 4. Predictive Trend
@@ -386,7 +386,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[420px] overflow-y-auto pr-2 -mr-2">
                         {supplierReliability.map((s) => {
                             const isExcellent = s.reliability >= 90;
                             const isFair = s.reliability >= 70;
