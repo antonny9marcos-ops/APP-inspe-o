@@ -45,10 +45,11 @@ const DonutRing: React.FC<DonutRingProps> = ({ data, onHoverChange }) => {
 interface DonutTooltipProps {
   pos: { x: number; y: number };
   data: { name: string; value: number; color: string }[];
+  unit?: string;
 }
 
 /* Positioned and styled to match Recharts' default <Tooltip contentStyle={{...}}> used by the other charts on this page. */
-const DonutTooltip: React.FC<DonutTooltipProps> = ({ pos, data }) => (
+const DonutTooltip: React.FC<DonutTooltipProps> = ({ pos, data, unit }) => (
   <div
     className="absolute z-10 pointer-events-none whitespace-nowrap"
     style={{
@@ -65,7 +66,7 @@ const DonutTooltip: React.FC<DonutTooltipProps> = ({ pos, data }) => (
   >
     {data.map(entry => (
       <div key={entry.name} style={{ color: entry.color }}>
-        {entry.name} : {entry.value.toLocaleString('pt-BR')}
+        {entry.name} : {entry.value.toLocaleString('pt-BR')}{unit ? ` ${unit}` : ''}
       </div>
     ))}
   </div>
@@ -556,7 +557,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </span>
             </div>
             <DonutRing data={metricsAndData.pieData} onHoverChange={setDonutTooltipPos} />
-            {donutTooltipPos && <DonutTooltip pos={donutTooltipPos} data={metricsAndData.pieData} />}
+            {donutTooltipPos && <DonutTooltip pos={donutTooltipPos} data={metricsAndData.pieData} unit="registros" />}
           </div>
         </div>
 
@@ -616,6 +617,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   { name: 'Inspecionados', value: metricsAndData.barData[0]?.inspecionados || 0, color: '#3b82f6' },
                   { name: 'Rejeitados', value: metricsAndData.barData[0]?.rejeitados || 0, color: '#ef4444' },
                 ]}
+                unit="unid."
               />
             )}
           </div>
