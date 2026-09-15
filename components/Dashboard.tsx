@@ -94,6 +94,31 @@ interface DashboardProps {
   onSectorChange: (sector: string) => void;
 }
 
+/*
+ * Rótulo de % em cima das barras dos comparativos (unidade/categoria).
+ * Pra uma barra com valor (alta), o texto fica dentro dela, perto do topo.
+ * Pra uma barra zerada (altura zero, sem registros naquele grupo), "y"
+ * cai bem em cima da base do eixo — sobe o texto pra não colar no nome
+ * do grupo abaixo dele.
+ */
+const renderApprovalLabel = (props: any) => {
+  const { x, y, width, value } = props;
+  const hasValue = value > 0;
+  return (
+    <text
+      x={x + width / 2}
+      y={hasValue ? y + 16 : y - 10}
+      textAnchor="middle"
+      fill={hasValue ? '#ffffff' : '#64748b'}
+      fontFamily="JetBrains Mono, monospace"
+      fontWeight={700}
+      fontSize={13}
+    >
+      {value}%
+    </text>
+  );
+};
+
 const CustomYAxisTick = (props: any) => {
   const { x, y, payload } = props;
   const value = payload.value || '';
@@ -1021,7 +1046,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   formatter={(value: any, _name: string, item: any) => [`${value}% (${item.payload.total} registros)`, 'Aprovação']}
                 />
                 <Bar dataKey="approvalRate" name="Aprovação" fill="#60a5fa" radius={[6, 6, 0, 0]} barSize={64}>
-                  <LabelList dataKey="approvalRate" position="insideTop" dy={8} formatter={(v: number) => `${v}%`} fill="#ffffff" fontFamily="JetBrains Mono, monospace" fontWeight={700} fontSize={13} />
+                  <LabelList dataKey="approvalRate" content={renderApprovalLabel} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -1055,7 +1080,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   formatter={(value: any, _name: string, item: any) => [`${value}% (${item.payload.total} registros)`, 'Aprovação']}
                 />
                 <Bar dataKey="approvalRate" name="Aprovação" fill="#a78bfa" radius={[6, 6, 0, 0]} barSize={96}>
-                  <LabelList dataKey="approvalRate" position="insideTop" dy={8} formatter={(v: number) => `${v}%`} fill="#ffffff" fontFamily="JetBrains Mono, monospace" fontWeight={700} fontSize={13} />
+                  <LabelList dataKey="approvalRate" content={renderApprovalLabel} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
